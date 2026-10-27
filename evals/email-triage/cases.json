@@ -183,6 +183,69 @@
       "expected": {
         "label": "ignore"
       }
+    },
+    {
+      "id": "nl-client-bug-buried",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) RES information-buried, Dutch: two lines of thanks and smalltalk lead; the incident (the chatbot gives customers wrong opening hours since yesterday) sits in the middle, then a non-urgent idea. A client request about a live production fault -> reply_now (prompt: client requests, production incidents).",
+      "input": "From: an@bloemenhuis-verbeke.be\nSubject: even bijpraten\n\nDag Michiel, nogmaals bedankt voor de fijne samenwerking dit voorjaar, de klanten vinden de chatbot echt handig. Hier is het druk met de herfstcollectie. Wat ik wel moet melden: sinds gisteren geeft de chatbot aan klanten de verkeerde openingsuren door, hij zegt dat we op zondag open zijn en er stonden vanochtend al mensen voor een gesloten deur. Kan je daar dringend naar kijken? Verder had ik nog een idee voor een kerstactie in de chatbot, maar daar hoeft niets op korte termijn mee te gebeuren. Groetjes, An",
+      "expected": {
+        "label": "reply_now"
+      }
+    },
+    {
+      "id": "fr-tax-authority-documents",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) RES decoy sender: a noreply-shaped address pulls toward 'automated notification, ignore', but the body is a tax authority's request for documents with a deadline -> a legal/compliance request -> reply_now. French.",
+      "input": "De: noreply@minfin.fed.be\nObjet: demande de renseignements - exercice 2025\n\nMadame, Monsieur, dans le cadre du contrôle de votre déclaration à la TVA, nous vous prions de nous transmettre les factures d'achat du troisième trimestre ainsi que les extraits de compte correspondants. Ces documents doivent nous parvenir dans un délai de quinze jours à compter de la date de ce courrier. Cordialement, SPF Finances",
+      "expected": {
+        "label": "reply_now"
+      }
+    },
+    {
+      "id": "stripe-payout-notice",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) RES decoy amount: a money figure pulls toward 'money matters' (reply_now), but this is an automated payout notification that states no action is needed -> ignore (prompt: automated notifications that require no action).",
+      "input": "From: notifications@stripe.com\nSubject: Your payout of EUR 1,240.00 is on its way\n\nA payout of EUR 1,240.00 has been initiated to your bank account ending in 7034 and should arrive within 2 business days. You don't need to do anything. View payout details in your dashboard.",
+      "expected": {
+        "label": "ignore"
+      }
+    },
+    {
+      "id": "client-domain-newsletter-nl",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) RES near-duplicate sender: the domain is an existing client's (janssens-bakery.com, as in client-quote-request / invoice-error-client), which pulls toward reply_now, but the mail is that client's own marketing newsletter -> ignore (newsletters, promotions). Dutch.",
+      "input": "From: nieuwsbrief@janssens-bakery.com\nSubject: Onze herfstcollectie is er!\n\nBeste klant, vanaf deze week liggen onze herfstbroden en speculaastaarten in de winkel. Bestel online voor vrijdag en geniet van 10% korting met de code HERFST10. Tot snel in de bakkerij! Uitschrijven kan onderaan deze mail.",
+      "expected": {
+        "label": "ignore"
+      }
+    },
+    {
+      "id": "calendar-accept-notice",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) RES decoy: a client's name and a meeting pull toward reply_now, but this is an automated calendar acceptance; nothing is asked -> ignore (automated notifications that require no action).",
+      "input": "From: calendar-notification@google.com\nSubject: Accepted: Kick-off chatbot project @ Thu 10:00 - 11:00 (CEST)\n\nKoen Lambert has accepted this invitation.\n\nKick-off chatbot project\nThursday 10:00 - 11:00 (CEST)\nJoining: meet.google.com/xqv-hbtp-rwd\n\nInvitation from Google Calendar. You are receiving this email because you are an attendee on the event.",
+      "expected": {
+        "label": "ignore"
+      }
+    },
+    {
+      "id": "proposal-accept-conditional",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) RES dependency: the client accepts the proposal ON CONDITION that work starts before the first of the month and asks for a confirmation by Friday so they can book their team -> a client request with a decision that blocks theirs -> reply_now. The polite 'whenever suits' line pulls toward reply_later.",
+      "input": "From: koen@lambert-tegels.be\nSubject: RE: proposal chatbot showroom\n\nHi Michiel, we went through your proposal with the team and we are in, on one condition: we need you to start before the first of next month, because our new showroom opens shortly after. If you can confirm that by Friday, I will book our people for the kick-off. Let me know whenever it suits you this week. Koen",
+      "expected": {
+        "label": "reply_now"
+      }
+    },
+    {
+      "id": "fr-networking-coffee",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) French networking with no ask beyond a coffee and an explicit 'no rush' -> reply_later (networking). The sender runs a startup (potential client pull toward reply_now), but no client relationship or request exists.",
+      "input": "De: camille@retailsense.be\nObjet: un café à Liège ?\n\nBonjour Michiel, je suis Camille, fondatrice d'une jeune startup à Liège qui travaille sur l'analyse de fréquentation en magasin. J'ai lu votre étude de cas sur les restaurants et j'aimerais beaucoup prendre un café avec vous pour échanger sur l'IA dans le commerce de détail. Rien d'urgent, quand vous aurez un moment dans les prochaines semaines. Belle journée, Camille",
+      "expected": {
+        "label": "reply_later"
+      }
     }
   ]
 }

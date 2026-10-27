@@ -1,0 +1,454 @@
+{
+  "agent": "transcript-en",
+  "provider": "ollama",
+  "model": "qwen3:8b",
+  "mode": "properties",
+  "train": {
+    "passed": 1,
+    "total": 4,
+    "score": 0.25
+  },
+  "heldout": {
+    "passed": 0,
+    "total": 6,
+    "score": 0.0
+  },
+  "cases": [
+    {
+      "id": "longcall-quiet-train-1",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "nothing_important": true,
+        "abstain_max_chars": 700,
+        "speakers": {
+          "rep": "jordan blake",
+          "customer": "harriet solano"
+        }
+      },
+      "got": {
+        "summary": "Routine check-in call with Solano Freight Co. They confirmed the rollout is smooth, with no major issues. Minor questions about keyboard shortcuts were raised, but nothing significant. No new requests or commitments were made.",
+        "action_items": [],
+        "nothing_important": true
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 3495,
+          "completion_tokens": 448,
+          "total_tokens": 3943,
+          "wall_ms": 41295.9,
+          "retries": 0,
+          "content_chars": 288,
+          "reasoning_chars": 1828,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "longcall-discovery-train-1",
+      "split": "train",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "Renata",
+          "68"
+        ],
+        "must_commit": [
+          "loop in",
+          "revised quote",
+          "technical call",
+          "confirm a time"
+        ],
+        "commit_owner": {
+          "loop in": "customer",
+          "revised quote": "rep",
+          "technical call": "rep",
+          "confirm a time": "customer"
+        },
+        "must_not_commit": [
+          "case study"
+        ],
+        "why": "The case study offer is explicitly retracted by the customer -- 'let's skip it for now, no need to send it' -- and never mentioned again after that line. The analytics add-on is a separate tangent (no commitment made by either side, deliberately not in must_commit).",
+        "speakers": {
+          "rep": "sana malik",
+          "customer": "emeka osei"
+        },
+        "max_ratio": 0.05
+      },
+      "got": {
+        "error": "no JSON object found in model output: '**Summary of the Conversation and Follow-Up Plan**  \\n\\n### **Key Discussion Points**  \\n1. **Adoption and Feedback**  \\n   - The customer initially had mixed feelings about the change but is now adapting'"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "error"
+        }
+      ]
+    },
+    {
+      "id": "longcall-renewal-train-1",
+      "split": "train",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "Enterprise",
+          "49"
+        ],
+        "must_commit": [
+          "budget approval",
+          "updated MSA",
+          "confirm the exact seat count",
+          "summary email"
+        ],
+        "commit_owner": {
+          "budget approval": "customer",
+          "updated MSA": "rep",
+          "confirm the exact seat count": "customer",
+          "summary email": "rep"
+        },
+        "must_not_commit": [
+          "whitepaper"
+        ],
+        "why": "The whitepaper offer is explicitly retracted by the customer -- 'hold off on the whitepaper ... no need to draft anything extra' -- and never mentioned again. The training session is a tangent ('not urgent, just something to keep in mind'), deliberately left out of must_commit since neither side actually agreed to it.",
+        "speakers": {
+          "rep": "devon cruz",
+          "customer": "renata kovacs"
+        },
+        "max_ratio": 0.05
+      },
+      "got": {
+        "error": "no JSON object found in model output: '**Summary of the Conversation:**\\n\\n**1. Team Adaptation to Change:**  \\n- **Customer:** Mixed initial reactions, but improving. The team adjusted faster than expected.  \\n- **Rep:** Second month is typic'"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "error"
+        }
+      ]
+    },
+    {
+      "id": "longcall-support-train-1",
+      "split": "train",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "38 minutes"
+        ],
+        "must_commit": [
+          "escalation ticket",
+          "SLA document",
+          "usage report",
+          "follow up"
+        ],
+        "commit_owner": {
+          "escalation ticket": "rep",
+          "SLA document": "rep",
+          "usage report": "rep",
+          "follow up": "customer"
+        },
+        "must_not_commit": [
+          "extra onboarding session"
+        ],
+        "why": "The extra onboarding session is explicitly retracted by the customer -- 'let's skip the extra onboarding session for now ... no need to schedule anything' -- and never mentioned again. The competitor mention is a closing tangent with no commitment attached.",
+        "speakers": {
+          "rep": "marisol vance",
+          "customer": "sami duval"
+        },
+        "max_ratio": 0.05
+      },
+      "got": {
+        "summary": "The call addressed a sync delay issue where Corebase identified a queue backlog on their side (not the customer's integration) as the root cause. The customer confirmed the delay (38 minutes) and requested the SLA document to clarify response times. An onboarding session for new warehouse staff was discussed but canceled. The REP committed to escalating the issue, sharing a usage report, and following up on a fix. The customer also mentioned ongoing discussions about a competitor's tool but noted no changes. Both parties agreed to log the 38-minute delay and check batch job timing internally.",
+        "action_items": [
+          "REP to send SLA document and usage report (sync volume over 90 days) by end of day",
+          "REP to escalate queue backlog issue to infrastructure team and confirm fix window",
+          "Customer to log 38-minute sync delay in ticket and follow up with IT team on batch job timing",
+          "REP to cancel scheduled onboarding session for new warehouse staff as per customer request"
+        ]
+      },
+      "failures": [
+        "check_action_items: commitment(s) missing from action_items: escalation ticket",
+        "check_output_shape: 'nothing_important' must be a bool, got NoneType"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_action_items"
+        },
+        {
+          "bucket": "format",
+          "check": "check_output_shape"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 3953,
+          "completion_tokens": 564,
+          "total_tokens": 4517,
+          "wall_ms": 44211.1,
+          "retries": 0,
+          "content_chars": 1020,
+          "reasoning_chars": 1658,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "longcall-pricing-heldout-1",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "2880"
+        ],
+        "must_commit": [
+          "pricing sheet",
+          "confirm the exact seat count",
+          "loop in",
+          "sign-off"
+        ],
+        "commit_owner": {
+          "pricing sheet": "rep",
+          "confirm the exact seat count": "rep",
+          "loop in": "customer",
+          "sign-off": "customer"
+        },
+        "must_not_commit": [
+          "premium support add-on"
+        ],
+        "why": "The premium support add-on is explicitly retracted by the customer -- 'don't worry about the premium support add-on ... skip that' -- and never mentioned again. The multi-year contract is a tangent ('not something we're deciding today'), left out of must_commit.",
+        "speakers": {
+          "rep": "theo okafor",
+          "customer": "ingrid palsson"
+        },
+        "max_ratio": 0.05
+      },
+      "got": {
+        "error": "no JSON object found in model output: 'The conversation between the customer and representative covers several key points:  \\n\\n1. **Product Rollout Experience**:  \\n   - The customer reports a smooth rollout, with the team adapting faster th'"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "error"
+        }
+      ]
+    },
+    {
+      "id": "longcall-scoping-heldout-1",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "eight locations"
+        ],
+        "must_commit": [
+          "custom field mapping",
+          "vendor security review",
+          "implementation timeline",
+          "confirm the two new site addresses"
+        ],
+        "commit_owner": {
+          "custom field mapping": "rep",
+          "vendor security review": "rep",
+          "implementation timeline": "rep",
+          "confirm the two new site addresses": "customer"
+        },
+        "must_not_commit": [
+          "reference call"
+        ],
+        "why": "The reference call is explicitly retracted by the customer -- 'skip the reference call for now ... no need to arrange it' -- and never mentioned again. The success plan document is a tangent ('further out, not something to sort out today'), left out of must_commit.",
+        "speakers": {
+          "rep": "lina torres",
+          "customer": "marcus feld"
+        },
+        "max_ratio": 0.05
+      },
+      "got": {
+        "error": "no JSON object found in model output: '**Summary of Key Points and Next Steps:**  \\n\\n1. **Integration & Customization:**  \\n   - The two new locations use older scanner hardware with a different barcode format, requiring **custom field mappi'"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "error"
+        }
+      ]
+    },
+    {
+      "id": "longcall-discovery-heldout-2",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "Beatrix"
+        ],
+        "must_commit": [
+          "one-pager",
+          "live demo",
+          "confirm which editors",
+          "current tool list"
+        ],
+        "commit_owner": {
+          "one-pager": "rep",
+          "live demo": "rep",
+          "confirm which editors": "customer",
+          "current tool list": "customer"
+        },
+        "must_not_commit": [
+          "case study"
+        ],
+        "why": "The case study is explicitly retracted by the rep, relaying Beatrix's preference -- 'hold off on the case study ... no need to send anything written' -- and never mentioned again. The white-label option is a tangent ('not something we need today'), left out of must_commit.",
+        "speakers": {
+          "rep": "callum reyes",
+          "customer": "yara haddad"
+        },
+        "max_ratio": 0.05
+      },
+      "got": {
+        "error": "no JSON object found in model output: '**Summary of the Conversation Between Haddad Media Group and the Software Representative:**\\n\\n### **Key Points Discussed:**\\n1. **Rollout Experience:**\\n   - **Smooth Transition:** The customer reported '"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "error"
+        }
+      ]
+    },
+    {
+      "id": "longcall-renewal-heldout-2",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "Enterprise"
+        ],
+        "must_commit": [
+          "budget sign-off",
+          "updated MSA",
+          "confirm the seat count",
+          "final invoice template"
+        ],
+        "commit_owner": {
+          "budget sign-off": "customer",
+          "updated MSA": "rep",
+          "confirm the seat count": "rep",
+          "final invoice template": "rep"
+        },
+        "must_not_commit": [
+          "case study"
+        ],
+        "why": "The case study is a committed-sounding rep offer early in the call ('I'll also send over a full case study ... it's a strong story') that is explicitly retracted much later -- 'let's skip the case study after all, no need to put that together' -- with no mention of it after that line. The multi-year term is a closing tangent, left out of must_commit.",
+        "speakers": {
+          "rep": "priyanka shah",
+          "customer": "callan ridge"
+        },
+        "max_ratio": 0.05
+      },
+      "got": {
+        "error": "no JSON object found in model output: \"**Summary of Ridge Outdoor Supply's Experience with Product Rollout and Next Steps**  \\n\\n**Rollout Experience:**  \\n- **Smooth Adoption:** The team adapted quickly to the new system, with minimal fricti\""
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "error"
+        }
+      ]
+    },
+    {
+      "id": "longcall-support-heldout-2",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "55 days"
+        ],
+        "must_commit": [
+          "escalation ticket",
+          "SLA document",
+          "usage report",
+          "follow up"
+        ],
+        "commit_owner": {
+          "escalation ticket": "rep",
+          "SLA document": "rep",
+          "usage report": "rep",
+          "follow up": "customer"
+        },
+        "must_not_commit": [
+          "extra training session"
+        ],
+        "why": "The extra training session is explicitly retracted by the customer -- 'let's hold off on the extra training session ... no need to schedule anything from your side for now' -- and never mentioned again. The data warehouse export is a tangent ('a bigger project for another quarter, not urgent now'), left out of must_commit.",
+        "speakers": {
+          "rep": "oliver bex",
+          "customer": "beatrix solheim"
+        },
+        "max_ratio": 0.05
+      },
+      "got": {
+        "error": "no JSON object found in model output: '**Customer Response:**  \\n\"Great, appreciate the turnaround. Let me know if there’s anything else I can provide to expedite the process. Thanks again for the support!\"  \\n\\n**Key Points Addressed:**  \\n- '"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "error"
+        }
+      ]
+    },
+    {
+      "id": "longcall-mixed-heldout-3",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "44 seats"
+        ],
+        "must_commit": [
+          "confirm the exact new headcount",
+          "updated quote",
+          "confirm the final start date",
+          "summary recap email"
+        ],
+        "commit_owner": {
+          "confirm the exact new headcount": "customer",
+          "updated quote": "rep",
+          "confirm the final start date": "rep",
+          "summary recap email": "rep"
+        },
+        "must_not_commit": [
+          "case study",
+          "trial extension"
+        ],
+        "why": "The case study is explicitly retracted by the customer -- 'don't bother with the case study ... no need to send anything' -- and never mentioned again. The trial extension request is separately retracted -- 'skip the trial extension request ... no need to follow up on that' -- also never mentioned again. Neither appears in must_commit.",
+        "speakers": {
+          "rep": "nadia farouk",
+          "customer": "tobias wren"
+        },
+        "max_ratio": 0.05
+      },
+      "got": {
+        "error": "no JSON object found in model output: '**Summary of the Conversation:**\\n\\n1. **Product Rollout Feedback:**  \\n   - The customer reported a smooth rollout, with the team adapting faster than expected. Minor friction included questions about k'"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "error"
+        }
+      ]
+    }
+  ],
+  "metrics_totals": {
+    "prompt_tokens": 7448,
+    "completion_tokens": 1012,
+    "total_tokens": 8460,
+    "wall_ms": 85507.0,
+    "retries": 0,
+    "content_chars": 1308,
+    "reasoning_chars": 3486,
+    "truncated_calls": 0,
+    "unanswered_calls": 0,
+    "unmetered_cases": 8,
+    "complete": false
+  }
+}

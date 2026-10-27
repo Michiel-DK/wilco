@@ -43,7 +43,34 @@ PROVIDERS: dict[str, dict] = {
     # without MLX_MODEL_PATH; `check` refuses when any of the three moved.
     "mlx": {"base_url": "http://127.0.0.1:8080/v1", "api_key_env": None,
             "body_from_env": {"adapters": "MLX_ADAPTER_PATH"}},
+    # systemone (2026-09-30): Ollama's DECISION endpoint (`/v1/systemone`, Ollama >= 0.35;
+    # models nimble 9B / tev1 4B / tev1:0.8b). Not a chat model: state + named typed
+    # questions in, one answer + probability per question out, no generation. "kind"
+    # selects SystemOneAdapter in get_adapter; every entry WITHOUT a kind key takes the
+    # unchanged chat path (asserted in sandbox/test_systemone.py). Question specs live
+    # in agents/<name>/decision.yaml and are loaded by runner.adapter_for only for this
+    # kind, so no committed agent.yaml changes. PROBE-GRADE until a snapshot says
+    # otherwise; local + temp-free, so reproducible like ollama.
+    "systemone": {"base_url": "http://localhost:11434/v1", "api_key_env": None,
+                  "kind": "systemone"},
+    # W2 (2026-10-23): OpenAI direct. Any OpenAI-compatible endpoint is one line here —
+    # a base_url and the env var that holds its key; no adapter class. No call is made
+    # by adding it, and no committed agent or route names it.
+    "openai": {"base_url": "https://api.openai.com/v1", "api_key_env": "OPENAI_API_KEY"},
     "stub": {"base_url": None, "api_key_env": None},
+}
+
+# W2 (2026-10-23): where a provider sends the data. `agents/<task>/agent.yaml` `tier:`
+# says "data may not leave this tier"; until W2 nothing read it. runner.tier_guard
+# refuses a provider whose tier ranks ABOVE the exam's (TIER_ORDER, left = most
+# contained). stub sends nothing anywhere and systemone/mlx are servers on this machine,
+# so all three are local. A provider missing from this map is refused, never assumed
+# (sandbox/test_w2_runner_guards.py pins that every PROVIDERS key has an entry).
+TIER_ORDER = ("local", "eu", "frontier")
+PROVIDER_TIER: dict[str, str] = {
+    "ollama": "local", "mlx": "local", "systemone": "local", "stub": "local",
+    "scaleway": "eu", "ovh": "eu", "nebius": "eu",
+    "openrouter": "frontier", "openai": "frontier",
 }
 
 
@@ -413,10 +440,112 @@ class StubAdapter(Adapter):
         return self.canned, {**_empty_usage(), "finish_reason": None}
 
 
+class SystemOneAdapter(Adapter):
+    """Talks to Ollama's `/v1/systemone` decision endpoint (nimble, tev1).
+
+    WHY A CLASS AND NOT A PROVIDERS LINE (CLAUDE.md: "model swaps are config, never a
+    new adapter class"): this is not a model swap. The endpoint takes no messages and
+    generates no completion — it answers named, TYPED questions about a text state
+    (choice / noul / score) with a probability each. Same reason mlx got a line and a
+    chat model got no class: a new wire protocol needs its own request/response code.
+    The gate promise the rule protects is kept the other way round: nothing here runs
+    unless the resolved provider is of kind "systemone", and get_adapter's chat path
+    is byte-identical with or without a `decision` argument (test_systemone.py).
+
+    `decision` (from agents/<name>/decision.yaml):
+      state_key:   the state field the exam input is sent under (default "input")
+      questions:   {name: {type: choice|noul|score, instructions, criteria}} — sent verbatim
+      outputs:     {output_field: question_name} — the JSON keys the exam scores
+      passthrough: {output_field: "state"} — copy the state verbatim (task-intake's hand-over
+                   is a code rule, not a question)
+      empty_when:  {output_field: value} — blank every passthrough when that output equals value
+      noul_threshold: bool cut for noul answers (default 0.5)
+
+    Mapping back: choice -> its key; noul -> bool(noul >= threshold); score -> the legend
+    word at the argmax probability. The text returned is the JSON dict the exam's
+    score_labels / score_fields already read, so nothing downstream changes.
+    """
+
+    def __init__(self, base_url: str, decision: dict, timeout: int = DEFAULT_TIMEOUT_S):
+        self.base_url = base_url.rstrip("/")
+        self.timeout = timeout
+        self.state_key = decision.get("state_key", "input")
+        self.questions = dict(decision["questions"])
+        self.outputs = dict(decision.get("outputs") or {q: q for q in self.questions})
+        self.passthrough = dict(decision.get("passthrough") or {})
+        self.empty_when = dict(decision.get("empty_when") or {})
+        self.noul_threshold = float(decision.get("noul_threshold", 0.5))
+        unknown = [q for q in self.outputs.values() if q not in self.questions]
+        if unknown:
+            raise ValueError(f"decision outputs name unknown questions: {unknown}")
+
+    @staticmethod
+    def _state_text(messages: list[dict]) -> str:
+        users = [m.get("content", "") for m in messages if m.get("role") == "user"]
+        if not users:
+            raise ValueError("systemone: no user message to send as state")
+        return users[-1]
+
+    def _map_answer(self, name: str, ans: dict):
+        kind = ans.get("type") or self.questions[name]["type"]
+        if kind == "choice":
+            return ans["choice"]
+        if kind == "noul":
+            return bool(float(ans["noul"]) >= self.noul_threshold)
+        if kind == "score":
+            probs = ans.get("probabilities") or {}
+            legend = ans.get("legend") or {}
+            if probs and legend:
+                top = max(probs, key=lambda k: probs[k])
+                return legend.get(top, top)
+            return ans.get("score")
+        raise ValueError(f"systemone: unknown answer type {kind!r} for {name!r}")
+
+    def generate(self, messages, model, temperature=0.0, max_tokens=512):
+        state = self._state_text(messages)
+        body = {"model": model, "state": {self.state_key: state}, "questions": self.questions}
+        resp = requests.post(f"{self.base_url}/systemone",
+                             headers={"Content-Type": "application/json"},
+                             data=json.dumps(body), timeout=self.timeout)
+        resp.raise_for_status()
+        payload = resp.json()
+        answers = payload.get("answers") or {}
+        missing = [q for q in self.outputs.values() if q not in answers]
+        if missing:
+            raise TerminationError(
+                f"systemone returned no answer for {missing}",
+                {"model": model, "answers_present": sorted(answers)})
+        out = {field: self._map_answer(q, answers[q]) for field, q in self.outputs.items()}
+        blank = any(out.get(f) == v for f, v in self.empty_when.items())
+        for field, src in self.passthrough.items():
+            if src != "state":
+                raise ValueError(f"systemone: passthrough source {src!r} unsupported")
+            out[field] = "" if blank else state
+        text = json.dumps(out)
+        usage = payload.get("usage") or {}
+        pt = usage.get("input_tokens")
+        ct = usage.get("output_tokens")
+        meta = {
+            **_empty_usage(),
+            "prompt_tokens": pt,
+            "completion_tokens": ct,
+            "total_tokens": (pt + ct) if (pt is not None and ct is not None) else None,
+            # No generation happened, so no finish reason exists: None, never "stop" (D1).
+            "finish_reason": None,
+            "content_chars": len(text),
+            "reasoning_chars": None,
+            # Per-question probability/confidence: the signal live_output_checks lacks.
+            "decision": {q: {k: v for k, v in answers[q].items() if k != "type"}
+                         for q in self.outputs.values()},
+        }
+        return text, meta
+
+
 def get_adapter(provider: str, timeout: int | None = None,
                 json_mode: bool = False,
                 reasoning_effort: str | None = None,
-                provider_routing: dict | None = None) -> Adapter:
+                provider_routing: dict | None = None,
+                decision: dict | None = None) -> Adapter:
     """Build the adapter for `provider` (the backend selector — ollama/openrouter/etc,
     see PROVIDERS above; NOT the routing-payload sense of "provider" described below).
 
@@ -428,6 +557,10 @@ def get_adapter(provider: str, timeout: int | None = None,
 
     `reasoning_effort` (2026-08-31): opaque passthrough string, `None` by default —
     mirrors `json_mode` exactly, see ChatCompletionsAdapter.generate.
+
+    `decision` (2026-09-30): the agents/<name>/decision.yaml spec, `None` by default —
+    consumed ONLY by providers of kind "systemone" (see SystemOneAdapter); every chat
+    provider ignores it, so a config that carries one cannot move a committed score.
 
     `provider_routing` (2026-09-01): opaque passthrough dict, `None` by default —
     mirrors `json_mode`/`reasoning_effort` exactly, see ChatCompletionsAdapter.generate.
@@ -451,6 +584,13 @@ def get_adapter(provider: str, timeout: int | None = None,
         if not api_key:
             raise ValueError(
                 f"Provider {provider!r} needs env var {cfg['api_key_env']} (not set)")
+    if cfg.get("kind") == "systemone":
+        if not decision:
+            raise ValueError(
+                f"Provider {provider!r} needs a decision spec (agents/<name>/decision.yaml)")
+        return SystemOneAdapter(cfg["base_url"], decision,
+                                timeout=DEFAULT_TIMEOUT_S if timeout is None else timeout)
+    # `decision` is IGNORED on every other path: the chat request stays byte-identical.
     extra_body = {k: os.environ[v] for k, v in cfg.get("body_from_env", {}).items()
                   if os.environ.get(v)}
     return ChatCompletionsAdapter(

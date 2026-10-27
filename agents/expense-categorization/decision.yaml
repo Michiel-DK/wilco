@@ -1,0 +1,26 @@
+# systemone tier (2026-09-30): the expense exam as one choice + one yes/no question.
+# Run: python3 sandbox/runner.py run expense-categorization --provider systemone --model tev1:0.8b
+state_key: input
+questions:
+  category:
+    type: choice
+    instructions: >-
+      This is a bank or card transaction line from a Belgian freelance AI consultant's
+      bookkeeping. Which expense category does it belong to?
+    criteria:
+      software: "SaaS subscriptions, cloud hosting, APIs, developer tools."
+      hardware: "Computers, phones, peripherals, physical equipment."
+      meals: "Restaurants, cafes, client lunches, food."
+      travel: "Transport, trains, flights, hotels, fuel, parking."
+      telecom: "Phone plans, mobile data, internet subscriptions."
+      office: "Office supplies, coworking, printing, furniture."
+      marketing: "Advertising, domains, design, promotional spend."
+      other: "None of the above."
+  recurring:
+    type: noul
+    instructions: >-
+      Is this clearly a subscription or repeating charge, such as a monthly or yearly
+      SaaS plan or a telecom plan?
+outputs:
+  category: category
+  recurring: recurring

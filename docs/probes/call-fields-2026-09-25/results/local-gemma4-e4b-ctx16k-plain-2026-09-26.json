@@ -1,0 +1,1415 @@
+{
+  "agent": "call-fields",
+  "provider": "ollama",
+  "model": "gemma4-e4b-ctx16k-plain",
+  "mode": "fields",
+  "train": {
+    "passed": 9,
+    "total": 13,
+    "score": 0.6923,
+    "field_accuracy": 0.9519
+  },
+  "heldout": {
+    "passed": 11,
+    "total": 19,
+    "score": 0.5789,
+    "field_accuracy": 0.9474
+  },
+  "cases": [
+    {
+      "id": "discovery-short-train",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "contact_name": "Marcus",
+        "company": "Beacon Freight",
+        "amount": "900",
+        "currency": "EUR",
+        "decision_maker": "Elena",
+        "next_step_date": "Thursday",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Marcus",
+        "company": "Beacon Freight",
+        "amount": "900",
+        "currency": "EUR",
+        "decision_maker": "Elena",
+        "next_step_date": "Thursday",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 1445,
+          "completion_tokens": 65,
+          "total_tokens": 1510,
+          "wall_ms": 15793.0,
+          "retries": 0,
+          "content_chars": 203,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "renewal-medium-train",
+      "split": "train",
+      "passed": false,
+      "expected": {
+        "contact_name": "Priya",
+        "company": "not stated",
+        "amount": "1612",
+        "currency": "EUR",
+        "decision_maker": "not stated",
+        "next_step_date": "today",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Priya",
+        "company": "not stated",
+        "amount": "1612",
+        "currency": "EUR",
+        "decision_maker": "CFO",
+        "next_step_date": "Wednesday",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "fields"
+        }
+      ],
+      "detail": {
+        "fields_matched": 6,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 2090,
+          "completion_tokens": 68,
+          "total_tokens": 2158,
+          "wall_ms": 4991.1,
+          "retries": 0,
+          "content_chars": 198,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "support-long-train",
+      "split": "train",
+      "passed": false,
+      "expected": {
+        "contact_name": "not stated",
+        "company": "Larkspur Clinics",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "tomorrow",
+        "competitor": "not stated",
+        "ticket_id": "LC-40217"
+      },
+      "got": {
+        "contact_name": "Grace",
+        "company": "Larkspur Clinics",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "tomorrow",
+        "competitor": "not stated",
+        "ticket_id": "LC-40217"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "fields"
+        }
+      ],
+      "detail": {
+        "fields_matched": 7,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 3070,
+          "completion_tokens": 73,
+          "total_tokens": 3143,
+          "wall_ms": 7845.8,
+          "retries": 0,
+          "content_chars": 221,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "quiet-checkin-short-train",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "contact_name": "Sam",
+        "company": "not stated",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "next month",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Sam",
+        "company": "not stated",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "next month",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 1251,
+          "completion_tokens": 67,
+          "total_tokens": 1318,
+          "wall_ms": 4298.5,
+          "retries": 0,
+          "content_chars": 217,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "pricing-objection-medium-train",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "contact_name": "Jonas",
+        "company": "not stated",
+        "amount": "1500",
+        "currency": "EUR",
+        "decision_maker": "Renata",
+        "next_step_date": "Friday",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Jonas",
+        "company": "not stated",
+        "amount": "1500",
+        "currency": "EUR",
+        "decision_maker": "Renata",
+        "next_step_date": "Friday",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 1580,
+          "completion_tokens": 68,
+          "total_tokens": 1648,
+          "wall_ms": 3445.0,
+          "retries": 0,
+          "content_chars": 198,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "discovery-long-train",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "contact_name": "Amara",
+        "company": "Torvane Manufacturing",
+        "amount": "800",
+        "currency": "EUR",
+        "decision_maker": "Harriet",
+        "next_step_date": "next Wednesday",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Amara",
+        "company": "Torvane Manufacturing",
+        "amount": "800",
+        "currency": "EUR",
+        "decision_maker": "Harriet",
+        "next_step_date": "next Wednesday",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 2155,
+          "completion_tokens": 70,
+          "total_tokens": 2225,
+          "wall_ms": 5179.8,
+          "retries": 0,
+          "content_chars": 217,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "renewal-short-train",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "contact_name": "Ines",
+        "company": "not stated",
+        "amount": "640",
+        "currency": "EUR",
+        "decision_maker": "not stated",
+        "next_step_date": "today",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Ines",
+        "company": "not stated",
+        "amount": "640",
+        "currency": "EUR",
+        "decision_maker": "not stated",
+        "next_step_date": "today",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 1192,
+          "completion_tokens": 67,
+          "total_tokens": 1259,
+          "wall_ms": 4041.3,
+          "retries": 0,
+          "content_chars": 199,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "support-medium-train",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "contact_name": "Oskar",
+        "company": "Brightfield Retail",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "tomorrow",
+        "competitor": "not stated",
+        "ticket_id": "BF-8834"
+      },
+      "got": {
+        "contact_name": "Oskar",
+        "company": "Brightfield Retail",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "tomorrow",
+        "competitor": "not stated",
+        "ticket_id": "BF-8834"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 1474,
+          "completion_tokens": 72,
+          "total_tokens": 1546,
+          "wall_ms": 3299.2,
+          "retries": 0,
+          "content_chars": 222,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "quiet-checkin-medium-train",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "contact_name": "Wendell",
+        "company": "not stated",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "next quarter",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Wendell",
+        "company": "not stated",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "next quarter",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 1292,
+          "completion_tokens": 68,
+          "total_tokens": 1360,
+          "wall_ms": 2740.8,
+          "retries": 0,
+          "content_chars": 223,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "discovery-heldout-easy",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "contact_name": "Yusuf",
+        "company": "Palfrey Foods",
+        "amount": "450",
+        "currency": "EUR",
+        "decision_maker": "not stated",
+        "next_step_date": "Tuesday",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Yusuf",
+        "company": "Palfrey Foods",
+        "amount": "450",
+        "currency": "EUR",
+        "decision_maker": "not stated",
+        "next_step_date": "next Tuesday",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "fields"
+        }
+      ],
+      "detail": {
+        "fields_matched": 7,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 1284,
+          "completion_tokens": 517,
+          "total_tokens": 1801,
+          "wall_ms": 16195.2,
+          "retries": 0,
+          "content_chars": 210,
+          "reasoning_chars": 1421,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "discovery-heldout-hard",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "contact_name": "Petra",
+        "company": "Amsel Logistics",
+        "amount": "1300",
+        "currency": "EUR",
+        "decision_maker": "Henrik",
+        "next_step_date": "tomorrow",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Petra",
+        "company": "Amsel Logistics",
+        "amount": "1300",
+        "currency": "EUR",
+        "decision_maker": "Henrik",
+        "next_step_date": "tomorrow",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 1552,
+          "completion_tokens": 69,
+          "total_tokens": 1621,
+          "wall_ms": 3486.3,
+          "retries": 0,
+          "content_chars": 205,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "discovery-heldout-long",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "contact_name": "Faye",
+        "company": "Corbin Health Partners",
+        "amount": "600",
+        "currency": "EUR",
+        "decision_maker": "Idris",
+        "next_step_date": "today",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Faye",
+        "company": "Corbin Health Partners",
+        "amount": "600",
+        "currency": "EUR",
+        "decision_maker": "Meredith",
+        "next_step_date": "today",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "fields"
+        }
+      ],
+      "detail": {
+        "fields_matched": 7,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 2421,
+          "completion_tokens": 69,
+          "total_tokens": 2490,
+          "wall_ms": 7479.2,
+          "retries": 0,
+          "content_chars": 209,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "renewal-heldout-medium",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "contact_name": "Karol",
+        "company": "not stated",
+        "amount": "950",
+        "currency": "EUR",
+        "decision_maker": "not stated",
+        "next_step_date": "tomorrow",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Karol",
+        "company": "not stated",
+        "amount": "950",
+        "currency": "EUR",
+        "decision_maker": "manager",
+        "next_step_date": "tomorrow",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "fields"
+        }
+      ],
+      "detail": {
+        "fields_matched": 7,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 1461,
+          "completion_tokens": 66,
+          "total_tokens": 1527,
+          "wall_ms": 4876.3,
+          "retries": 0,
+          "content_chars": 200,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "renewal-heldout-digits",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "contact_name": "Dorien",
+        "company": "Halstead Robotics",
+        "amount": "2450.00",
+        "currency": "EUR",
+        "decision_maker": "Tomasz",
+        "next_step_date": "Thursday",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Dorien",
+        "company": "Halstead Robotics",
+        "amount": "2450.00",
+        "currency": "EUR",
+        "decision_maker": "Tomasz",
+        "next_step_date": "Thursday",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 1966,
+          "completion_tokens": 72,
+          "total_tokens": 2038,
+          "wall_ms": 4696.1,
+          "retries": 0,
+          "content_chars": 211,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "renewal-heldout-short",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "contact_name": "Tobias",
+        "company": "not stated",
+        "amount": "320",
+        "currency": "EUR",
+        "decision_maker": "not stated",
+        "next_step_date": "today",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Tobias",
+        "company": "not stated",
+        "amount": "320",
+        "currency": "EUR",
+        "decision_maker": "not stated",
+        "next_step_date": "today",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 1133,
+          "completion_tokens": 67,
+          "total_tokens": 1200,
+          "wall_ms": 2291.1,
+          "retries": 0,
+          "content_chars": 201,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "support-heldout-short",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "contact_name": "Greta",
+        "company": "Falkirk Design",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "not stated",
+        "competitor": "not stated",
+        "ticket_id": "FD-1190"
+      },
+      "got": {
+        "contact_name": "Greta",
+        "company": "Falkirk Design",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "within two hours",
+        "competitor": "not stated",
+        "ticket_id": "FD-1190"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "fields"
+        }
+      ],
+      "detail": {
+        "fields_matched": 7,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 1229,
+          "completion_tokens": 75,
+          "total_tokens": 1304,
+          "wall_ms": 2766.0,
+          "retries": 0,
+          "content_chars": 226,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "support-heldout-long",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "contact_name": "Callum",
+        "company": "Merrow Brewing",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "three business days",
+        "competitor": "not stated",
+        "ticket_id": "MB-2291"
+      },
+      "got": {
+        "contact_name": "Callum",
+        "company": "Merrow Brewing",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "three business days",
+        "competitor": "not stated",
+        "ticket_id": "MB-2291"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 2452,
+          "completion_tokens": 74,
+          "total_tokens": 2526,
+          "wall_ms": 6118.8,
+          "retries": 0,
+          "content_chars": 230,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "pricing-objection-heldout-medium",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "contact_name": "Femke",
+        "company": "not stated",
+        "amount": "1400",
+        "currency": "EUR",
+        "decision_maker": "not stated",
+        "next_step_date": "Monday",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Femke",
+        "company": "not stated",
+        "amount": "1400",
+        "currency": "EUR",
+        "decision_maker": "not stated",
+        "next_step_date": "Monday",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 1455,
+          "completion_tokens": 68,
+          "total_tokens": 1523,
+          "wall_ms": 4913.5,
+          "retries": 0,
+          "content_chars": 202,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "pricing-objection-heldout-short",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "contact_name": "Niklas",
+        "company": "not stated",
+        "amount": "650",
+        "currency": "EUR",
+        "decision_maker": "not stated",
+        "next_step_date": "today",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Niklas",
+        "company": "not stated",
+        "amount": "650",
+        "currency": "EUR",
+        "decision_maker": "not stated",
+        "next_step_date": "today",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 1191,
+          "completion_tokens": 67,
+          "total_tokens": 1258,
+          "wall_ms": 2418.5,
+          "retries": 0,
+          "content_chars": 201,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "quiet-checkin-heldout-short",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "contact_name": "Iris",
+        "company": "not stated",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "next month",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Iris",
+        "company": "not stated",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "next month",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 1136,
+          "completion_tokens": 67,
+          "total_tokens": 1203,
+          "wall_ms": 2344.1,
+          "retries": 0,
+          "content_chars": 218,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "quiet-checkin-heldout-medium",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "contact_name": "Bram",
+        "company": "not stated",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "next quarter",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Bram",
+        "company": "not stated",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "next quarter",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 1265,
+          "completion_tokens": 371,
+          "total_tokens": 1636,
+          "wall_ms": 11771.3,
+          "retries": 0,
+          "content_chars": 220,
+          "reasoning_chars": 1059,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "mixed-heldout-dense",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "contact_name": "Selma",
+        "company": "not stated",
+        "amount": "880",
+        "currency": "EUR",
+        "decision_maker": "not stated",
+        "next_step_date": "tomorrow",
+        "competitor": "not stated",
+        "ticket_id": "MC-5502"
+      },
+      "got": {
+        "contact_name": "Selma",
+        "company": "not stated",
+        "amount": "880",
+        "currency": "EUR",
+        "decision_maker": "Dov",
+        "next_step_date": "tomorrow",
+        "competitor": "not stated",
+        "ticket_id": "MC-5502"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "fields"
+        }
+      ],
+      "detail": {
+        "fields_matched": 7,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 1618,
+          "completion_tokens": 71,
+          "total_tokens": 1689,
+          "wall_ms": 3714.5,
+          "retries": 0,
+          "content_chars": 193,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "longcall-quiet-train-1",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "contact_name": "Harriet",
+        "company": "Solano Freight Co",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "not stated",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Harriet",
+        "company": "Solano Freight Co",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "not stated",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 4057,
+          "completion_tokens": 70,
+          "total_tokens": 4127,
+          "wall_ms": 10313.7,
+          "retries": 0,
+          "content_chars": 228,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "longcall-discovery-train-1",
+      "split": "train",
+      "passed": false,
+      "expected": {
+        "contact_name": "Emeka",
+        "company": "Osei Digital Health",
+        "amount": "2400",
+        "currency": "EUR",
+        "decision_maker": "Renata",
+        "next_step_date": "next week",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Emeka",
+        "company": "Osei Digital Health",
+        "amount": "2400",
+        "currency": "EUR",
+        "decision_maker": "Renata",
+        "next_step_date": "Thursday",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "fields"
+        }
+      ],
+      "detail": {
+        "fields_matched": 7,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 4776,
+          "completion_tokens": 70,
+          "total_tokens": 4846,
+          "wall_ms": 13998.3,
+          "retries": 0,
+          "content_chars": 209,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "longcall-renewal-train-1",
+      "split": "train",
+      "passed": false,
+      "expected": {
+        "contact_name": "Renata",
+        "company": "Kovacs Manufacturing",
+        "amount": "2068",
+        "currency": "EUR",
+        "decision_maker": "not stated",
+        "next_step_date": "next Wednesday",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Renata",
+        "company": "Kovacs Manufacturing",
+        "amount": "2068",
+        "currency": "EUR",
+        "decision_maker": "ops director",
+        "next_step_date": "next Wednesday",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "fields"
+        }
+      ],
+      "detail": {
+        "fields_matched": 7,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 5182,
+          "completion_tokens": 71,
+          "total_tokens": 5253,
+          "wall_ms": 15114.3,
+          "retries": 0,
+          "content_chars": 223,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "longcall-support-train-1",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "contact_name": "Sami",
+        "company": "Duval Retail Group",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "today",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Sami",
+        "company": "Duval Retail Group",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "today",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 4533,
+          "completion_tokens": 69,
+          "total_tokens": 4602,
+          "wall_ms": 13268.0,
+          "retries": 0,
+          "content_chars": 221,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "longcall-pricing-heldout-1",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "contact_name": "Ingrid",
+        "company": "Palsson Energy Systems",
+        "amount": "2880",
+        "currency": "EUR",
+        "decision_maker": "not stated",
+        "next_step_date": "Tuesday",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Ingrid",
+        "company": "Palsson Energy Systems",
+        "amount": "2880",
+        "currency": "EUR",
+        "decision_maker": "CFO",
+        "next_step_date": "Tuesday",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "fields"
+        }
+      ],
+      "detail": {
+        "fields_matched": 7,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 4962,
+          "completion_tokens": 70,
+          "total_tokens": 5032,
+          "wall_ms": 14405.3,
+          "retries": 0,
+          "content_chars": 209,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "longcall-scoping-heldout-1",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "contact_name": "Marcus",
+        "company": "Feld & Root Logistics",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "today",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Marcus",
+        "company": "Feld & Root Logistics",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "ops director",
+        "next_step_date": "today",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "fields"
+        }
+      ],
+      "detail": {
+        "fields_matched": 7,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 5726,
+          "completion_tokens": 69,
+          "total_tokens": 5795,
+          "wall_ms": 16627.9,
+          "retries": 0,
+          "content_chars": 228,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "longcall-discovery-heldout-2",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "contact_name": "Yara",
+        "company": "Haddad Media Group",
+        "amount": "2100",
+        "currency": "EUR",
+        "decision_maker": "Beatrix",
+        "next_step_date": "next week",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Yara",
+        "company": "Haddad Media Group",
+        "amount": "2100",
+        "currency": "EUR",
+        "decision_maker": "Beatrix",
+        "next_step_date": "next week",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 6280,
+          "completion_tokens": 72,
+          "total_tokens": 6352,
+          "wall_ms": 18316.8,
+          "retries": 0,
+          "content_chars": 209,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "longcall-renewal-heldout-2",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "contact_name": "Callan",
+        "company": "Ridge Outdoor Supply",
+        "amount": "3330",
+        "currency": "EUR",
+        "decision_maker": "not stated",
+        "next_step_date": "the fifteenth",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Callan",
+        "company": "Ridge Outdoor Supply",
+        "amount": "3330",
+        "currency": "EUR",
+        "decision_maker": "regional director",
+        "next_step_date": "the fifteenth",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "fields"
+        }
+      ],
+      "detail": {
+        "fields_matched": 7,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 7169,
+          "completion_tokens": 70,
+          "total_tokens": 7239,
+          "wall_ms": 20998.6,
+          "retries": 0,
+          "content_chars": 227,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "longcall-support-heldout-2",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "contact_name": "Beatrix",
+        "company": "Solheim Marine",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "today",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Beatrix",
+        "company": "Solheim Marine",
+        "amount": "not stated",
+        "currency": "not stated",
+        "decision_maker": "not stated",
+        "next_step_date": "today",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 8935,
+          "completion_tokens": 68,
+          "total_tokens": 9003,
+          "wall_ms": 26429.5,
+          "retries": 0,
+          "content_chars": 220,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "longcall-mixed-heldout-3",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "contact_name": "Tobias",
+        "company": "Wren & Co Consulting",
+        "amount": "2058",
+        "currency": "EUR",
+        "decision_maker": "not stated",
+        "next_step_date": "next week",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "got": {
+        "contact_name": "Tobias",
+        "company": "Wren & Co Consulting",
+        "amount": "2058",
+        "currency": "EUR",
+        "decision_maker": "not stated",
+        "next_step_date": "next week",
+        "competitor": "not stated",
+        "ticket_id": "not stated"
+      },
+      "detail": {
+        "fields_matched": 8,
+        "fields_total": 8,
+        "metrics": {
+          "prompt_tokens": 5917,
+          "completion_tokens": 72,
+          "total_tokens": 5989,
+          "wall_ms": 17239.7,
+          "retries": 0,
+          "content_chars": 216,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    }
+  ],
+  "metrics_totals": {
+    "prompt_tokens": 93249,
+    "completion_tokens": 2972,
+    "total_tokens": 96221,
+    "wall_ms": 291417.5,
+    "retries": 0,
+    "content_chars": 6814,
+    "reasoning_chars": 2480,
+    "truncated_calls": 0,
+    "unanswered_calls": 0
+  }
+}

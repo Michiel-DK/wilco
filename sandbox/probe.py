@@ -179,7 +179,10 @@ def probe_filename(record: dict) -> str:
     """probe__<agent>__<provider>__<model>__t<temp>__k<k>.json — the probe__
     prefix and the results/probe/ directory are BOTH load-bearing: no gate
     result file has either."""
-    safe_model = record["model"].replace("/", "_").replace(":", "_")
+    from runner import is_placeholder_model   # deferred, like run()'s imports (runner imports this module)
+    # W7: a stub probe of a fresh scaffold names the file, never the '<…>' placeholder (same rule as save_result)
+    safe_model = ("placeholder-model" if is_placeholder_model(record["model"])
+                  else record["model"].replace("/", "_").replace(":", "_"))
     safe_provider = record["provider"].replace("/", "_").replace(":", "_")
     return (f"probe__{record['agent']}__{safe_provider}__{safe_model}"
             f"__t{record['temperature']:g}__k{record['k']}.json")
@@ -253,12 +256,15 @@ HONESTY_LINES = [
 def run(args) -> int:
     temps = parse_temperatures(args.temperature)
     k = validate_k(args.k)
-    from runner import load_agent, load_exam
+    from runner import load_agent, load_exam, refuse_placeholder_model
     agent = load_agent(args.agent)
     models = ([m.strip() for m in args.models.split(",") if m.strip()]
               if args.models else [agent["model"]])
     if not models:
         raise ValueError(f"--models parsed to an empty list: {args.models!r}")
+    run_provider = getattr(args, "provider", None) or agent["provider"]   # the provider the cells run on
+    for m in models:   # W7: a scaffold's placeholder is never sent (before any sample); the stub may run it
+        refuse_placeholder_model(args.agent, run_provider, m, "--models" if args.models else None)
     # Mirrors parse_temperatures: a silent duplicate doubles the compute and
     # then overwrites its own record, so the second run is invisible.
     if len(set(models)) != len(models):

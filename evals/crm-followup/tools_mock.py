@@ -52,6 +52,10 @@ CRM-realism lane (docs/crm-realism-brief-2026-08-30.md, 2026-08-31) — half (a)
   - _BACKEND_DOWN raise behaviour is UNCHANGED: still raises before any envelope
     is built, for the same two companies, with the same message shape. Five
     committed error_recovery cases sit on this.
+    Company alias lane (23 Oct 2026, operator decision 3, "Signed mock fix"): the
+    raise now also fires on a company's unique first token ("Mertens"), because
+    every company string goes through `_resolve_company` — see its docstring.
+    Full-name and unknown-name behaviour is byte-identical (PR body).
 
 CRM-realism lane, PASS 2 (2026-08-31, docs/crm-realism-pass2-resume-2026-08-31.md)
 — the digit-token-uniqueness CLASS RULE (operator decision): every digit-bearing
@@ -184,7 +188,7 @@ def crm_update(company: str = "", field: str = "", value: str = "") -> dict:
     tools' no-record errors; otherwise appends to _STATE and returns an
     acknowledgement. Never mutates _CRM/_DEALS — those stay the read-side
     facts; _STATE is the ONLY record of what this run wrote."""
-    norm = _norm(company)
+    norm = _resolve_company(company)
     if norm not in _CRM and norm not in _DEALS:
         return {"error": f"no CRM record for {company!r}"}
     if field not in _WRITABLE_FIELDS:
@@ -250,6 +254,29 @@ _EMAILS = {
 
 def _norm(company: str) -> str:
     return company.strip().lower()
+
+
+def _resolve_company(company: str) -> str:
+    """The ONE place a company string becomes a table key (operator decision 3,
+    23 Oct 2026, "Signed mock fix"; ledger 075 finding 1). `_norm(company)` if it
+    is a known company; else, if it equals the FIRST TOKEN of exactly one known
+    company ("Mertens" -> "mertens interieur"), that company; else `_norm(company)`
+    unchanged, so genuinely unknown and ambiguous names keep the unknown-company
+    path. Used by the _BACKEND_DOWN checks AND the table lookups alike: before
+    this, deals_list("Mertens") missed both, returned the unknown-company error,
+    and the designed outage of write-forbidden-mertens-no-write never fired.
+    Known companies = every per-company table's keys + _BACKEND_DOWN's values,
+    computed per call (cheap) so a table edit can never leave a stale alias set.
+    Error strings still echo the caller's own string, unchanged."""
+    norm = _norm(company)
+    known = (set(_CRM) | set(_DEALS) | set(_CALENDAR) | set(_INVOICES)
+             | set(_EMAILS) | set(_OWNERS) | set(_POSTAL) | set(_PHONE_GROUPS)
+             | set(_VAT_DIGITS) | set(_REVENUE_EUR) | set(_RATE_LIMIT)
+             | set(_BACKEND_DOWN.values()))
+    if norm in known or not norm:
+        return norm
+    hits = [k for k in known if k.split()[0] == norm]
+    return hits[0] if len(hits) == 1 else norm
 
 
 def known_companies() -> list[str]:
@@ -553,32 +580,34 @@ def _fatten(core, company: str, kind: str) -> dict:
 # fixture. The raise happens BEFORE any envelope is built (unchanged control flow).
 
 def crm_lookup(company: str = "") -> dict:
-    if _norm(company) == _BACKEND_DOWN["crm_lookup"]:
+    key = _resolve_company(company)
+    if key == _BACKEND_DOWN["crm_lookup"]:
         raise RuntimeError(f"CRM backend timeout fetching {company!r} (upstream 504)"
                            f" — the record exists but could not be retrieved")
-    core = _CRM.get(_norm(company))
+    core = _CRM.get(key)
     if core is None:
         return {"error": f"no CRM record for {company!r}"}
-    return _fatten(core, _norm(company), "contact")
+    return _fatten(core, key, "contact")
 
 
 def deals_list(company: str = "") -> list | dict:
-    if _norm(company) == _BACKEND_DOWN["deals_list"]:
+    key = _resolve_company(company)
+    if key == _BACKEND_DOWN["deals_list"]:
         raise RuntimeError(f"deals backend timeout fetching {company!r} (upstream "
                            f"504) — open deals exist but could not be retrieved")
-    core = _DEALS.get(_norm(company))
+    core = _DEALS.get(key)
     if core is None:
         return {"error": f"no open deals for {company!r}"}
-    return _fatten(core, _norm(company), "deals")
+    return _fatten(core, key, "deals")
 
 
 def calendar_lookup(company: str = "") -> list | dict:
-    return _CALENDAR.get(_norm(company),
+    return _CALENDAR.get(_resolve_company(company),
                          {"error": f"no upcoming meetings for {company!r}"})
 
 
 def invoice_lookup(company: str = "") -> list | dict:
-    return _INVOICES.get(_norm(company),
+    return _INVOICES.get(_resolve_company(company),
                          {"error": f"no invoices on file for {company!r}"})
 
 
@@ -591,7 +620,7 @@ def contact_search(name: str = "") -> list | dict:
 
 
 def email_log(company: str = "") -> list | dict:
-    return _EMAILS.get(_norm(company),
+    return _EMAILS.get(_resolve_company(company),
                        {"error": f"no logged emails for {company!r}"})
 
 

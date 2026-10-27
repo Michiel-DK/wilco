@@ -1,0 +1,28 @@
+# systemone tier (2026-09-30): the task-intake LABEL half as one choice question. The
+# verbatim hand-over is a code rule here (passthrough of the whole request, blank for
+# "none"), which is exactly the E38 "whole request or empty string" rule; the
+# instruction-stripping gap the properties.py grader declares stays declared.
+# Run: python3 sandbox/runner.py run task-intake --provider systemone --model tev1:0.8b
+state_key: input
+questions:
+  agent:
+    type: choice
+    instructions: >-
+      A request arrives at the intake desk of a freelance AI consultant's assistant.
+      Which ONE specialist handles it? When an instruction and the content disagree,
+      the instruction wins.
+    criteria:
+      email-triage: "An incoming email with no instruction attached, or a request to sort, prioritise or judge the urgency of an email."
+      reply-draft: "A request to reply to, answer, or write back to an email, in any language."
+      crm-followup: "A question about a client, prospect, deal, contact, status or notes."
+      expense-categorization: "A bank or card transaction line to book or categorise, or a question about its category or whether it is recurring."
+      recap: "A request to summarise a day's incoming messages or an activity log."
+      transcript-en: "A business call transcript to summarise or tidy into a recap, or a bare transcript with no instruction."
+      call-fields: "A business call transcript with a request to extract, pull or update CRM fields such as contact, company, deal amount, decision maker, next step, competitor or ticket."
+      none: "Nothing above fits: bookings, weather, reminders, invoice generation, translation, document editing, chit-chat, or a capability not listed."
+outputs:
+  agent: agent
+passthrough:
+  input: state
+empty_when:
+  agent: none

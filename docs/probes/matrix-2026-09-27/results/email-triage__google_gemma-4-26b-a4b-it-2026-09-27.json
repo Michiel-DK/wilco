@@ -1,0 +1,516 @@
+{
+  "agent": "email-triage",
+  "provider": "openrouter",
+  "model": "google/gemma-4-26b-a4b-it",
+  "mode": "labels",
+  "train": {
+    "passed": 7,
+    "total": 8,
+    "score": 0.875
+  },
+  "heldout": {
+    "passed": 10,
+    "total": 11,
+    "score": 0.9091
+  },
+  "cases": [
+    {
+      "id": "client-quote-request",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "label": "reply_now"
+      },
+      "got": {
+        "label": "reply_now"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 207,
+          "completion_tokens": 9,
+          "total_tokens": 216,
+          "wall_ms": 473.1,
+          "retries": 0,
+          "content_chars": 22,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "overdue-invoice",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "label": "reply_now"
+      },
+      "got": {
+        "label": "reply_now"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 213,
+          "completion_tokens": 9,
+          "total_tokens": 222,
+          "wall_ms": 456.5,
+          "retries": 0,
+          "content_chars": 22,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "newsletter-substack",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "label": "ignore"
+      },
+      "got": {
+        "label": "ignore"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 201,
+          "completion_tokens": 7,
+          "total_tokens": 208,
+          "wall_ms": 3121.6,
+          "retries": 0,
+          "content_chars": 19,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "recruiter-linkedin",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "label": "reply_later"
+      },
+      "got": {
+        "label": "reply_later"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 210,
+          "completion_tokens": 9,
+          "total_tokens": 219,
+          "wall_ms": 563.8,
+          "retries": 0,
+          "content_chars": 24,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "seo-cold-spam",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "label": "ignore"
+      },
+      "got": {
+        "label": "ignore"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 210,
+          "completion_tokens": 7,
+          "total_tokens": 217,
+          "wall_ms": 562.5,
+          "retries": 0,
+          "content_chars": 19,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "friend-dinner",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "label": "reply_later"
+      },
+      "got": {
+        "label": "reply_later"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 196,
+          "completion_tokens": 9,
+          "total_tokens": 205,
+          "wall_ms": 770.2,
+          "retries": 0,
+          "content_chars": 24,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "production-down",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "label": "reply_now"
+      },
+      "got": {
+        "label": "reply_now"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 208,
+          "completion_tokens": 9,
+          "total_tokens": 217,
+          "wall_ms": 644.1,
+          "retries": 0,
+          "content_chars": 22,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "gdpr-data-request",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "label": "reply_now"
+      },
+      "got": {
+        "label": "reply_now"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 198,
+          "completion_tokens": 9,
+          "total_tokens": 207,
+          "wall_ms": 537.1,
+          "retries": 0,
+          "content_chars": 22,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "conference-invite",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "label": "reply_later"
+      },
+      "got": {
+        "label": "reply_later"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 219,
+          "completion_tokens": 9,
+          "total_tokens": 228,
+          "wall_ms": 899.0,
+          "retries": 0,
+          "content_chars": 24,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "promo-code",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "label": "ignore"
+      },
+      "got": {
+        "label": "ignore"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 202,
+          "completion_tokens": 7,
+          "total_tokens": 209,
+          "wall_ms": 830.2,
+          "retries": 0,
+          "content_chars": 19,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "client-question-no-rush",
+      "split": "train",
+      "passed": false,
+      "expected": {
+        "label": "reply_now"
+      },
+      "got": {
+        "label": "reply_later"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "labels"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 208,
+          "completion_tokens": 9,
+          "total_tokens": 217,
+          "wall_ms": 580.5,
+          "retries": 0,
+          "content_chars": 24,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "agency-whitelabel-offer",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "label": "reply_later"
+      },
+      "got": {
+        "label": "reply_later"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 224,
+          "completion_tokens": 14,
+          "total_tokens": 238,
+          "wall_ms": 1650.6,
+          "retries": 0,
+          "content_chars": 36,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "invoice-error-client",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "label": "reply_now"
+      },
+      "got": {
+        "label": "reply_now"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 222,
+          "completion_tokens": 9,
+          "total_tokens": 231,
+          "wall_ms": 469.5,
+          "retries": 0,
+          "content_chars": 22,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "dpa-signature-compliance",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "label": "reply_now"
+      },
+      "got": {
+        "label": "reply_now"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 211,
+          "completion_tokens": 14,
+          "total_tokens": 225,
+          "wall_ms": 360.9,
+          "retries": 0,
+          "content_chars": 34,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "recruiter-fake-urgency",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "label": "reply_later"
+      },
+      "got": {
+        "label": "reply_now"
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "labels"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 216,
+          "completion_tokens": 14,
+          "total_tokens": 230,
+          "wall_ms": 1070.3,
+          "retries": 0,
+          "content_chars": 34,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "paid-workshop-invite",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "label": "reply_later"
+      },
+      "got": {
+        "label": "reply_later"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 228,
+          "completion_tokens": 9,
+          "total_tokens": 237,
+          "wall_ms": 874.2,
+          "retries": 0,
+          "content_chars": 24,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "intro-no-ask",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "label": "reply_later"
+      },
+      "got": {
+        "label": "reply_later"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 216,
+          "completion_tokens": 14,
+          "total_tokens": 230,
+          "wall_ms": 1354.9,
+          "retries": 0,
+          "content_chars": 36,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "disk-warning-no-action",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "label": "ignore"
+      },
+      "got": {
+        "label": "ignore"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 214,
+          "completion_tokens": 12,
+          "total_tokens": 226,
+          "wall_ms": 611.2,
+          "retries": 0,
+          "content_chars": 31,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "long-ramble-buried-incident",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "label": "reply_now"
+      },
+      "got": {
+        "label": "reply_now"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 438,
+          "completion_tokens": 14,
+          "total_tokens": 452,
+          "wall_ms": 765.8,
+          "retries": 0,
+          "content_chars": 34,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    }
+  ],
+  "metrics_totals": {
+    "prompt_tokens": 4241,
+    "completion_tokens": 193,
+    "total_tokens": 4434,
+    "wall_ms": 16596.0,
+    "retries": 0,
+    "content_chars": 492,
+    "reasoning_chars": 0,
+    "truncated_calls": 0,
+    "unanswered_calls": 0
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "written_at_utc": "2026-10-22T18:41:53Z",
+  "provenance": "Q1 / N-A8 (2026-10-22). Written BLIND, together with the six new held-out inputs they key, in evals/reply-draft/cases.json on lane/q1-heldout-expansion from origin/master 46571b9 — before any model was run on these inputs (none has been: no Ollama, hosted, run, check or --snapshot call in the writing job) and without opening any stored model output (no docs/probes/*/results/, no evals/*/snapshot.json, no results/). Same semantics as docs/probes/reply-draft-must-address-2026-10-22/blind-keys.json: ANY-OF, case-insensitive plain substring on the reply, lowercase, digit-free, no term that is a substring of the three CALIF attacker templates. Each list covers the ask's 1-3 concepts; extra entries are synonyms / morphological variants (accented and unaccented pairs for French). Same exclusions as the first file ('date', 'day', 'live', 'may', apologies, 'email').",
+  "must_address": {
+    "invoice-hours-nl-buried": [
+      "factuur",
+      "uren",
+      "nakijken",
+      "aanpassen",
+      "creditnota",
+      "rechtzetten",
+      "correctie"
+    ],
+    "two-asks-dependency-en": [
+      "french",
+      "go-live",
+      "go live",
+      "second step",
+      "language"
+    ],
+    "fr-workshop-reschedule": [
+      "atelier",
+      "reporter",
+      "report",
+      "créneau",
+      "creneau",
+      "possibilit",
+      "matinée",
+      "matinee",
+      "un matin",
+      "matins",
+      "dates",
+      "nouvelle date",
+      "autre date",
+      "déplacer",
+      "deplacer"
+    ],
+    "contract-signed-fyi-en": [
+      "contract",
+      "signed",
+      "kick-off",
+      "kickoff",
+      "kick off",
+      "received",
+      "filed",
+      "saved"
+    ],
+    "budget-gap-nl": [
+      "scope",
+      "budget",
+      "kassa",
+      "koppeling",
+      "offerte",
+      "aanpassen"
+    ],
+    "two-projects-near-duplicate-en": [
+      "onboarding",
+      "new store staff",
+      "from our side",
+      "from your side",
+      "need from you",
+      "hr project",
+      "hr assistant"
+    ]
+  },
+  "revised_at_utc": "2026-10-23T09:02:19Z",
+  "revision": "Revised once, still BLIND (no model had been run on these inputs and no stored output had been opened): the case-realism refuter's independently written honest replies false-failed on fr-workshop-reschedule ('matin', 'date', 'proposition'), two-projects-near-duplicate-en ('HR project/assistant') and contract-signed-fyi-en ('received'); terms added, none removed. Second revision, still blind: fr-workshop-reschedule drops 'matin' and 'proposition' (each let the CALIF dodge pass with one stock phrase: 'je reviens vers vous demain matin' / 'avec une proposition') and adds 'autre moment', 'déplacer', 'deplacer', 'disponibilit' (honest replies that false-failed). Residual any-of false fails are declared in the PR, as in evals/reply-draft/properties.py DECLARED GAPS. Third revision, 23 Oct, NOT blind — POST-HOC under the operator's signature in PR #121 (the lane had been snapshotted at 240796b; the champion passed this case on 3/3 loads before and the fix is designed from hand-written fixtures, not from its output): fr-workshop-reschedule drops 'autre moment' and 'disponibilit' (a third fresh refuter showed each passes a content-free stock phrase: 'à un autre moment' / 'selon mes disponibilités' — the same hole round 2 closed for 'matin') and adds the narrower 'un matin', 'matins', 'dates' (the input says 'Nous préférons une matinée'; the natural honest replies 'quelques dates un matin' / 'quelques matins la semaine prochaine' false-failed after round 2). All four fixtures are pinned in evals/test_q1_cases.py."
+}

@@ -575,8 +575,14 @@ def test_9_no_other_provider_entry_moved():
     # Roster pin: a new provider is a deliberate act and edits this line with a reason.
     # + "mlx" (sprint I, 2026-09-18): local mlx_lm.server so a LoRA adapter can sit an
     #   exam through the real runner — see sandbox/test_mlx_provider.py for its own pins.
-    check("provider roster is exactly the 5 old ones + openrouter + mlx",
-          sorted(PROVIDERS) == ["mlx", "nebius", "ollama", "openrouter", "ovh", "scaleway", "stub"],
+    # + "systemone" (2026-09-30): Ollama's /v1/systemone DECISION endpoint (nimble, tev1) —
+    #   a different wire protocol (typed questions, no completion), so it carries a
+    #   "kind" key and its own adapter class; see sandbox/test_systemone.py for its pins.
+    # + "openai" (W2, 2026-10-23): OpenAI direct, one config line, frontier tier; no
+    #   committed agent or route names it — see sandbox/test_w2_runner_guards.py.
+    check("provider roster is exactly the 5 old ones + openrouter + mlx + systemone + openai",
+          sorted(PROVIDERS) == ["mlx", "nebius", "ollama", "openai", "openrouter", "ovh",
+                                "scaleway", "stub", "systemone"],
           f"got {sorted(PROVIDERS)}")
 
 

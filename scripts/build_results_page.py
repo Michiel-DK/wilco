@@ -208,12 +208,12 @@ footer{{margin-top:48px;color:var(--muted);font-size:.85rem;border-top:1px solid
 <h2>Three times the instrument was wrong</h2>
 <p>The build ledger stays private; three of its entries are public as post-mortems, each in the same shape: what we believed, what the probe showed, what changed.</p>
 <ul>
-<li><a href="https://github.com/Michiel-DK/agent-exam-suite/blob/master/docs/post-mortems/01-the-window-not-the-weights.md">The window, not the weights</a> — three capability verdicts that were a 4,096-token truncation nobody had checked.</li>
-<li><a href="https://github.com/Michiel-DK/agent-exam-suite/blob/master/docs/post-mortems/02-the-gate-said-ok.md">The gate said ok while five verdicts moved</a> — an aggregate regression check, blind to cancelling flips; what replaced it.</li>
-<li><a href="https://github.com/Michiel-DK/agent-exam-suite/blob/master/docs/post-mortems/03-a-green-gate-that-cannot-go-red.md">A green gate that cannot go red</a> — a test runner that reports "passed" by construction, and an answer key inside the instrument.</li>
+<li><a href="https://github.com/Michiel-DK/wilco/blob/master/docs/post-mortems/01-the-window-not-the-weights.md">The window, not the weights</a> — three capability verdicts that were a 4,096-token truncation nobody had checked.</li>
+<li><a href="https://github.com/Michiel-DK/wilco/blob/master/docs/post-mortems/02-the-gate-said-ok.md">The gate said ok while five verdicts moved</a> — an aggregate regression check, blind to cancelling flips; what replaced it.</li>
+<li><a href="https://github.com/Michiel-DK/wilco/blob/master/docs/post-mortems/03-a-green-gate-that-cannot-go-red.md">A green gate that cannot go red</a> — a test runner that reports "passed" by construction, and an answer key inside the instrument.</li>
 </ul>
 <h2>Reproduce it</h2>
-<pre><code>git clone https://github.com/Michiel-DK/agent-exam-suite && cd agent-exam-suite
+<pre><code>git clone https://github.com/Michiel-DK/wilco && cd wilco
 python3 docs/probes/pass3-column-2026-09-28/pass_k.py     # finding 2, from the committed snapshots and the six-run files
 python3 docs/probes/matrix-2026-09-27/build_tables.py       # the seven tables (local wall times need a local results/ dir)
 ./.cline/test.sh                                            # the deterministic test gate, one process per file</code></pre>

@@ -10,10 +10,13 @@ results write captured, the same shape as sandbox/test_dedupe_tools.py::_cli_run
 Seen RED before the change: on master `--split` is an unknown argument, argparse exits 2, every check fails.
 """
 from __future__ import annotations
-import contextlib, io, sys
+import contextlib, io, os, sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import runner  # noqa: E402
+# W7: runner.main() now turns a crash into one stderr line + return 1. Some drivers here ignore the return
+# value, so a crash must still raise in this file (as before W7): WILCO_DEBUG=1 re-raises.
+os.environ["WILCO_DEBUG"] = "1"
 from runner import ROOT  # noqa: E402
 from router import StubAdapter  # noqa: E402
 

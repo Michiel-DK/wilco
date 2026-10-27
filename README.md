@@ -1,29 +1,85 @@
-# agent-exam-suite
+# wilco
 
-![last commit](https://img.shields.io/github/last-commit/Michiel-DK/agent-exam-suite)
+![last commit](https://img.shields.io/github/last-commit/Michiel-DK/wilco)
 ![python](https://img.shields.io/badge/python-3.10%2B-3776AB)
-![eval cases](https://img.shields.io/badge/eval%20cases-230%20%28128%20held--out%29-2b8a7e)
+![eval cases](https://img.shields.io/badge/eval%20cases-259%20%28155%20held--out%29-2b8a7e)
 ![LLM judge](https://img.shields.io/badge/LLM%20judge-none%2C%20deterministic%20scoring-2b8a7e)
-![tests](https://github.com/Michiel-DK/agent-exam-suite/actions/workflows/tests.yml/badge.svg)
+![tests](https://github.com/Michiel-DK/wilco/actions/workflows/tests.yml/badge.svg)
 
-**You do not need a frontier model for every task.** For most routine office jobs, a small open model that
-passes the task's own exam does the work, on a laptop or in your own cloud, for about $0 in tokens. This repo is
-the exam: the way to find out which model passes *your* task, what it costs, and how to know the day it gets worse.
+**wilco grades a model on your task's own exam and tells you the day it stops passing.**
+Write the cases, let every candidate sit them, `pick` takes the cheapest that clears the bar, `check` re-sits the exam per case. The task the exam guarantees, drafts delivered into your inbox or CRM, is at [roger3000.com/wilco](https://roger3000.com/wilco).
 
-Eight example tasks are in here (email triage, expense fields, weekly recap, reply drafts, CRM follow-up over
-tool calls, call summaries, CRM fields from a call, request intake). Every model, local or hosted, sits the same
-cases through the same entry point. Results: [**the October results page**](https://michiel-dk.github.io/agent-exam-suite/results-2026-10.html).
+| step | command |
+|---|---|
+| 1. write the exam | `wilco new <task> --mode labels` · `wilco validate <task>` |
+| 2. every candidate sits it | `wilco diff <task> --models ollama/<model>,openrouter/<id> --allow-tier-breach` |
+| 3. the cheapest that passes wins | `wilco pick <task>` |
+| 3b. adopt the winner | `wilco adopt <task> <provider/model>` (writes `provider:` + `model:` in `agents/<task>/agent.yaml`, then snapshots it: 3 loads at temperature 0); on a `tier: local` exam a hosted winner is refused unless `--allow-tier-breach`, and then gets no snapshot, only the same-day rerun |
+| 4. know the day it stops passing | `wilco check <task>` (exit 1 if a stable case moved) |
+| then: run it | `wilco live <task> --input "..."` (through `routes.yaml`) |
+
+`wilco <command> --help` lists each command's options; `run`, `diff` and `check` keep their research flags behind `--help-advanced`.
+
+Results for the eight example tasks: [**roger3000.com/wilco**](https://roger3000.com/wilco). No developer, or no time to
+write the exam? Send us your task: [**roger3000.com/wilco/pricing**](https://roger3000.com/wilco/pricing).
+
+## Five minutes, from clone to a scored table
+
+```
+git clone https://github.com/Michiel-DK/wilco && cd wilco
+pip install -e .                                                     # the `wilco` command; requests, PyYAML
+wilco list                                                           # the eight example tasks, their champions
+wilco run email-triage --provider stub --model stub
+```
+
+The exams live in the clone, not in the package, so install it editable from the clone. Without installing anything
+but `pip install -r requirements.txt`, every `wilco <command>` is `python3 wilco_cli.py <command>`; the shim runs
+`scripts/exam_new.py`, `scripts/exam_validate.py`, `scripts/pick.py` and `sandbox/runner.py` unchanged.
+
+The stub needs no network, no key and no model. It answers `reply_later` to every email, so it fails most cases. What
+you get is the shape: one line per case, train and held-out scored apart, a result file under `results/`. Then the
+pick rule over the committed 27 Sep files, also offline:
+
+```
+wilco pick crm-followup docs/probes/matrix-2026-09-27/results/crm-followup__*.json
+```
+
+It prints `pick: openrouter/deepseek/deepseek-v4-pro-0813`. That folder holds the eleven hosted runs only; the local
+champion's snapshot covers a larger case set (47 cases against the matrix's 38 today), and `pick` refuses to compare
+unequal case sets rather than intersect them. (`pick` over the stub's own result prints `NONE`: the stub has no price,
+and an unknown cost is never counted as 0.)
+
+**A hosted model.** Put your key in the environment as `OPENROUTER_API_KEY` (nothing is read from a file) and run the same
+command:
+
+```
+wilco run email-triage --provider openrouter --model <id> --allow-tier-breach
+```
+
+The example exams are `tier: local`, so a hosted provider needs `--allow-tier-breach` (see the tier rule below).
+
+**A local model.** Install [Ollama](https://ollama.com), then build the crm-followup champion's 16k-window variant
+and run its exam:
+
+```
+./models/models.sh gemma4-e2b-ctx16k   # pulls the base unless on disk with the measured weights; --dry-run: plan
+wilco run crm-followup --provider ollama --model gemma4-e2b-ctx16k
+```
+
+`models.sh` with no name builds all three in `models/`. It checks each base tag's weights against the ones the scores
+were taken on and refuses a tag that has moved: on 23 Oct `gemma4:e4b` had, so the non-champion
+`gemma4-e4b-ctx16k-plain` is refused unless you pass `--allow-drift` (and then its scores are a new measurement).
 
 ## How it works, in four steps
 
 **1. Name the tasks you already send to a model.** Triage, extraction, drafting, summaries. The only requirement is
 that a person can say, case by case, whether the answer was right. If nobody can check it, this suite will not
-score it and says so.
+score it and says so. How to write one: [`docs/write-an-exam.md`](docs/write-an-exam.md).
 
-**2. Write down what a correct answer looks like.** Twenty to forty cases per task, each with its checks: the label,
-the fields, the facts that must appear, the tools that must be called. A third is held out and never tuned on.
-Scoring is deterministic. No model grades another model's answer, anywhere. Every local case runs three times at
-temperature 0 and counts only if all three agree.
+**2. Write down what a correct answer looks like.** Twenty to fifty cases per task, each with its checks: the label,
+the fields, the facts that must appear, the tools that must be called. Part of them is held out (here 155 of 259) and never
+tuned on.
+Scoring is deterministic. No model grades another model's answer, anywhere.
 
 **3. The cheapest model that passes wins.** Every candidate sits the exam. Models below the bar drop out. The bar is
 the best score any model reached, or one case from it. The cheapest model left takes the job, and its score is
@@ -36,15 +92,34 @@ committed as the snapshot that every later change is checked against.
 | Gemma 4 31B | 14 of 18 | 5.41 | one 48 GB card |
 | GPT-5.6-Sol | 14 of 18 | 127 | vendor API |
 
-**4. A fine-tune ships only if it passes the same exam.** When a small model almost passes, it is fine-tuned on the
-task's own training cases, on the machine it runs on, in minutes. Then it sits the exam. If any held-out case that
-used to pass now fails, the new version is refused, even when the total went up. The gate has refused four CRM
-fine-tunes and a no-training "thinking off" switch; one request-intake adapter held within a case (−87% output tokens,
-4.2× faster, held-out 19 → 18 of 20, one pass) and was not promoted. The table is on the results page; the write-ups
-are under `docs/probes/i0-*` and `i2*`.
+Four of twelve candidates: the local champion and the eleven hosted runs in `docs/probes/matrix-2026-09-27/results/`. The best
+held-out score, Grok 4.6's 16 of 18, is not in the table. The dollar column is the 2 Oct ledger; `pick`
+prints every row and prices it from `pricing/prices.json`, the 27 Sep list prices, so its figures differ.
 
-Then the loop: every model release, runtime bump or price change re-sits the exam per case, and the report lists
-what moved in both directions. On 2 Oct a runtime upgrade moved 1 of 230 cases, none held-out.
+**4. Know the day it stops passing.** Every model release, runtime bump or price change re-sits the exam per case, and
+the report lists what moved in both directions. On 2 Oct an Ollama upgrade moved 1 of 220 cases, none held-out
+(`docs/probes/l0-resnapshot-2026-10-02/RESULTS.md`).
+
+### What the gate can and cannot promise
+
+- **The stable-case gate is for local models.** A snapshot (`run <task> --snapshot`) is three fresh loads at
+  temperature 0; a case counts only if all three agree. `check` re-sits the exam and fails on any stable case that moved,
+  in either direction. It refuses to compare across a changed runtime version, server settings or case set.
+- **Hosted models get no stable-case gate.** Temperature 0 does not reproduce on hosted APIs (finding 2 below). A hosted
+  score is one run; compare hosted models only within one day, rerun on the same day, and read the cases that flipped
+  between the two result files. `pick` says this on every hosted row.
+- **The tier label is enforced.** Every task's `agent.yaml` carries `tier: local | eu | frontier` (where its data may go).
+  `run`, `diff` and `live` refuse a provider above it (exit 2, before any request) unless `--allow-tier-breach` is
+  passed, and the result file then says `tier_breach: true`.
+- **The window is a precondition.** Ollama's OpenAI-compatible endpoint runs a model at its Modelfile window (4096 when
+  none is set) and ignores a window sent in the request; past it, the front of the prompt (the system prompt first) is
+  cut and the model answers anyway. Before every Ollama call the prompt is estimated (characters / 4) against the
+  model's window (`num_ctx` from `ollama show`); an over-window case is refused rather than silently truncated: raise
+  the window with `PARAMETER num_ctx 16384` in a Modelfile (`models/` has the three this repo uses), or pass
+  `--allow-truncation`. A verdict on a long input is a verdict about the window until the window is stated.
+
+Providers live in `sandbox/router.py` `PROVIDERS`: any OpenAI-compatible endpoint is one line there (a base URL and the
+env var holding its key). Hosted providers need their key in the environment; nothing is read from a file.
 
 ## Where the model runs
 
@@ -64,69 +139,76 @@ row is claimed for it.
    behind on CRM field write-back, four behind on long call summaries. Local ≈ $0, open weights hosted $0.23–$5.41,
    the vendor flagship $5–$127 per 10k tasks (metered, 27 Sep matrix, 2 Oct ledger).
 2. **Temperature zero is not determinism on hosted APIs.** GLM-5.3: 10/13 call summaries on one run, 6/13 across six
-   same-day runs. The local champions pass every case on all three loads. Reproduce from the committed files, no model
+   same-day runs. The local champions give the same verdict on every case across all three loads. Reproduce from the committed files, no model
    needed: `python3 docs/probes/pass3-column-2026-09-28/pass_k.py`.
-3. **Four fine-tunes of the local champion, four refusals, the cause named**: an unmasked loss that was 95% tool payload,
-   then a per-step cut that taught a "call again" reflex. Each killed by its pre-registered rule (`docs/probes/i2v*`).
+3. **Fine-tuning the local champion did not ship.** When a small model almost passes, it can be fine-tuned on the
+   task's training cases and sit the same exam; if any held-out case that used to pass now fails, the new version is
+   refused, even when the total went up. Four CRM fine-tunes were refused, the cause named: an unmasked loss that was
+   95% tool payload, then a per-step cut that taught a "call again" reflex. A no-training "thinking off" switch was
+   refused too. One request-intake adapter held within a case (−87% output tokens, 4.2× faster, held-out 19 → 18 of
+   20, one pass) and was not promoted. Write-ups: `docs/probes/i0-*`, `docs/probes/i2*`. This is a measured finding,
+   not a step in the workflow.
 
-The chart for all eight tasks, score against cost per 10k, is on the
-[results page](https://michiel-dk.github.io/agent-exam-suite/results-2026-10.html); it is built from the committed
-files by `scripts/build_results_page.py`, never drawn by hand. Three times the instrument itself was wrong, and what
-fixed it: [`docs/post-mortems/`](docs/post-mortems/).
+The chart for all eight tasks, score against cost per 10k, is on the [results site](https://roger3000.com/wilco). Three
+times the instrument itself was wrong, and what fixed it: [`docs/post-mortems/`](docs/post-mortems/).
 
-## Try it on your own task
+## Tests
 
 ```
-pip install -r requirements.txt                       # requests, PyYAML; Ollama for local models
-python3 sandbox/runner.py list                        # the eight example tasks, their champions
-# 1. copy evals/email-triage/ to evals/<task>/; write cases.json (split: train | heldout) and the checks
-python3 sandbox/runner.py diff <task> --models m1,m2   # 2. same cases, several models, one table
-python3 sandbox/runner.py run <task> --snapshot        # 3. commit the winner: 3 loads at temperature 0
-python3 sandbox/runner.py check <task>                 # 4. after any change: exit 1 if a stable case moved
-python3 sandbox/runner.py run <task> --provider openrouter --model <id>   # a hosted model, same entry point
-./.cline/test.sh                                      # the test gate: one process per file, exit code captured
+./.cline/test.sh        # the gate: every test file, one process each, exit code captured; offline
 ```
 
-Hosted providers need their key in the environment; nothing is read from a file. `pytest` runs in CI but is blind to
-this repo's `check()`-style test files (post-mortem 3); the gate is `./.cline/test.sh`.
+`pytest` is blind to this repo's `check()`-style test files: they record a failure in a list and return it as the
+exit code, so pytest reports "passed" by construction (post-mortem 3). CI runs the gate, not pytest.
 
 ## Scoreboard
 
-Held-out score of the committed champion per task, from `evals/<agent>/snapshot.json` at the 2026-10-12 repo state;
+Held-out score of the committed champion per task, from `evals/<agent>/snapshot.json` at the 2026-10-27 repo state;
 generated by the snapshot script, never typed.
 
 | agent | exam mode | champion | held-out | snapshot date | note |
 |---|---|---|---|---|---|
 | task-intake | labels | gemma4:e2b-it-qat | 0.955 (21/22) | 2026-10-10 | seventh agent: routes a typed request to the right specialist, or refuses |
-| reply-draft | properties | gemma4:e2b-it-qat | 0.917 (11/12) | 2026-10-10 | saturated, useless for ranking |
-| expense-categorization | fields | gemma4:e2b-it-qat | 0.889 (8/9) | 2026-10-10 |  |
-| crm-followup | trajectory | gemma4-e2b-ctx16k | 0.875 (21/24) | 2026-10-10 | production-size payloads; 4 multi-turn cases; champion swapped 4B to 2B (PR #60) |
-| email-triage | labels | gemma4:e2b-it-qat | 0.769 (10/13) | 2026-10-10 |  |
+| reply-draft | properties | gemma4:e2b-it-qat | 0.944 (17/18) | 2026-10-23 | saturated, useless for ranking |
+| expense-categorization | fields | gemma4:e2b-it-qat | 0.938 (15/16) | 2026-10-22 |  |
+| crm-followup | trajectory | gemma4-e2b-ctx16k | 0.880 (22/25) | 2026-10-23 | production-size payloads; 4 multi-turn cases; champion swapped 4B to 2B (PR #60) |
+| recap | properties | gemma4:e4b-it-qat | 0.812 (13/16) | 2026-10-22 | the hardest exam, on purpose |
+| email-triage | labels | gemma4:e2b-it-qat | 0.800 (16/20) | 2026-10-22 |  |
 | call-fields | fields | gemma4-e4b-ctx16k | 0.737 (14/19) | 2026-10-10 |  |
-| recap | properties | gemma4:e4b-it-qat | 0.700 (7/10) | 2026-10-10 | the hardest exam, on purpose |
-| transcript-en | properties | gemma4-e4b-ctx16k | 0.526 (10/19) | 2026-10-10 | English call transcripts incl. a 10-case long-call band (12k-33k chars); local 4B ties Kimi-K3 2/6 on it |
+| transcript-en | properties | gemma4-e4b-ctx16k | 0.579 (11/19) | 2026-10-22 | English call transcripts incl. a 10-case long-call band (12k-33k chars); local 4B ties Kimi-K3 2/6 on it |
 
 ## Where to look
 
 | folder | what is in it |
 |---|---|
-| [`docs/results-2026-10.html`](https://michiel-dk.github.io/agent-exam-suite/results-2026-10.html) | the page: three findings, the chart, the reproduce command |
 | [`evals/`](evals/) | one exam per task: `cases.json` (train / held-out), deterministic checks, the committed 3-load snapshot |
-| [`agents/`](agents/) | one folder per task: a prompt, a tool list, one model line; deliberately boring |
+| [`agents/`](agents/) | one folder per task: a prompt, a tool list, one model line, the tier; deliberately boring |
+| [`sandbox/`](sandbox/) | `runner.py` (run · check · diff · snapshot · live), the provider router, the tests |
+| [`wilco_cli.py`](wilco_cli.py) | the `wilco` command (`pyproject.toml`, PyPI name `wilco-exams`): a shim, every command runs the script named in its `--help` |
+| [`scripts/`](scripts/) | `exam_new.py`, `exam_validate.py`, `pick.py`; `pricing/prices.json` holds the dated list prices `pick` reads |
+| [`models/`](models/) | the three 16k-window Modelfiles (two champions, one comparison arm) and `models.sh` |
 | [`docs/probes/`](docs/probes/) | the experiments behind every number; each `RESULTS.md` opens with the one cell that carries the verdict |
 | [`docs/post-mortems/`](docs/post-mortems/) | three times the instrument was wrong: belief, probe, fix |
-| [`sandbox/`](sandbox/) | `runner.py` (run · check · diff · snapshot · route), the provider router, the tests |
 
 ## Status and limits
 
-**Status (2026-10-12):** 8 tasks, 230 committed cases (102 train / 128 held-out),
-43 test files; judge-free and deterministic. Every snapshot is three fresh loads at temperature 0 with a
-runtime stamp, so a runtime bump or a model swap re-sits the exam per case. Limits, stated plainly: held-out sets are
-9–22 cases, so the suite ranks bad models out but cannot separate two good ones (the results table prints how many
-candidates competed and calls a one-case gap noise); every case input is hand-authored. Getting real inputs in is the
-active work.
+**Status (2026-10-27):** 8 tasks, 259 committed cases (104 train / 155 held-out),
+57 test files; judge-free and deterministic. Every snapshot is three fresh loads at temperature 0 with a
+runtime stamp, so a runtime bump or a model swap re-sits the exam per case. Limits, stated plainly:
 
-> **Public snapshot (repo state 2026-10-12, published 2026-10-12).** A curated, sanitized cut of a private
+- Held-out sets are 16–25 cases per task, so the suite ranks bad models out but cannot separate two good ones (`pick`
+  calls a one-case gap noise).
+- Every case input is hand-authored. Getting real inputs in is the active work.
+- Train scores sit BELOW held-out on crm-followup and recap, by design, not by selection: the train split carries the
+  bait, decoy, outage and long-day cases the checks are iterated against (see the failing ids in `evals/*/snapshot.json`);
+  held-out is the realistic distribution and is never tuned on. Read the held-out column; the train column is the forcing set.
+- Hosted scores have no stable-case gate (above).
+- The window estimate is characters / 4, which runs slightly low, and does not count the generation budget.
+- One declared hole: on the four quiet-day recap cases a content-free "nothing important today" passes every check;
+  two attempts to key it (hand-written and rule-derived word lists) failed honest recaps and were closed on the record
+  (`docs/probes/calif-empty-answer-2026-10-21/RESULTS.md`).
+
+> **Public snapshot (repo state 2026-10-27, published 2026-10-27).** A curated, sanitized cut of a private
 > working repo: the tasks, the exams, the runner and the write-ups are the real working tree. Kept private on purpose:
 > the per-lane build ledger, the build-harness submodule, the sprint queue, lane briefs, competitor notes, per-probe
 > result archives, a task corpus mined from private production repos, and anything naming a client. Some links in the

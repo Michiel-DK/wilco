@@ -2,12 +2,12 @@
   "provider": "ollama",
   "model": "gemma4:e2b-it-qat",
   "train_score": 1.0,
-  "heldout_score": 0.8889,
+  "heldout_score": 0.9375,
   "temperature": 0.0,
   "max_tokens": 2048,
   "judge": null,
-  "date": "2026-10-10T20:04:17",
-  "harness_sha": "40fec483e936cf42de5aa7ac460ba1758c534454",
+  "date": "2026-10-22T21:16:33",
+  "harness_sha": "4c4c142911fc9840734d0afb01901d32027b97af",
   "cases": [
     {
       "id": "railway-subscription",
@@ -101,6 +101,48 @@
     },
     {
       "id": "telenet-daypass",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "aws-direct-debit-buried",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "amazon-marketplace-dock",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "fuel-station-decoy-number",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "atm-cash-withdrawal",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "coworking-membership-monthly",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "proximus-oneoff-installation",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "nmbs-monthly-pass",
       "split": "heldout",
       "passed": true,
       "stable": true

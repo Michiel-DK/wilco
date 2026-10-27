@@ -39,11 +39,15 @@ from __future__ import annotations
 
 import contextlib
 import io
+import os
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import runner  # noqa: E402
+# W7: runner.main() now turns a crash (and the _StopAtRunExam sentinel) into one stderr line + return 1;
+# WILCO_DEBUG=1 keeps both raising through main() here exactly as before W7.
+os.environ["WILCO_DEBUG"] = "1"
 from runner import (ROOT, _load_module, run_trajectory_case,  # noqa: E402
                     score_trajectory)
 

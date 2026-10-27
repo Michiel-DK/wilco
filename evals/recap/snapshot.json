@@ -2,12 +2,12 @@
   "provider": "ollama",
   "model": "gemma4:e4b-it-qat",
   "train_score": 0.4286,
-  "heldout_score": 0.7,
+  "heldout_score": 0.8125,
   "temperature": 0.0,
   "max_tokens": 2048,
   "judge": null,
-  "date": "2026-10-10T20:27:33",
-  "harness_sha": "40fec483e936cf42de5aa7ac460ba1758c534454",
+  "date": "2026-10-22T22:02:26",
+  "harness_sha": "4c4c142911fc9840734d0afb01901d32027b97af",
   "cases": [
     {
       "id": "busy-day-standard",
@@ -78,10 +78,6 @@
         {
           "bucket": "quality",
           "check": "check_compression"
-        },
-        {
-          "bucket": "quality",
-          "check": "check_coverage"
         }
       ]
     },
@@ -94,10 +90,6 @@
         {
           "bucket": "quality",
           "check": "check_compression"
-        },
-        {
-          "bucket": "quality",
-          "check": "check_coverage"
         }
       ]
     },
@@ -160,6 +152,42 @@
           "check": "check_compression"
         }
       ]
+    },
+    {
+      "id": "dependency-delivery-vs-install",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "near-duplicate-invoices",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "quiet-day-big-amount-decoy",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "automated-but-actionable",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "buried-last-en",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "meeting-moved-date-decoy",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
     }
   ],
   "loads": 3,

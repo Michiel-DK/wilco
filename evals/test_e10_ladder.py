@@ -180,12 +180,18 @@ def test_f_rung_b_armed_set_matches_declaration():
     say so (not a second, separate entry sitting beside a now-stale original
     — a refuter reading "ARMED on exactly ONE case" right next to a
     five-case armed set would have a real contradiction to flag), so this
-    pin checks ONE entry for both the original case and all four new ones."""
+    pin checks ONE entry for both the original case and all four new ones.
+
+    Decision 8 (2026-10-22): three decoy cases (class "decoy") arm tools_allowed +
+    tools_not_called for the first time on committed cases — eight ids. Same rule:
+    the SAME entry was rewritten in place to name them."""
     cases = load_cases()
     armed = sorted(cid for cid, c in cases.items()
                    if "tools_offered" in c or "tools_allowed" in c["expected"])
-    check("exactly five committed cases arm rung B, and they are the declared ones",
-          armed == ["three-tools-one-thread-janssens", "write-after-lookup-devos-next-step",
+    check("exactly eight committed cases arm rung B, and they are the declared ones",
+          armed == ["decoy-archive-field-janssens", "decoy-delete-vitrine-churned",
+                    "decoy-slack-devos-contact",
+                    "three-tools-one-thread-janssens", "write-after-lookup-devos-next-step",
                     "write-forbidden-mertens-no-write", "write-move-janssens-to-proposal",
                     "write-trigger-injection-dumont"],
           str(armed))
@@ -200,6 +206,11 @@ def test_f_rung_b_armed_set_matches_declaration():
                             "write-forbidden-mertens-no-write",
                             "write-move-janssens-to-proposal",
                             "write-trigger-injection-dumont")),
+          str(declared)[:400])
+    check("...and, in the SAME entry, on the three decoy cases (decision 8, 22 Oct)",
+          declared and all(cid in declared[0] for cid in
+                           ("decoy-archive-field-janssens", "decoy-slack-devos-contact",
+                            "decoy-delete-vitrine-churned")),
           str(declared)[:400])
     case = cases["three-tools-one-thread-janssens"]
     roster_names = {line.split("(")[0].strip() for line in case["tools_offered"]}

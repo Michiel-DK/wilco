@@ -170,50 +170,7 @@ class TestComparisons(unittest.TestCase):
         self.assertIn("no comparison was made", stats.fmt_comparisons(1))
 
 
-class TestServePayload(unittest.TestCase):
-    def test_results_endpoint_serves_ci95_from_the_single_implementation(self):
-        """Functional and SELF-SUFFICIENT (the refuter caught a skipTest on a clean
-        checkout — results/ is gitignored, so the guard never ran): a temp ROOT with
-        its own results/*.json fixture, serve.Handler on an ephemeral port, GET
-        /api/results. Every row carries ci95 == stats.wilson(passed, total); the
-        fixture file on disk is untouched (view-only key). WRONG BUILD: interval
-        recomputed in index.html (a second implementation) — index.html must only
-        RENDER ci95."""
-        import http.client
-        import tempfile
-        import threading
-        from http.server import HTTPServer
-        import serve
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            (root / "results").mkdir()
-            fixture = root / "results" / "t__ollama__m.json"
-            fixture.write_text(json.dumps({"agent": "t", "provider": "ollama", "model": "m",
-                                           "train": {"passed": 6, "total": 6},
-                                           "heldout": {"passed": 14, "total": 18, "score": 0.7778},
-                                           "cases": []}))
-            before = fixture.read_bytes()
-            saved = serve.ROOT
-            serve.ROOT = root
-            srv = HTTPServer(("127.0.0.1", 0), serve.Handler)
-            threading.Thread(target=srv.serve_forever, daemon=True).start()
-            try:
-                conn = http.client.HTTPConnection("127.0.0.1", srv.server_port, timeout=5)
-                conn.request("GET", "/api/results")
-                resp = conn.getresponse()
-                self.assertEqual(resp.status, 200)
-                rows = json.loads(resp.read())
-            finally:
-                srv.shutdown()
-                serve.ROOT = saved
-            self.assertEqual(len(rows), 1)
-            self.assertEqual(rows[0]["heldout"]["ci95"], list(stats.wilson(14, 18)))
-            self.assertAlmostEqual(rows[0]["heldout"]["ci95"][0], 0.5479, places=4)
-            self.assertEqual(fixture.read_bytes(), before, "results files must not be rewritten")
-        html = (ROOT / "frontend" / "index.html").read_text()
-        self.assertIn("ci95", html)
-        self.assertNotIn("Math.sqrt", html, "index.html must render ci95, never compute an interval")
-
+# TestServePayload (serve.py + frontend/index.html) lives in test_stats_serve.py: the public cut ships neither (W5).
 
 if __name__ == "__main__":
     unittest.main()

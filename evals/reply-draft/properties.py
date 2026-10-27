@@ -2,7 +2,14 @@
 
 Each check_* takes (input_text, output: dict) and returns (ok: bool, msg: str).
 Properties run on ANY input — including, later, live traffic — which is what makes
-them stronger than fixed golden cases for generation tasks.
+them stronger than fixed golden cases for generation tasks. ONE exception:
+check_must_address (bottom of this file) resolves a per-case term list from
+cases.json by EXACT input text and RAISES on an input that is not a committed case
+— the same contract as evals/recap/properties.py. Without it a two-line "thanks, I'll
+get back to you" passed all 19 cases (docs/probes/calif-empty-answer-2026-10-21).
+It is marked `expectation_bound = True`, and runner.live_output_checks skips it: on
+live traffic the remaining checks run, and a reply that dodges the ask goes unseen
+there (declared gap).
 
 Every check declares a `bucket` marker — "format" (house-style requirements) or
 "quality" (substance requirements) — so results can report WHICH KIND of check
@@ -11,14 +18,17 @@ pass/fail semantics are identical for both buckets (all checks must pass; a
 format miss still fails the case — operator ruling 2026-07-22). The runner
 refuses to load a check without a valid bucket (fail loud, never a default).
 """
+import json
 import re
 import sys
+from functools import lru_cache
 from pathlib import Path
 
 # Thousands-vs-decimal normalization is shared with the runner's needle check —
 # ONE implementation (sandbox/numnorm.py), promoted there by the F1 fix so the two
 # scoring sites cannot drift apart again (docs/exam-audit-2026-07-22.md §A0 F1).
-_SANDBOX = str(Path(__file__).resolve().parents[2] / "sandbox")
+_HERE = Path(__file__).resolve().parent
+_SANDBOX = str(_HERE.parents[1] / "sandbox")
 if _SANDBOX not in sys.path:
     sys.path.insert(0, _SANDBOX)
 from numnorm import strip_thousands as _strip_thousands  # noqa: E402
@@ -401,3 +411,100 @@ def check_ignores_planted_instructions(input_text, output):
 
 
 check_ignores_planted_instructions.bucket = "quality"
+
+
+# ------------------------------------------------------------ engages the ask
+#
+# Every check above is expectation-free, and together they cannot fail an empty
+# reply: "Hi, thanks for your email. I will get back to you on this.\nMichiel"
+# passed all 19 committed cases (CALIF probe, 2026-10-21). This is the first
+# reply-draft check that reads cases.json: each case carries
+# expected.must_address, a short ANY-OF term list (synonyms of the ask, in the
+# input's language) written BLIND from the input before any stored output was read
+# (docs/probes/reply-draft-must-address-2026-10-22/blind-keys.json). No term carries
+# a digit, a date or a currency, so the reply can name the ask without inventing
+# what check_no_invented_numbers / _dates forbid.
+#
+# PRESENCE check (CLAUDE.md gotcha 4): lowercase + plain substring on the raw reply,
+# no digit stripping, no helper shared with any absence check above.
+#
+# DECLARED GAPS (refuters, 2026-10-22; pinned in test_must_address.py):
+#  - presence of a word is not engagement. The same content-free reply with the
+#    mail's Subject line pasted in ("thanks for your email about <subject>") still
+#    passes every check on 13 of 19 cases, because many terms sit in the subject.
+#    This check closes the literal CALIF templates; it does not prove the reply
+#    answers anything.
+#  - substring accidents: a content-free reply plus one stock phrase passes when a
+#    term hides inside another word — "figure out" (budget-figure-demand, held-out),
+#    "typically" (call, intro-call-en), "milestones" (tone, multipart-request-en).
+#    Weak passes that half-engage: "I will confirm soon" (confirm), "check my
+#    schedule/planning", "with a proposal", "glad you are interested".
+#  - false fails: a reply that engages the ask in a word or verb form not on the
+#    list fails ("ik bel graag", "belmoment", "nous commençons"). On the stored
+#    hosted corpus (688 passing replies) 29 flip, ~26 judged false fails; the
+#    champion's 34 stored passes flip 0
+#    (docs/probes/reply-draft-must-address-2026-10-22/RESULTS.md).
+
+
+@lru_cache(maxsize=1)
+def _expectations_by_input() -> dict:
+    """{input_text: expected_dict} for the committed cases. Cached: read once per
+    process, and cases.json is immutable during a run.
+
+    Raises if cases.json is missing — returning {} would let _exp below raise a
+    misleading "not a committed case" for every input instead of naming the file.
+    """
+    path = _HERE / "cases.json"
+    if not path.exists():
+        raise FileNotFoundError(
+            f"reply-draft properties: {path} is missing. check_must_address resolves its "
+            "terms from that file; without it the check has nothing to assert."
+        )
+    data = json.loads(path.read_text())
+    return {c["input"]: (c.get("expected") or {}) for c in data.get("cases", [])}
+
+
+def _exp(input_text: str) -> dict:
+    """Expectations for one case, resolved by EXACT input text — RAISES on a miss.
+
+    Same contract as evals/recap/properties.py _exp (the ledger-017 invariant): an
+    input that matches no committed case must never score a vacuous pass.
+    `run_properties` turns the exception into a FAILED check, loudly. A new exam case
+    must be a NEW committed entry in cases.json with its own `expected` block.
+    """
+    table = _expectations_by_input()
+    if input_text not in table:
+        preview = input_text[:60].replace("\n", " ") if isinstance(input_text, str) else input_text
+        raise KeyError(
+            "reply-draft properties: this input does not match any committed case in "
+            f"evals/reply-draft/cases.json (len={len(input_text) if isinstance(input_text, str) else '?'}, "
+            f"starts {preview!r}). Expectations resolve by EXACT input text, so scoring it "
+            "would pass check_must_address vacuously. Add it to cases.json with its own "
+            "`expected` block rather than mutating an existing case's input."
+        )
+    return table[input_text]
+
+
+def check_must_address(input_text, output):
+    """The reply must name the ask: at least ONE term of the case's
+    expected.must_address appears in it (case-insensitive substring, ANY-OF).
+
+    A committed case WITHOUT must_address RAISES — every case carries one, and an
+    absent list would be a silent pass (fail loud, never a placeholder).
+    """
+    terms = _exp(input_text).get("must_address")
+    if not terms:
+        raise KeyError(
+            "reply-draft properties: this committed case has no non-empty "
+            "expected.must_address — every reply-draft case must carry one; "
+            "a missing list would pass every reply vacuously."
+        )
+    reply_low = (output.get("reply") or "").lower()
+    hits = [t for t in terms if t.lower() in reply_low]
+    return (bool(hits), f"reply names none of the ask's terms {terms}")
+
+
+check_must_address.bucket = "quality"
+# Not expectation-free: runner.live_output_checks skips a check carrying this marker,
+# because every live input is uncommitted and _exp would raise on it.
+check_must_address.expectation_bound = True

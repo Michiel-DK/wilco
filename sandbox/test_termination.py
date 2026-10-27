@@ -950,7 +950,11 @@ def test_snapshot_is_REFUSED_when_cases_died_of_timeouts():
     # unloads the model via the native API before each load. Neither belongs in a
     # deterministic test — it passed here only while a local Ollama happened to be up,
     # and failed in the public repo's CI (no server: "Connection refused", 7 Sep).
+    # The KV-cache / flash-attention stamp (PR #105) reads the listening server process the same way: unpatched,
+    # this test passed only beside a running Ollama and failed in a server-less Linux container ("expected exactly 1
+    # listener", W4 23 Oct), the refusal message then naming the stamp instead of the timeout storm.
     real_version, real_unload = runner.ollama_version, runner.ollama_unload
+    real_server_settings = runner.ollama_server_settings
     rc, exited, after = None, None, None
     try:
         router.requests.post = post
@@ -959,6 +963,7 @@ def test_snapshot_is_REFUSED_when_cases_died_of_timeouts():
         runner.load_exam = lambda _name: one_case
         runner.ollama_version = lambda: "0.0.0-test"
         runner.ollama_unload = lambda model: None
+        runner.ollama_server_settings = lambda *a, **k: {"kv_cache_type": "unset", "flash_attention": "unset"}
         sys.argv = ["runner.py", "run", "reply-draft", "--model", "canned",
                     "--snapshot"]
         with contextlib.redirect_stdout(io.StringIO()):
@@ -972,6 +977,7 @@ def test_snapshot_is_REFUSED_when_cases_died_of_timeouts():
         runner.adapter_for = real_adapter_for
         runner.load_exam = real_load_exam
         runner.ollama_version, runner.ollama_unload = real_version, real_unload
+        runner.ollama_server_settings = real_server_settings
         sys.argv = real_argv
         if snap_path.read_bytes() != before:    # only writes when the guard failed
             snap_path.write_bytes(before)

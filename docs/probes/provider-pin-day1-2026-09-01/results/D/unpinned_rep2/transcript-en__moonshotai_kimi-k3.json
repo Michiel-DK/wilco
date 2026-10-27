@@ -1,0 +1,881 @@
+{
+  "agent": "transcript-en",
+  "provider": "openrouter",
+  "model": "moonshotai/kimi-k3",
+  "mode": "properties",
+  "train": {
+    "passed": 8,
+    "total": 9,
+    "score": 0.8889
+  },
+  "heldout": {
+    "passed": 11,
+    "total": 13,
+    "score": 0.8462
+  },
+  "cases": [
+    {
+      "id": "discovery-short-train",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "900",
+          "Elena"
+        ],
+        "must_commit": [
+          "proposal",
+          "Thursday"
+        ],
+        "max_ratio": 0.44,
+        "nothing_important": false
+      },
+      "got": {
+        "summary": "Discovery call with Marcus, operations lead at Beacon Freight. They track about 40 shipments a week (up from 10 last year) in spreadsheets shared by three people, causing version conflicts. Rep quoted 900 EUR a month billed annually for up to 10 users, plus a one-time 500 EUR onboarding fee covering data migration; Marcus said that's in range but needs sign-off from finance director Elena before committing. A follow-up call is set for Thursday at 2pm.",
+        "action_items": [
+          "Rep (Dana) to send a one-page proposal by end of day",
+          "Rep to calendar the follow-up call for Thursday at 2pm",
+          "Prospect (Marcus) to review the proposal with finance director Elena before the follow-up call"
+        ],
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1073,
+          "completion_tokens": 402,
+          "total_tokens": 1475,
+          "wall_ms": 15583.7,
+          "retries": 0,
+          "content_chars": 728,
+          "reasoning_chars": 956,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "renewal-medium-train",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "36",
+          "150"
+        ],
+        "must_commit": [
+          "SLA",
+          "Wednesday"
+        ],
+        "max_ratio": 0.2,
+        "nothing_important": false
+      },
+      "got": {
+        "summary": "Renewal call with Priya — the current Solvix contract (25 seats at 45 EUR per seat per month, now 31 active seats) expires at the end of this month. Dana offered two options: true up to 31 seats at 45 EUR (16740 EUR annually), or Growth tier at 52 EUR per seat for up to 40 seats (19344 EUR annually), which bundles the full REST API plus webhooks, priority support with a 2-hour Sev1 SLA (currently 200 EUR/month separately), and the analytics dashboard (currently a 150 EUR/month add-on). Priya said Growth is the better fit since it covers their expected ~36 seats by December, and confirmed the 52 EUR rate will be locked for a 12-month term once signed.",
+        "action_items": [
+          "Rep to send the current priority support SLA document today",
+          "Rep to send the drafted Growth tier agreement by Wednesday",
+          "Rep to include the data processing addendum (DPA) in the same Wednesday email",
+          "Rep to state explicitly in the cover email that the 52 EUR rate is locked for 12 months",
+          "Rep to add a cover email note explaining analytics moves from a 150 EUR/month add-on to included, for the CFO",
+          "Rep to flag the December seat estimate of 36 in the notes",
+          "Customer to have their legal team review the DPA"
+        ],
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1647,
+          "completion_tokens": 1485,
+          "total_tokens": 3132,
+          "wall_ms": 42362.1,
+          "retries": 0,
+          "content_chars": 1242,
+          "reasoning_chars": 5043,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "support-long-train",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "LC-40217",
+          "Felix"
+        ],
+        "must_commit": [
+          "LC-40217",
+          "Felix"
+        ],
+        "max_ratio": 0.13,
+        "nothing_important": false
+      },
+      "got": {
+        "summary": "Support call with Larkspur Clinics about a bug: since last Tuesday, their daily schedule CSV export shifts appointment times by one hour (weekly export and in-app calendar are fine), causing front-desk double-bookings. Their IT lead Grace suspects a daylight saving time issue. Rep opened Sev2 ticket LC-40217, set expectations on engineering triage, and agreed a status update by end of day tomorrow. Customer also raised a possible service credit and, separately, adding a second location in Riverside next month; rep will route both to the account team/account manager Felix, and flagged that the legacy scheduling module is being retired at end of next quarter.",
+        "action_items": [
+          "Customer to email this morning's example CSV export to support@ourcompany.example with LC-40217 in the subject line",
+          "Customer to ask the Denver office manager to send a second export (Mountain time) to the same address with LC-40217 in the subject",
+          "Rep to follow up with a status update by end of day tomorrow, escalating further if resolution will take longer",
+          "Rep to flag the operational impact to the account team for a possible service credit review",
+          "Rep to message account manager Felix to reach out about the Riverside second location and mention the legacy module retirement"
+        ],
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 2550,
+          "completion_tokens": 874,
+          "total_tokens": 3424,
+          "wall_ms": 24925.6,
+          "retries": 0,
+          "content_chars": 1319,
+          "reasoning_chars": 2818,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "quiet-checkin-short-train",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "nothing_important": true,
+        "abstain_max_chars": 420
+      },
+      "got": {
+        "summary": "Routine monthly check-in with Sam. The customer reports everything running smoothly this month with no support issues, and only a couple of team members have casually tried the new dashboard shipped last month. No requests or decisions came up; the next check-in was confirmed for the same time next month.",
+        "action_items": [],
+        "nothing_important": true
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 903,
+          "completion_tokens": 1223,
+          "total_tokens": 2126,
+          "wall_ms": 42583.7,
+          "retries": 0,
+          "content_chars": 368,
+          "reasoning_chars": 5371,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "pricing-objection-medium-train",
+      "split": "train",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "1500",
+          "Renata"
+        ],
+        "must_commit": [
+          "comparison",
+          "Friday"
+        ],
+        "max_ratio": 0.33,
+        "nothing_important": false
+      },
+      "got": {
+        "summary": "Pricing call with Jonas, who pushed back on the Pro plan at 1800 EUR a month against a 1200 internal target. Rep offered an annual-contract rate of 1500 EUR a month and showed that Standard plus the reporting add-on (300 EUR a month separately) totals 1450 EUR, making Pro only 50 EUR more while including the audit log and priority onboarding. Jonas agreed the gap is smaller than expected but wants CFO Renata to approve the 1500 figure before committing; he will relay the comparison to her rather than hold a three-way call.",
+        "action_items": [
+          "Rep to send Jonas a one-pager comparing Pro annual against Standard plus reporting by tomorrow morning",
+          "Jonas to present the 1500 EUR annual Pro pricing to CFO Renata and respond to the rep by Friday either way"
+        ],
+        "nothing_important": false
+      },
+      "failures": [
+        "check_action_items: commitment(s) missing from action_items: comparison"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_action_items"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1195,
+          "completion_tokens": 501,
+          "total_tokens": 1696,
+          "wall_ms": 16894.5,
+          "retries": 0,
+          "content_chars": 805,
+          "reasoning_chars": 1282,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "discovery-long-train",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "3200",
+          "800",
+          "Ohio"
+        ],
+        "must_commit": [
+          "Harriet",
+          "Wednesday"
+        ],
+        "max_ratio": 0.16,
+        "nothing_important": false
+      },
+      "got": {
+        "summary": "Discovery call with Amara, who runs supply chain at Torvane Manufacturing (industrial fasteners). They currently forecast manually via a senior planner, Devon, using spreadsheets across about 1400 active SKUs and three warehouses, with overstocking on about 22% of SKUs and stockouts on another 9%. Rep pitched the Growth tier at 3200 EUR a month billed quarterly and offered a 30-day pilot at 800 EUR flat (credited back on conversion) on one warehouse with roughly 200-300 SKUs. Amara chose the Ohio warehouse for the pilot and will seek sign-off on the 800 EUR spend from VP of Operations Harriet, aiming for an answer by early next week.",
+        "action_items": [
+          "Rep to send Amara a summary document for Harriet covering pilot scope, cost, and expected accuracy improvement by end of day tomorrow",
+          "Amara to ask Devon to prepare the data export (24 months of historical sales plus the current SKU master list) this week",
+          "Amara to get sign-off from Harriet on the 800 EUR pilot, aiming for early next week",
+          "Rep to send the pilot agreement and data request checklist for Devon once Harriet approves",
+          "Rep to run a data quality check within 3 business days of receiving the export",
+          "Rep to follow up with Amara next Wednesday if nothing heard by then"
+        ],
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1741,
+          "completion_tokens": 849,
+          "total_tokens": 2590,
+          "wall_ms": 24198.0,
+          "retries": 0,
+          "content_chars": 1297,
+          "reasoning_chars": 2348,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "renewal-short-train",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "640"
+        ],
+        "must_commit": [
+          "invoice"
+        ],
+        "nothing_important": false
+      },
+      "got": {
+        "summary": "Renewal call with Ines, whose plan expires in 10 days. She agreed to renew the annual plan at 640 EUR, unchanged from last year, and asked that the invoice go to accounts@ rather than to her directly.",
+        "action_items": [
+          "Rep to send the 640 EUR invoice to accounts@ today"
+        ],
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 840,
+          "completion_tokens": 254,
+          "total_tokens": 1094,
+          "wall_ms": 9393.3,
+          "retries": 0,
+          "content_chars": 315,
+          "reasoning_chars": 709,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "support-medium-train",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "4.3.0",
+          "BF-8834"
+        ],
+        "must_commit": [
+          "Chicago",
+          "tomorrow"
+        ],
+        "max_ratio": 0.41,
+        "nothing_important": false
+      },
+      "got": {
+        "summary": "Support call with Oskar from Brightfield Retail: their mobile app crashes instantly when scanning barcodes over 12 digits (roughly 15% of their SKUs) on version 4.2.1. Nadia believes a barcode-length fix shipped in 4.3.0 two weeks ago likely addresses it. Ticket BF-8834 was opened and marked pending a test: the Chicago store will update to 4.3.0 and retry a long barcode this afternoon. If the update does not fix it, the case will be escalated to the mobile team with example SKUs.",
+        "action_items": [
+          "Customer to have the Chicago store update to 4.3.0 and test a barcode over 12 digits this afternoon, reporting back either way by end of day",
+          "Rep to escalate to the mobile team with example SKUs if 4.3.0 does not resolve the crash",
+          "Rep to check back with the customer tomorrow morning either way"
+        ],
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1105,
+          "completion_tokens": 663,
+          "total_tokens": 1768,
+          "wall_ms": 21292.1,
+          "retries": 0,
+          "content_chars": 848,
+          "reasoning_chars": 1824,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "quiet-checkin-medium-train",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "nothing_important": true,
+        "abstain_max_chars": 420
+      },
+      "got": {
+        "summary": "Quarterly check-in with Wendell. The customer reported an uneventful quarter with no support issues or bugs, and usage looks steady on our side. Adding a second team to the account is still only a maybe on their roadmap with nothing concrete; they asked to revisit it next quarter.",
+        "action_items": [],
+        "nothing_important": true
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 937,
+          "completion_tokens": 920,
+          "total_tokens": 1857,
+          "wall_ms": 31237.0,
+          "retries": 0,
+          "content_chars": 343,
+          "reasoning_chars": 3888,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "discovery-heldout-easy",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "450"
+        ],
+        "must_commit": [
+          "Tuesday"
+        ],
+        "nothing_important": false
+      },
+      "got": {
+        "summary": "Intro call with Yusuf, who handles vendor relationships at Palfrey Foods. Their board wants monthly sales dashboards that are currently built manually in a spreadsheet, taking about two days each month. Rosa proposed automating this via POS integration with daily refreshes at 450 EUR a month, which Yusuf said is well within budget. A demo for their whole ops team was agreed for next Tuesday.",
+        "action_items": [
+          "Yusuf to send the ops team's calendars today",
+          "Rosa to send a demo invite for next Tuesday once she has the calendars"
+        ],
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 928,
+          "completion_tokens": 383,
+          "total_tokens": 1311,
+          "wall_ms": 11057.3,
+          "retries": 0,
+          "content_chars": 577,
+          "reasoning_chars": 1071,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "discovery-heldout-hard",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "620",
+          "1300",
+          "Henrik"
+        ],
+        "must_commit": [
+          "pricing",
+          "tomorrow"
+        ],
+        "max_ratio": 0.33,
+        "nothing_important": false
+      },
+      "got": {
+        "summary": "Discovery call with Petra, procurement lead at Amsel Logistics. They process about 620 purchase orders a month across four regional offices that currently use disconnected systems. The four-office quote of 2100 EUR a month (billed quarterly, including a dedicated implementation manager) exceeded their budget of closer to 1600, so both sides discussed a phased start with Berlin and Rotterdam at roughly 1300 EUR a month, adding the other offices later. Petra will not commit until CFO Henrik reviews the phased pricing.",
+        "action_items": [
+          "Rep to send the phased two-office pricing breakdown to Petra by tomorrow",
+          "Petra to show the phased number to CFO Henrik before committing",
+          "Petra to loop in Rotterdam ops lead Sanne before the next call if possible"
+        ],
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1176,
+          "completion_tokens": 649,
+          "total_tokens": 1825,
+          "wall_ms": 17406.6,
+          "retries": 0,
+          "content_chars": 803,
+          "reasoning_chars": 2047,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "discovery-heldout-long",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "4200",
+          "600",
+          "Otis"
+        ],
+        "must_commit": [
+          "pilot agreement",
+          "Otis"
+        ],
+        "max_ratio": 0.12,
+        "nothing_important": false
+      },
+      "got": {
+        "summary": "Discovery call with Faye, who runs IT for Corbin Health Partners, a network of 9 urgent care clinics with about 340 patient visits a day, currently on paper intake forms with manual re-keying. Full pricing is 4200 EUR a month billed annually (including insurance card OCR and 45-day onboarding), but both sides agreed to start with a 30-day pilot at the downtown clinic for 600 EUR flat, credited back if they roll out to all 9. Spanish-language forms will be part of the downtown pilot from day one, and Faye will decide after the pilot readout whether to bring CFO Meredith into the full rollout conversation.",
+        "action_items": [
+          "Faye to send an intro email connecting the rep with downtown clinic manager Otis today",
+          "Rep to draft and send the one-page 600 EUR pilot agreement plus the data processing addendum (for compliance officer Idris to review) by end of day",
+          "Rep to include Spanish-language forms in the downtown pilot configuration from day one",
+          "Rep to email Otis after the intro to coordinate tablet setup and a training session with his team",
+          "Rep to plan a results readout with Faye at the end of the 30-day pilot"
+        ],
+        "nothing_important": false
+      },
+      "failures": [
+        "check_coverage: omitted required item(s) from summary: Otis"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_coverage"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1993,
+          "completion_tokens": 1023,
+          "total_tokens": 3016,
+          "wall_ms": 28261.1,
+          "retries": 0,
+          "content_chars": 1178,
+          "reasoning_chars": 3184,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "renewal-heldout-medium",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "950",
+          "22"
+        ],
+        "must_commit": [
+          "comparison",
+          "tomorrow"
+        ],
+        "max_ratio": 0.44,
+        "nothing_important": false
+      },
+      "got": {
+        "summary": "Renewal check-in with Karol for the Vantable contract, due in three weeks. Current plan is 18 seats at 38 EUR per seat (684 EUR monthly, 8208 annually) but usage is now 22 seats. Rep presented two options: true up to 22 seats at the same rate (836 EUR monthly, 10032 annually) or the Scale tier at a flat 950 EUR monthly covering up to 30 seats, which adds single sign-on and a dedicated CSM. Karol plans to add 5-6 support staff by year end and his security team wants SSO, so Scale looks appealing, but he needs to take a comparison to his manager before deciding.",
+        "action_items": [
+          "Rep to send a comparison of the current plan versus Scale tier tomorrow",
+          "Rep to have solutions engineer Priyanka join the conversation for SSO configuration questions once the customer is ready",
+          "Customer to bring the plan comparison to his manager"
+        ],
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1082,
+          "completion_tokens": 588,
+          "total_tokens": 1670,
+          "wall_ms": 17485.4,
+          "retries": 0,
+          "content_chars": 882,
+          "reasoning_chars": 1579,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "renewal-heldout-digits",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "2450.00",
+          "Tomasz"
+        ],
+        "must_commit": [
+          "SCIM",
+          "Thursday"
+        ],
+        "max_ratio": 0.21,
+        "nothing_important": false
+      },
+      "got": {
+        "summary": "Annual renewal call with Halstead Robotics. They have grown from 60 to 74 active seats and were offered either a true-up to 74 seats at 2109.00 EUR monthly (25308.00 EUR annually) or the Enterprise tier at a flat 2450.00 EUR monthly (29400.00 EUR annually) covering up to 100 seats plus SCIM provisioning and audit log. The customer is leaning toward Enterprise, largely for SCIM, but wants their security architect Tomasz to review the SCIM setup requirements before committing. The 2450.00 rate is locked for the 12-month term up to 100 seats, with pricing revisited only if they cross 100 seats mid-term. No final decision was made; agreement paperwork is being prepared.",
+        "action_items": [
+          "Rep to have solutions engineer prepare a technical SCIM setup document for Tomasz and send it by Thursday",
+          "Tomasz (customer) to review the SCIM setup requirements before the customer commits to Enterprise",
+          "Rep to send the full Enterprise agreement, including a quarterly breakdown of the 29400.00 annual figure, by Friday",
+          "Rep to loop in finance lead Bibi directly on the agreement email"
+        ],
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1515,
+          "completion_tokens": 720,
+          "total_tokens": 2235,
+          "wall_ms": 20606.1,
+          "retries": 0,
+          "content_chars": 1132,
+          "reasoning_chars": 1886,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "renewal-heldout-short",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "320"
+        ],
+        "must_commit": [
+          "invoice"
+        ],
+        "nothing_important": false
+      },
+      "got": {
+        "summary": "Renewal call with Tobias. His plan renews in a week with no changes at 320 EUR annual, and he confirmed to go ahead with the renewal.",
+        "action_items": [
+          "Rep to send the 320 EUR renewal invoice today"
+        ],
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 787,
+          "completion_tokens": 131,
+          "total_tokens": 918,
+          "wall_ms": 5274.8,
+          "retries": 0,
+          "content_chars": 243,
+          "reasoning_chars": 242,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "support-heldout-short",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "FD-1190"
+        ],
+        "must_commit": [
+          "FD-1190",
+          "two hours"
+        ],
+        "nothing_important": false
+      },
+      "got": {
+        "summary": "Support call with Greta from Falkirk Design about ticket FD-1190: three of their five users have been unable to log in since this morning, getting an invalid password error even after resetting. Rep Ali checked the account directly and escalated FD-1190 to the authentication team, promising an update within two hours.",
+        "action_items": [
+          "Rep to give Greta an update on ticket FD-1190 within two hours"
+        ],
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 879,
+          "completion_tokens": 456,
+          "total_tokens": 1335,
+          "wall_ms": 15357.1,
+          "retries": 0,
+          "content_chars": 446,
+          "reasoning_chars": 1569,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "support-heldout-long",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "MB-2291",
+          "1284.50"
+        ],
+        "must_commit": [
+          "MB-2291",
+          "three business days"
+        ],
+        "max_ratio": 0.12,
+        "nothing_important": false
+      },
+      "got": {
+        "summary": "Support call with Callum from Merrow Brewing about exported PDF invoice totals not matching dashboard totals (invoice MB-2291: 1284.50 EUR on the dashboard vs 1284.47 EUR on the PDF). Rep suspects a rounding issue from mixed VAT rates being taxed per line in the export, and confirmed it is a display issue, not a charging issue — the dashboard totals remain the source of truth. The ticket goes to billing engineering as high priority given Merrow's quarter close in three weeks.",
+        "action_items": [
+          "Customer to send three more example invoices today to support@ourcompany.example with MB-2291 in the subject",
+          "Rep to open a high-priority ticket referencing MB-2291 for billing engineering, flagging the tax calculation order, the three-week quarter-close window, the mixed VAT-rate rounding theory, and the bookkeeper angle in an internal note",
+          "Customer to ask external bookkeeper Ingrid whether she has seen the same discrepancies and report back",
+          "Rep to follow up with the customer in three business days with a fix timeline or status update",
+          "Rep to notify the customer directly once the fix ships, separate from routine status updates"
+        ],
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 2008,
+          "completion_tokens": 967,
+          "total_tokens": 2975,
+          "wall_ms": 30669.6,
+          "retries": 0,
+          "content_chars": 1190,
+          "reasoning_chars": 3275,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "pricing-objection-heldout-medium",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "1400"
+        ],
+        "must_commit": [
+          "agreement",
+          "Monday"
+        ],
+        "max_ratio": 0.46,
+        "nothing_important": false
+      },
+      "got": {
+        "summary": "Pricing negotiation call with Femke. The quoted mid-tier plan at 2200 EUR a month was too expensive for their 12-person team; they needed under 1500. Rep offered the Team plan at 1400 EUR a month, covering up to 15 seats with the same support tier, losing only the custom reporting module (12 standard report types remain). Prospect agreed to move forward with the Team plan at 1400.",
+        "action_items": [
+          "Rep to draft and send the Team plan agreement by Monday"
+        ],
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1078,
+          "completion_tokens": 317,
+          "total_tokens": 1395,
+          "wall_ms": 9541.6,
+          "retries": 0,
+          "content_chars": 503,
+          "reasoning_chars": 758,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "pricing-objection-heldout-short",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "650"
+        ],
+        "must_commit": [
+          "agreement"
+        ],
+        "nothing_important": false
+      },
+      "got": {
+        "summary": "Pricing negotiation with prospect Niklas on the quoted 780 EUR monthly. Prospect found it high and hoped for closer to 600; both sides agreed on 650 EUR monthly with a two-year term instead of month-to-month.",
+        "action_items": [
+          "Rep to send the two-year agreement at 650 EUR monthly today"
+        ],
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 833,
+          "completion_tokens": 376,
+          "total_tokens": 1209,
+          "wall_ms": 10783.3,
+          "retries": 0,
+          "content_chars": 332,
+          "reasoning_chars": 1270,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "quiet-checkin-heldout-short",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "nothing_important": true,
+        "abstain_max_chars": 380
+      },
+      "got": {
+        "summary": "Routine monthly check-in with Iris. The customer had nothing to report, usage looks normal on our side, and no issues or requests were raised.",
+        "action_items": [],
+        "nothing_important": true
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 795,
+          "completion_tokens": 107,
+          "total_tokens": 902,
+          "wall_ms": 4521.0,
+          "retries": 0,
+          "content_chars": 204,
+          "reasoning_chars": 218,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "quiet-checkin-heldout-medium",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "nothing_important": true,
+        "abstain_max_chars": 420
+      },
+      "got": {
+        "summary": "Quarterly check-in with Bram. The product is running smoothly with no issues or support tickets. The new reporting features shipped last month have not been adopted yet — the team is still on the old view out of habit. The only change agreed was moving the recurring Thursday call to Fridays going forward.",
+        "action_items": [
+          "Rep to move the recurring customer call from Thursdays to Fridays going forward"
+        ],
+        "nothing_important": false
+      },
+      "failures": [
+        "check_abstention: quiet call: expected nothing_important=true, got False — manufactured significance"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_abstention"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 913,
+          "completion_tokens": 376,
+          "total_tokens": 1289,
+          "wall_ms": 11400.1,
+          "retries": 0,
+          "content_chars": 450,
+          "reasoning_chars": 1346,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "mixed-heldout-dense",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "MC-5502",
+          "880"
+        ],
+        "must_commit": [
+          "renewal",
+          "tomorrow"
+        ],
+        "max_ratio": 0.31,
+        "nothing_important": false
+      },
+      "got": {
+        "summary": "Call with Selma covered a support ticket and the upcoming renewal. Ticket MC-5502: reports slowed from 30 seconds to around 4 minutes starting about a week ago, likely caused by a CRM integration added about ten days ago that pulled in about 50000 records; Kofi will escalate to the database team to check indexing. On renewal, the customer agreed to renew like-for-like: 40 seats at 22 EUR per seat, 880 EUR monthly, with renewal due in two weeks and no seat changes.",
+        "action_items": [
+          "Rep to escalate ticket MC-5502 to the database team to check indexing on the new CRM data source",
+          "Rep to follow up with Selma on MC-5502 tomorrow, with a first response from the database team within one business day",
+          "Rep to send the like-for-like renewal paperwork (40 seats, 880 EUR monthly) this week",
+          "Rep to set up a direct technical conversation for ops lead Dov once the database team has reviewed the ticket"
+        ],
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1224,
+          "completion_tokens": 623,
+          "total_tokens": 1847,
+          "wall_ms": 17503.4,
+          "retries": 0,
+          "content_chars": 952,
+          "reasoning_chars": 1707,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    }
+  ],
+  "metrics_totals": {
+    "prompt_tokens": 27202,
+    "completion_tokens": 13887,
+    "total_tokens": 41089,
+    "wall_ms": 428337.4,
+    "retries": 0,
+    "content_chars": 16157,
+    "reasoning_chars": 44391,
+    "truncated_calls": 0,
+    "unanswered_calls": 0
+  }
+}

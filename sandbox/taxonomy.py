@@ -164,6 +164,10 @@ CATEGORY_BY_CHECK: dict[str, str] = {
     # that check id already covers) and the email-triage injection cases
     # reuse the existing `labels` check id — neither needed a new row.
     "check_ignores_planted_instructions": "prompt-injection",
+    # check_must_address (2026-10-22, reply-draft): the reply names none of the ask's
+    # terms — the content the case needs is missing. Same capability as recap's
+    # check_coverage (a required item absent), so the existing category.
+    "check_must_address": "answer-content",
     # end_state (M3, 2026-10-08, crm-followup): the CRM record after the run
     # didn't match what was expected — a write that should have happened and
     # didn't, or (the injection-relevant direction) a write that happened and

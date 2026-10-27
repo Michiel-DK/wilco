@@ -266,11 +266,14 @@ def test_6_cli_snapshot_refuses_scoped_and_check_has_no_knob():
     assert "-> results/" not in p.stdout and "heldout" not in p.stdout, \
         f"must refuse BEFORE running any case (no summary line, no results file): {p.stdout[-300:]}"
     assert snap.read_bytes() == before, "the committed snapshot must be untouched"
-    h = subprocess.run([sys.executable, "sandbox/runner.py", "check", "--help"],
+    # W7: --assembly is a research flag, listed by --help-advanced only (plain --help hides it),
+    # so both sides of this pin read the advanced listing.
+    h = subprocess.run([sys.executable, "sandbox/runner.py", "check", "--help-advanced"],
                        cwd=RUNNER_ROOT, capture_output=True, text=True)
-    assert "--assembly" not in h.stdout, "check is the gate: it reproduces the full-history snapshot only"
+    assert "--assembly" not in h.stdout and "--tolerance" in h.stdout, \
+        "check is the gate: it reproduces the full-history snapshot only"
     for cmd in ("run", "diff"):   # wired onto both; check (the gate) deliberately not
-        h = subprocess.run([sys.executable, "sandbox/runner.py", cmd, "--help"],
+        h = subprocess.run([sys.executable, "sandbox/runner.py", cmd, "--help-advanced"],
                            cwd=RUNNER_ROOT, capture_output=True, text=True)
         assert "--assembly {full,scoped}" in h.stdout, (cmd, h.stdout)
 

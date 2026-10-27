@@ -1,0 +1,7 @@
+# gemma4-e2b-ctx16k: the crm-followup champion. Same weights as gemma4:e2b-it-qat (QAT Q4_0) at a
+# 16,384-token window; nothing else changes (temperature and max_tokens come from agents/<task>/agent.yaml).
+# Committed recipe: agents/crm-followup/Modelfile (PR #70, 4 Sep 2026). Under Ollama's 4,096 default the
+# front of a multi-turn thread, the system prompt first, was cut without an error.
+#   ollama create gemma4-e2b-ctx16k -f models/gemma4-e2b-ctx16k.Modelfile    (or ./models/models.sh)
+FROM gemma4:e2b-it-qat
+PARAMETER num_ctx 16384

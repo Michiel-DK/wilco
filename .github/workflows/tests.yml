@@ -1,13 +1,16 @@
 name: tests
 on: [push, pull_request]
 jobs:
-  unit:
+  gate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install -r requirements.txt pytest
-      # exams against real models need Ollama; the suite's own tests run on the stub provider
-      - run: pytest -q sandbox evals
+      - run: pip install -r requirements.txt
+      # The gate, not pytest: this repo's check()-style test files record a failure in a list and return it as the
+      # exit code, so pytest reports "passed" by construction (post-mortem 3). The gate runs every test file as
+      # `python3 <file>`, one process each, and fails on any non-zero exit. Offline: no Ollama, no key, no model.
+      # This runner has no mlx-lm (Apple-only); the mlx test must refuse loudly there, never skip.
+      - run: ./.cline/test.sh

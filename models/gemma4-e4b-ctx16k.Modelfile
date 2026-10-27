@@ -1,0 +1,7 @@
+# gemma4-e4b-ctx16k: the transcript-en and call-fields champion. Same weights as gemma4:e4b-it-qat (QAT Q4_0)
+# at a 16,384-token window; nothing else changes. Committed recipes: agents/transcript-en/Modelfile (6 Sep 2026)
+# and agents/call-fields/Modelfile. Under the 4,096 default a 19.6k-character call (5,317 prompt tokens) died
+# with finish_reason=length and no content.
+#   ollama create gemma4-e4b-ctx16k -f models/gemma4-e4b-ctx16k.Modelfile    (or ./models/models.sh)
+FROM gemma4:e4b-it-qat
+PARAMETER num_ctx 16384

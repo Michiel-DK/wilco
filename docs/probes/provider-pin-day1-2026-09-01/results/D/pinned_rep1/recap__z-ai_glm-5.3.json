@@ -1,0 +1,650 @@
+{
+  "agent": "recap",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "mode": "properties",
+  "train": {
+    "passed": 1,
+    "total": 7,
+    "score": 0.1429
+  },
+  "heldout": {
+    "passed": 5,
+    "total": 10,
+    "score": 0.5
+  },
+  "cases": [
+    {
+      "id": "busy-day-standard",
+      "split": "train",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "6500",
+          "Janssens"
+        ],
+        "max_ratio": 0.22,
+        "nothing_important": false
+      },
+      "got": {
+        "recap": "Janssens Bakkerij gaat akkoord met het voorstel van 6500 EUR en wil in september starten - ze vragen om een startdatum voor te stellen. Tom De Vos vraagt het overleg van donderdag een week later te verzetten, zelfde uur, wegens een uitlopende werf. Verder: Marc Claes bedankte voor de snelle oplossing, en de rest was nieuwsbrieven, marketing en automatische meldingen (back-up en domeinverlenging, geen actie nodig).",
+        "nothing_important": false
+      },
+      "failures": [
+        "check_compression: recap is 417 chars vs limit 401 (0.22 x 1824 source chars)"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_compression"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 926,
+          "completion_tokens": 353,
+          "total_tokens": 1279,
+          "wall_ms": 5696.4,
+          "retries": 0,
+          "content_chars": 458,
+          "reasoning_chars": 900,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "quiet-day-automated",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "nothing_important": true,
+        "abstain_max_chars": 220,
+        "max_ratio": 0.5
+      },
+      "got": {
+        "recap": "Nothing important today - an entrepreneurs' newsletter, an automated backup confirmation (no errors), and a networking site notification about 3 profile views.",
+        "nothing_important": true
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 562,
+          "completion_tokens": 165,
+          "total_tokens": 727,
+          "wall_ms": 3386.2,
+          "retries": 0,
+          "content_chars": 199,
+          "reasoning_chars": 605,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "compression-heavy",
+      "split": "train",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "Peeters"
+        ],
+        "max_ratio": 0.12,
+        "nothing_important": false
+      },
+      "got": {
+        "recap": "Els Peeters van Peeters-transport meldt een dringend probleem: sinds de update van vorige week worden hun facturen dubbel aangemaakt; ze hebben er al 14 moeten annuleren en kunnen zo niet verder factureren. De rest van de dag is routine: nieuwsbrieven, marketing, een automatische back-upmelding, domeinverlenging zonder actie, een jaaroverzicht polissen zonder wijzigingen en een automatisch afgeschreven telecomfactuur van 78.20 EUR.",
+        "nothing_important": false
+      },
+      "failures": [
+        "check_compression: recap is 435 chars vs limit 328 (0.12 x 2737 source chars)"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_compression"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1161,
+          "completion_tokens": 445,
+          "total_tokens": 1606,
+          "wall_ms": 7163.5,
+          "retries": 0,
+          "content_chars": 476,
+          "reasoning_chars": 1284,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "amounts-and-dates",
+      "split": "train",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "1240.75"
+        ],
+        "max_ratio": 0.25,
+        "nothing_important": false
+      },
+      "got": {
+        "recap": "Van Hove filed the Q2 VAT return: 1240.75 EUR must be paid by 20 July. Kredietbank is missing last year's annual accounts for credit file 44821 - send by 12 August or the application lapses. Also note: your hosting package rises from 42.00 to 47.50 EUR per month from 1 January (automatic). The rest was a newsletter and an automated backup notice.",
+        "nothing_important": false
+      },
+      "failures": [
+        "check_compression: recap is 348 chars vs limit 311 (0.25 x 1245 source chars)"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_compression"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 737,
+          "completion_tokens": 495,
+          "total_tokens": 1232,
+          "wall_ms": 7045.5,
+          "retries": 0,
+          "content_chars": 389,
+          "reasoning_chars": 1596,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "buried-critical",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "44821"
+        ],
+        "max_ratio": 0.14,
+        "nothing_important": false
+      },
+      "got": {
+        "recap": "Actie nodig: Kredietbank mist de jaarrekening van vorig boekjaar voor dossier 44821 - bezorg die uiterlijk 12 augustus, anders vervalt de kredietaanvraag. De rest is routine: nieuwsbrieven en aanbiedingen, een bevestiging van de meetup volgende donderdag, een webinar-uitnodiging, het polissenjaaroverzicht (niets wijzigt), een geslaagde automatische back-up en een gedomicilieerde factuur van 78.20 EUR.",
+        "nothing_important": false
+      },
+      "failures": [
+        "check_compression: recap is 404 chars vs limit 375 (0.14 x 2679 source chars)"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_compression"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1149,
+          "completion_tokens": 475,
+          "total_tokens": 1624,
+          "wall_ms": 7187.1,
+          "retries": 0,
+          "content_chars": 445,
+          "reasoning_chars": 1335,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "quiet-day-newsletters",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "nothing_important": true,
+        "abstain_max_chars": 180,
+        "max_ratio": 0.55
+      },
+      "got": {
+        "recap": "Nothing important today - an entrepreneurs' newsletter and a marketing email offering 20% off office supplies.",
+        "nothing_important": true
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 513,
+          "completion_tokens": 154,
+          "total_tokens": 667,
+          "wall_ms": 3581.7,
+          "retries": 0,
+          "content_chars": 150,
+          "reasoning_chars": 569,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "quiet-day-with-receipt",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "nothing_important": true,
+        "abstain_max_chars": 260,
+        "max_ratio": 0.4
+      },
+      "got": {
+        "recap": "Nothing important today - automated telecom invoice (78.20 EUR, auto-debited), an entrepreneurs newsletter, a domain expiry notice (auto-renewal is on), and an annual insurance overview with no changes to coverage or premium.",
+        "nothing_important": true
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 640,
+          "completion_tokens": 228,
+          "total_tokens": 868,
+          "wall_ms": 3845.4,
+          "retries": 0,
+          "content_chars": 265,
+          "reasoning_chars": 784,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "rounding-bait",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "47.50"
+        ],
+        "max_ratio": 0.28,
+        "nothing_important": false
+      },
+      "got": {
+        "recap": "Hostingpartner verhoogt je tarief van 42.00 EUR naar 47.50 EUR per maand vanaf 1 januari (gebeurt automatisch). Verder alleen routine: back-up voltooid zonder fouten, telecomfactuur van 78.20 EUR wordt volgende week afgeschreven, en een kortingpromotie op kantoorbenodigdheden.",
+        "nothing_important": false
+      },
+      "failures": [
+        "check_compression: recap is 277 chars vs limit 267 (0.28 x 956 source chars)"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_compression"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 650,
+          "completion_tokens": 798,
+          "total_tokens": 1448,
+          "wall_ms": 12435.1,
+          "retries": 0,
+          "content_chars": 318,
+          "reasoning_chars": 2933,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "two-urgent-among-noise",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "Peeters",
+          "44821"
+        ],
+        "max_ratio": 0.16,
+        "nothing_important": false
+      },
+      "got": {
+        "recap": "Two things need attention: Peeters Transport reports an urgent bug - since last week's update invoices are created in duplicate and they've had to cancel 14; they say they cannot keep invoicing like this. Kredietbank needs the annual accounts of the previous financial year for credit file 44821 by 12 August at the latest, or the application lapses. The rest is newsletters, marketing, and automated notices requiring no action.",
+        "nothing_important": false
+      },
+      "failures": [
+        "check_compression: recap is 429 chars vs limit 368 (0.16 x 2304 source chars)"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_compression"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1036,
+          "completion_tokens": 455,
+          "total_tokens": 1491,
+          "wall_ms": 7832.2,
+          "retries": 0,
+          "content_chars": 470,
+          "reasoning_chars": 1595,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "long-day-train-xl",
+      "split": "train",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "900",
+          "Mertens",
+          "Devos"
+        ],
+        "max_ratio": 0.07,
+        "nothing_important": false
+      },
+      "got": {
+        "recap": "Actie gevraagd: het leasecontract van de bestelwagen loopt af op 30 september — zonder reactie wordt het stilzwijgend twaalf maanden verlengd; de jaarlijkse audit staat gepland in de week van 6 oktober (twee voorkeursdata en een contactpersoon bezorgen); Peter Mertens wil vóór het weekend toelichting bij de post 'integratie' van 900 EUR in de offerte; Anke vraagt verlof van 14 tot 18 oktober; het juridisch kantoor wacht op opmerkingen over de aangepaste algemene voorwaarden; Tom De Vos wil het overleg van donderdag een week uitstellen. Verder: integratiepartner belt deze week over een gezamenlijk voorstel voor een klant, de parking is maandag tot woensdag heraangelegd (tijdelijke plaatsen achteraan), en de jaarafrekening elektriciteit stort 213.40 EUR terug.",
+        "nothing_important": false
+      },
+      "failures": [
+        "check_compression: recap is 768 chars vs limit 386 (0.07 x 5520 source chars)",
+        "check_coverage: omitted required item(s): Devos"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_compression"
+        },
+        {
+          "bucket": "quality",
+          "check": "check_coverage"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1970,
+          "completion_tokens": 1546,
+          "total_tokens": 3516,
+          "wall_ms": 46538.7,
+          "retries": 1,
+          "content_chars": 809,
+          "reasoning_chars": 5129,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "very-long-day",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "Peeters",
+          "6500",
+          "Janssens",
+          "Devos"
+        ],
+        "max_ratio": 0.1,
+        "nothing_important": false
+      },
+      "got": {
+        "recap": "Janssens Bakkerij accepted the 6500 EUR proposal and wants to start in September - they ask you to propose a start date. Peeters Transport reports an urgent bug: since last week's update invoices are created twice and they have already had to cancel 14. De Vos asks to move Thursday's meeting one week later, same time. The accountant filed the Q2 VAT return: 1240.75 EUR is due to the administration by 20 July. Vitrine-Interieur (Nathalie) has put the project on hold until Q4 for budget reasons. A junior developer applied (available from early October, lives near Leuven).",
+        "nothing_important": false
+      },
+      "failures": [
+        "check_compression: recap is 576 chars vs limit 429 (0.10 x 4292 source chars)",
+        "check_coverage: omitted required item(s): Devos"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_compression"
+        },
+        {
+          "bucket": "quality",
+          "check": "check_coverage"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1625,
+          "completion_tokens": 672,
+          "total_tokens": 2297,
+          "wall_ms": 9442.1,
+          "retries": 0,
+          "content_chars": 617,
+          "reasoning_chars": 2112,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "long-day-heldout-xl",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "Peeters",
+          "6500",
+          "44821",
+          "Mertens"
+        ],
+        "max_ratio": 0.05,
+        "nothing_important": false
+      },
+      "got": {},
+      "failed_checks": [
+        {
+          "bucket": "termination",
+          "check": "termination"
+        }
+      ],
+      "detail": {
+        "termination": {
+          "cause": "no_answer",
+          "finish_reason": "length",
+          "completion_tokens": 2048,
+          "content_chars": 0,
+          "reasoning_chars": 8519
+        }
+      }
+    },
+    {
+      "id": "long-quiet-day",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "nothing_important": true,
+        "abstain_max_chars": 240,
+        "max_ratio": 0.18
+      },
+      "got": {
+        "recap": "Nothing important today - only newsletters, marketing offers and automated notices (backup completed, SSL and domain renewed, telecom invoice of 78.20 EUR auto-debited, bank statement available). Nothing needs your attention.",
+        "nothing_important": true
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1770,
+          "completion_tokens": 587,
+          "total_tokens": 2357,
+          "wall_ms": 9724.0,
+          "retries": 0,
+          "content_chars": 265,
+          "reasoning_chars": 2414,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "buried-critical-xl",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "Vermeulen"
+        ],
+        "nothing_important": false,
+        "max_ratio": 0.15
+      },
+      "got": {
+        "recap": "Dringende klacht van Katrien Vermeulen (Vermeulen Bouwmaterialen): hun betaalterminal ligt plat sinds maandagochtend, klanten kunnen enkel cash betalen, omzet daalt, en na twee helpdeskgesprekken zonder oplossing vragen ze vandaag nog een terugbel. De rest van de dag zijn nieuwsbrieven, promoties en automatische meldingen zonder actie.",
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 2117,
+          "completion_tokens": 275,
+          "total_tokens": 2392,
+          "wall_ms": 5784.5,
+          "retries": 0,
+          "content_chars": 378,
+          "reasoning_chars": 801,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "amounts-at-length",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "nothing_important": false,
+        "max_ratio": 0.18,
+        "must_mention": [
+          "De Wilde",
+          "Vanhoof",
+          "Claes",
+          "1249.50"
+        ]
+      },
+      "got": {
+        "recap": "De Wilde vraagt na of de betaling van de openstaande factuur van 1249.50 EUR al vertrokken is. Wouters wil een prijs voor 40 lopende meter standaardprofiel voor hun offerte. Claes stuurde een offerte van 3480 EUR excl. BTW voor de kastenwand, dertig dagen geldig. Segers bestelt 18 stalen uit het najaarsgamma, geen haast. Verder: Timmermans betaalt het voorschot van 2150 EUR deze week, Vanhoof verrekent een creditnota van 612.40 EUR met je volgende factuur, en Vergote bevestigt dat je betaling van 890 EUR in orde is. De rest zijn nieuwsbrieven en automatische berichten.",
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1820,
+          "completion_tokens": 1309,
+          "total_tokens": 3129,
+          "wall_ms": 15312.2,
+          "retries": 0,
+          "content_chars": 616,
+          "reasoning_chars": 4024,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "long-day-train-2",
+      "split": "train",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "Peeters",
+          "Maes",
+          "Dendooven",
+          "Vergote"
+        ],
+        "nothing_important": false,
+        "max_ratio": 0.09
+      },
+      "got": {
+        "recap": "Peeters-transport reports an urgent bug: since last week's update the module creates duplicate invoices and they've already had to cancel 9. Lawyer Dendooven reviewed your general terms - two clauses need adjusting before publication and she'd like a call this week. Several replies needed: Maes wants to schedule October works (flexible except the second week), Claeys asks for a date for this quarter's installation inspection, D'Haene proposes moving Friday's intervention to Monday morning, and Desmedt asks for an alternative part since the ordered one isn't available until next month. Vergote requests a corrected invoice (missing VAT number) and De Clercq asks about fixed loading time slots for his drivers. Vandewalle confirmed the placement date - crew in the morning, full workday.",
+        "nothing_important": false
+      },
+      "failures": [
+        "check_compression: recap is 793 chars vs limit 392 (0.09 x 4360 source chars)"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_compression"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1690,
+          "completion_tokens": 1179,
+          "total_tokens": 2869,
+          "wall_ms": 15105.1,
+          "retries": 0,
+          "content_chars": 834,
+          "reasoning_chars": 4558,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "long-day-train-3",
+      "split": "train",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "Desmet",
+          "Lambrecht",
+          "Verstraete",
+          "Vandamme"
+        ],
+        "nothing_important": false,
+        "max_ratio": 0.07
+      },
+      "got": {
+        "recap": "Busy day with several customer requests. Desmet reports 12 damaged boxes from last week's delivery and wants a solution proposal this week; Vandamme is still waiting on last month's invoice, needed by their accounting this week; Lambrecht asks to confirm material delivery is on schedule (crew ready from the third week); D'Hondt wants the quote adjusted with the new dimensions; Vandenberghe changes the order from 24 to 30 profiles and asks for confirmation. Notary Verstraete's draft deed is ready for you to check the company details before signing is planned. Vanacker asks to move next week's site visit one week later (same time); Moeyaert's warehouse moves next month with a new delivery address to follow; Baert needs the technical sheet of the delivered device; De Jaeger requests a conformity certificate (no rush); De Bruyne asks for autumn sample cards to show a client next week. The rest was newsletters, promos and automated notices.",
+        "nothing_important": false
+      },
+      "failures": [
+        "check_compression: recap is 949 chars vs limit 458 (0.07 x 6550 source chars)"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_compression"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 2329,
+          "completion_tokens": 1600,
+          "total_tokens": 3929,
+          "wall_ms": 47970.7,
+          "retries": 1,
+          "content_chars": 990,
+          "reasoning_chars": 5952,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    }
+  ],
+  "metrics_totals": {
+    "prompt_tokens": 20695,
+    "completion_tokens": 10736,
+    "total_tokens": 31431,
+    "wall_ms": 208050.4,
+    "retries": 2,
+    "content_chars": 7679,
+    "reasoning_chars": 36591,
+    "truncated_calls": 0,
+    "unanswered_calls": 0,
+    "unmetered_cases": 1,
+    "complete": false
+  }
+}

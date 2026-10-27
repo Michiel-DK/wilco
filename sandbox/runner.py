@@ -44,7 +44,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from judges import load_judge  # noqa: E402
 from numnorm import strip_thousands  # noqa: E402
 from retry import ParseFailure, call_with_retry, extract_json  # noqa: E402
-from router import DEFAULT_TIMEOUT_S, PROVIDERS, TerminationError, get_adapter  # noqa: E402
+from router import (DEFAULT_TIMEOUT_S, PROVIDER_TIER, PROVIDERS, TIER_ORDER,  # noqa: E402
+                    ChatCompletionsAdapter, TerminationError, get_adapter)
 import taxonomy  # noqa: E402  (report-only; imports nothing from here at load time)
 import policy  # noqa: E402  (report-only; imports nothing from here at load time)
 import stats  # noqa: E402  (A3: the single interval implementation, shared with route/serve)
@@ -100,10 +101,28 @@ def adapter_for(agent: dict, provider: str | None = None, timeout: int | None = 
     """
     if timeout is None:
         timeout = agent.get("timeout_s")
-    return get_adapter(provider or agent["provider"], timeout=timeout,
+    resolved = provider or agent["provider"]
+    # systemone tier (2026-09-30): the decision spec is read from agents/<name>/decision.yaml
+    # ONLY when the resolved provider is of that kind, so a committed agent.yaml is never
+    # touched and the chat path below is byte-identical (sandbox/test_systemone.py).
+    decision = load_decision(agent["name"]) if PROVIDERS.get(resolved, {}).get("kind") == "systemone" else None
+    return get_adapter(resolved, timeout=timeout,
                        json_mode=bool(agent.get("json_mode", False)),
                        reasoning_effort=agent.get("reasoning_effort"),
-                       provider_routing=agent.get("provider_routing"))
+                       provider_routing=agent.get("provider_routing"),
+                       decision=decision)
+
+
+def load_decision(agent_name: str) -> dict:
+    """The typed-question spec for the systemone tier. Fail loud: a systemone run with no
+    spec, or a spec whose outputs name unknown questions, is refused before any call."""
+    path = ROOT / "agents" / agent_name / "decision.yaml"
+    if not path.exists():
+        sys.exit(f"error: --provider systemone needs {path} (see sandbox/test_systemone.py)")
+    spec = yaml.safe_load(path.read_text()) or {}
+    if not spec.get("questions"):
+        sys.exit(f"error: {path} has no questions")
+    return spec
 
 
 def load_exam(name: str) -> dict:
@@ -327,6 +346,20 @@ def call_model(agent, adapter, model, messages) -> tuple[dict, str, dict]:
     reasoning_chars} — token counts are None when the backend doesn't report usage
     (never guessed). The two char counts are E24: they say where the completion budget
     went (answer vs thinking) without inventing a token split no provider reports."""
+    guard = getattr(adapter, "window_guard", None)
+    if guard is not None:
+        # W2 window preflight: EVERY call on the guarded path, so a tool loop or a later
+        # turn that outgrows the window is caught at the call that would be truncated.
+        est = estimate_prompt_tokens(messages)
+        if est > guard["num_ctx"]:
+            if not guard["allow"]:
+                raise WindowExceeded(
+                    f"prompt ~{est} tokens (chars/4 estimate) > {model!r} window "
+                    f"num_ctx={guard['num_ctx']}: Ollama would silently cut the front "
+                    f"of the prompt. Fix: {WINDOW_FIX}",
+                    {"prompt_tokens_est": est, "num_ctx": guard["num_ctx"],
+                     "estimate": f"chars/{CHARS_PER_TOKEN}"})
+            guard["exceeded"] = True
     start = time.perf_counter()
     try:
         parsed, raw, meta, retries = call_with_retry(
@@ -630,6 +663,18 @@ def _run_tool_loop(agent, messages: list, expected: dict, adapter, model, tools_
             termination = {"cause": "no_answer", **exc.details}
             parsed = {}
             break
+        except WindowExceeded as exc:
+            # W2 window preflight inside the tool loop. Before ANY call of this case
+            # (no assistant turn in the history yet) nothing was sent: re-raise, and the
+            # case boundary records the refusal. AFTER earlier calls were sent, the run
+            # did happen — so it is recorded like the D2 death one clause up (cause
+            # "window", evidence kept, loop stops) and _score_one_turn names the check
+            # "window". A live run then logs its line instead of losing it.
+            if not any(m.get("role") == "assistant" for m in messages):
+                raise
+            termination = {"cause": "window", **exc.details}
+            parsed = {}
+            break
         step_metrics.append(metrics)
         if "answer" in parsed:
             # Appended so a caller reusing `messages` for a later turn (MULTITURN-
@@ -814,7 +859,10 @@ def _score_one_turn(parsed: dict, trace: dict, expected: dict, input_text: str,
         # check is what makes it False today, and a verdict must not depend on
         # another check continuing to exist.
         passed = False
-        entry = {"bucket": "termination", "check": "termination"}
+        # W2: a window refusal mid-loop is named for its cause (runner-emitted only).
+        entry = {"bucket": "termination",
+                 "check": ("window" if (trace["termination"] or {}).get("cause") == "window"
+                           else "termination")}
         if turn_index is not None:
             entry["turn"] = turn_index
         failed_checks.insert(0, entry)
@@ -1653,9 +1701,249 @@ def _judge_check_id(failure: str) -> str:
     return failure.split(": ", 1)[0]
 
 
+# ---------------------------------------------------------------- W2 guards (2026-10-23)
+
+EXIT_REFUSED = 2   # a guard refused before any request: tier breach, window, ambiguous entry
+
+
+# ---------------------------------------------------------------- W7 one-line errors (2026-10-27)
+
+class Refused(Exception):
+    """W7. A refusal before any request whose message is already the one sentence the user
+    reads; main() prints it as `<prog> <cmd>: <message>` and exits EXIT_REFUSED. A direct
+    Exception subclass for the TierBreach reason (no case boundary may score it)."""
+
+
+class PlaceholderModel(Refused):
+    """The model is the `wilco new` scaffold's placeholder (or empty): it names no model,
+    so sending it anywhere is a guaranteed failure (Ollama answers /api/show with 400)."""
+
+
+class OllamaUnreachable(RuntimeError):
+    """W7. The window preflight could not read /api/show. A RuntimeError subclass so every
+    caller that caught the pre-W7 RuntimeError still does; its message is one line naming
+    the host and the fix."""
+
+
+# `wilco new` writes model: "<pick one with: wilco diff>" (scripts/exam_new.py AGENT_YAML).
+# Any value wrapped in angle brackets is a placeholder: no model id starts with '<'.
+PLACEHOLDER_MODEL_RE = re.compile(r"^\s*<.*>\s*$")
+
+
+def is_placeholder_model(model) -> bool:
+    return model is None or not str(model).strip() or bool(PLACEHOLDER_MODEL_RE.match(str(model)))
+
+
+def refuse_placeholder_model(agent_name: str, provider: str, model, source: str | None = None) -> None:
+    """Raise PlaceholderModel BEFORE any adapter is built or request sent, unless the
+    provider is the stub (which reads no model, and is what the refusal suggests).
+    `source` names where the value came from when it was NOT agent.yaml (`--model`,
+    `--models`, `routes.yaml`), so the sentence never blames the wrong file."""
+    if provider == "stub" or not is_placeholder_model(model):
+        return
+    if source:
+        raise PlaceholderModel(f"{source} names a placeholder, not a model ({model!r}) — "
+                               f"give a real model id, e.g. ollama/gemma4:e4b")
+    raise PlaceholderModel(
+        f"agents/{agent_name}/agent.yaml still has the placeholder model ({model!r}) — run "
+        f"`wilco diff {agent_name} --models …` to measure, then `wilco adopt`, or try "
+        f"`--provider stub`")
+
+
+def _one_line(exc: BaseException) -> str:
+    """The message main() prints for an exception: one line, never a stack. Our own
+    message-bearing classes print as written; anything else is prefixed with its type
+    (a bare KeyError prints only the key) and points at WILCO_DEBUG."""
+    msg = " ".join(str(exc).split()) or "(no message)"
+    if _is_a(exc, "Refused", "OllamaUnreachable", "TierBreach", "WindowExceeded"):
+        return msg
+    return f"{type(exc).__name__}: {msg} (WILCO_DEBUG=1 prints the traceback)"
+
+
+def _is_a(exc: BaseException, *names: str) -> bool:
+    """isinstance by class NAME along the MRO, deliberately. When this file runs as
+    __main__ (`python3 sandbox/runner.py`, or the wilco shim's runpy), modules that
+    `import runner` (probe, worker, shadow_gmail, scripts/) get a SECOND copy of it, and
+    their Refused is not __main__'s Refused — an isinstance check would miss it."""
+    return any(c.__name__ in names for c in type(exc).__mro__)
+
+
+class TierBreach(Exception):
+    """A provider ranks above the exam's `tier` (agent.yaml: "data may not leave this
+    tier"), or the tier cannot be read. Raised BEFORE any adapter is built or request
+    sent; the cmd_* boundaries turn it into exit 2 and one sentence. A direct Exception
+    subclass so no case boundary (ValueError/TypeError = "unparseable output") can
+    swallow it into a scored case."""
+
+
+def tier_check(agent: dict, provider: str, allow: bool = False) -> bool:
+    """W2. True iff `provider` sits ABOVE the exam's tier and `allow` let it through
+    (the caller then writes `tier_breach: true` into the result). False when the
+    provider is within the tier. Raises TierBreach on a breach without `allow`, on an
+    unknown `tier` value, and on a provider with no PROVIDER_TIER entry. An agent with
+    NO `tier` key is held to the strictest tier, "local" (every committed agent.yaml
+    sets one; test fixtures and hand-built agents often do not) — a missing label can
+    only ever refuse more, never let data out."""
+    exam_tier = agent.get("tier", TIER_ORDER[0])
+    if exam_tier not in TIER_ORDER:
+        raise TierBreach(f"agents/{agent.get('name')}/agent.yaml tier is {exam_tier!r}, "
+                         f"not one of {list(TIER_ORDER)}: refusing rather than guessing "
+                         f"where its data may go")
+    ptier = PROVIDER_TIER.get(provider)
+    if ptier is None:
+        raise TierBreach(f"provider {provider!r} has no tier in router.PROVIDER_TIER: "
+                         f"refusing rather than guessing where it sends data")
+    if TIER_ORDER.index(ptier) <= TIER_ORDER.index(exam_tier):
+        return False
+    if not allow:
+        raise TierBreach(f"{agent['name']} is a {exam_tier}-tier exam (its data may not "
+                         f"leave that tier) and provider {provider!r} is {ptier}-tier: "
+                         f"refused before any request; --allow-tier-breach runs it anyway "
+                         f"and records tier_breach: true in the result")
+    print(f"WARNING: tier breach allowed: {agent['name']} ({exam_tier}) -> "
+          f"{provider} ({ptier}); recorded as tier_breach: true", file=sys.stderr)
+    return True
+
+
+def parse_model_entries(models_arg: str, flag_provider: str | None,
+                        agent_provider: str) -> list[tuple[str, str]]:
+    """W2: `diff --models` entries -> [(provider, model)].
+
+    Without `--provider`, an entry `<p>/<model>` whose first segment is a PROVIDERS key
+    names its own provider (`ollama/gemma4:e2b-it-qat`, `openrouter/google/gemma-4-26b-a4b-it`);
+    any other entry keeps today's behaviour, the agent's provider (`hf.co/...` is a model
+    id, `hf.co` is not a provider).
+
+    WITH `--provider`, every entry is a model id on that provider, byte-for-byte today's
+    behaviour. This is load-bearing, not cosmetic: OpenRouter ids start with a vendor
+    segment, and `openai/gpt-5.4-mini` on OpenRouter is not `gpt-5.4-mini` on the
+    `openai` provider (another endpoint, another key). A provider-shaped prefix under
+    `--provider` is announced, never silently re-read."""
+    out = []
+    for raw in models_arg.split(","):
+        entry = raw.strip()
+        head, sep, rest = entry.partition("/")
+        if not flag_provider and sep and head in PROVIDERS and not rest.strip():
+            raise TierBreach(f"--models entry {entry!r} names provider {head!r} but no model")
+        if flag_provider:
+            if sep and head in PROVIDERS:
+                print(f"note: --provider {flag_provider} given, so {entry!r} is a model id "
+                      f"on {flag_provider} (drop --provider to read {head!r} as the provider)")
+            out.append((flag_provider, entry))
+        elif sep and head in PROVIDERS and rest:
+            out.append((head, rest))
+        else:
+            out.append((agent_provider, entry))
+    return out
+
+
+# Window preflight (gotcha 16). Ollama's compat endpoint runs a model at its Modelfile
+# `num_ctx`, else at the server default (4096 on this box, measured 2026-07-29), ignores
+# `num_ctx` in the request, and CUTS THE FRONT of an over-long prompt (system prompt
+# first). So every call to the local Ollama chat path is preflighted in call_model.
+OLLAMA_DEFAULT_NUM_CTX = 4096
+CHARS_PER_TOKEN = 4
+WINDOW_FIX = ("raise the window in a Modelfile: `FROM <model>` + `PARAMETER num_ctx 16384`, "
+              "`ollama create <model>-ctx16k -f Modelfile` (crm precedent PR #70, "
+              "agents/crm-followup/); on `run`/`diff`, --allow-truncation runs anyway and "
+              "stamps window_exceeded: true")
+
+
+class WindowExceeded(Exception):
+    """The estimated prompt does not fit the model's window, so Ollama would truncate it
+    silently. Raised in call_model BEFORE the request. A direct Exception subclass (same
+    reasoning as TerminationError): ValueError would be scored as `error`, and no
+    trajectory-loop clause catches it, so it reaches run_exam's case boundary, which
+    records failed_checks=[{bucket: termination, check: window}]."""
+
+    def __init__(self, message: str, details: dict):
+        super().__init__(message)
+        self.details = dict(details)
+
+
+def estimate_prompt_tokens(messages: list[dict]) -> int:
+    """chars/4 over every message's content, rounded up. An ESTIMATE, stated as one: no
+    tokenizer is loaded, and the ratio runs LOW on this suite's prose (gotcha 16 measured
+    19.6k chars = 5,317 tokens, ~3.7 chars/token), so a prompt just under the window can
+    still be cut. Role/template overhead is not counted either."""
+    chars = sum(len(m.get("content") or "") for m in messages)
+    return -(-chars // CHARS_PER_TOKEN)
+
+
+def ollama_num_ctx(model: str) -> int:
+    """The window Ollama runs `model` at: `num_ctx` from POST /api/show `parameters`
+    (the Modelfile values, what `ollama show <model> --parameters` prints), else
+    OLLAMA_DEFAULT_NUM_CTX. stdlib urllib, like ollama_version. Raises on any failure
+    (server down, model not pulled, bad JSON) — never a guessed window.
+    NOT read: the server's OLLAMA_CONTEXT_LENGTH env (gotcha 21's blind spot); a server
+    started with a larger default makes this refuse too early, a smaller one too late."""
+    url = _ollama_native_base_url() + "/api/show"
+    req = urllib.request.Request(url, data=json.dumps({"model": model}).encode(),
+                                 headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        data = json.loads(resp.read())
+    m = re.search(r"^num_ctx\s+(\d+)\s*$", data.get("parameters") or "", re.MULTILINE)
+    return int(m.group(1)) if m else OLLAMA_DEFAULT_NUM_CTX
+
+
+def window_refused(case: dict) -> bool:
+    """True iff the window preflight refused or cut short this per-case record: at the
+    case level, or on ANY turn of a `turns` case (_run_turns keeps a turn's termination on
+    its own entry in detail["turns"], not at the top). The one reader for snapshot refusal,
+    the run summary and the console line."""
+    detail = case.get("detail") or {}
+    terms = [detail.get("termination")] + [t.get("termination") for t in
+                                           (detail.get("turns") or []) if isinstance(t, dict)]
+    return any(isinstance(t, dict) and t.get("cause") == "window" for t in terms)
+
+
+def _window_guarded(adapter, provider: str) -> bool:
+    """The preflight applies to the REAL chat adapter pointed at the local Ollama server
+    (provider served by it AND the adapter's own base_url is that server). Not to
+    systemone (same server, decision endpoint, no chat prompt), not to stub/mlx/hosted,
+    and not to a fake or a canned-URL adapter (those never reach Ollama)."""
+    return (_served_by_local_ollama(provider)
+            and PROVIDERS.get(provider, {}).get("kind") is None
+            and isinstance(adapter, ChatCompletionsAdapter)
+            and adapter.base_url == PROVIDERS["ollama"]["base_url"].rstrip("/"))
+
+
+def install_window_guard(adapter, provider: str, model: str,
+                         allow_truncation: bool = False) -> dict | None:
+    """Attach the preflight to `adapter` (read by call_model). Returns the guard dict,
+    or None when the path is not guarded. One /api/show per run, which loads no weights,
+    so the snapshot load protocol is undisturbed."""
+    if not _window_guarded(adapter, provider):
+        return None
+    try:
+        num_ctx = ollama_num_ctx(model)
+    except (OSError, ValueError, KeyError) as exc:   # URLError/HTTPError are OSError
+        # W7: one line naming the host and the fix. An HTTP error means the server
+        # answered (usually: model not pulled); anything else means it did not.
+        host = _ollama_native_base_url()
+        if isinstance(exc, urllib.error.HTTPError):
+            why = (f"Ollama at {host} answered /api/show for {model!r} with HTTP "
+                   f"{exc.code} — is the model pulled (`ollama pull {model}`) and "
+                   f"`ollama serve` the server you mean?")
+        elif not isinstance(exc, OSError):
+            why = (f"Ollama at {host} sent an unreadable /api/show reply for {model!r} "
+                   f"({type(exc).__name__}: {exc}) — is `ollama serve` the server you mean?")
+        else:
+            reason = getattr(exc, "reason", exc)
+            why = (f"cannot reach Ollama at {host} ({reason}) — start it with "
+                   f"`ollama serve`")
+        raise OllamaUnreachable(f"{why}; refusing to run without knowing the model's "
+                                f"window (num_ctx)") from exc
+    guard = {"num_ctx": num_ctx, "allow": bool(allow_truncation), "exceeded": False,
+             "model": model}
+    adapter.window_guard = guard
+    return guard
+
+
 def run_exam(agent: dict, exam: dict, provider: str, model: str,
              timeout: int | None = None, dedupe_tools: bool = False,
-             assembly: str = "full", scoped_rule: str = "off") -> dict:
+             assembly: str = "full", scoped_rule: str = "off",
+             allow_truncation: bool = False) -> dict:
     _check_scoped_rule(scoped_rule)   # before the case boundary, which would swallow it
     if scoped_rule != "off" and assembly != "full":
         # AS-3: the turns roll-up credits delivery to the next turn's first call, which is
@@ -1664,6 +1952,7 @@ def run_exam(agent: dict, exam: dict, provider: str, model: str,
         raise ValueError(f"scoped_rule={scoped_rule!r} requires assembly 'full' "
                          f"(got {assembly!r})")
     adapter = adapter_for(agent, provider, timeout)
+    window = install_window_guard(adapter, provider, model, allow_truncation)
     mode = exam.get("mode", "labels")
     props = load_properties(agent["name"])
     judge = load_judge(agent["name"], exam, model, ROOT)
@@ -1739,6 +2028,8 @@ def run_exam(agent: dict, exam: dict, provider: str, model: str,
         detail = {}
         failures = []
         failed_checks = []
+        if window is not None:
+            window["exceeded"] = False
         try:
             if samples == 1:
                 passed, got, failures, detail, failed_checks = attempt(case)
@@ -1773,6 +2064,14 @@ def run_exam(agent: dict, exam: dict, provider: str, model: str,
             passed, got = False, {}
             detail = {"termination": {"cause": "no_answer", **exc.details}}
             failed_checks = [{"bucket": "termination", "check": "termination"}]
+        except WindowExceeded as exc:
+            # W2 window preflight: refused BEFORE the request that would have been
+            # truncated. No answer exists, so the case fails with one named record;
+            # the estimate, the window and the fix ride in detail["termination"].
+            passed, got = False, {}
+            detail = {"termination": {"cause": "window", **exc.details,
+                                      "fix": WINDOW_FIX}}
+            failed_checks = [{"bucket": "termination", "check": "window"}]
         except (requests.Timeout, requests.ConnectionError) as exc:
             # TERMINATION-DETECT D4. retry.py re-raises these after its api_attempts,
             # and before this clause they escaped run_exam and killed the WHOLE run
@@ -1817,7 +2116,11 @@ def run_exam(agent: dict, exam: dict, provider: str, model: str,
                          "expected": case.get("expected"), "got": got,
                          **({"failures": failures} if failures else {}),
                          **({"failed_checks": failed_checks} if failed_checks else {}),
-                         **({"detail": detail} if detail else {})})
+                         **({"detail": detail} if detail else {}),
+                         # W2: only under --allow-truncation, only on a case whose
+                         # prompt overran the window (absent otherwise: byte-identical).
+                         **({"window_exceeded": True}
+                            if window is not None and window["exceeded"] else {})})
         mark = "PASS" if passed else "FAIL"
         reasons = list(failures[:2])
         # TERMINATION-DETECT: CONSOLE ONLY — nothing here reaches `per_case`, the
@@ -1828,10 +2131,16 @@ def run_exam(agent: dict, exam: dict, provider: str, model: str,
         term = (detail or {}).get("termination") if isinstance(detail, dict) else None
         if term and not passed:
             bits = ", ".join(f"{k}={term[k]}" for k in
-                             ("finish_reason", "content_chars", "exception")
+                             ("finish_reason", "content_chars", "exception",
+                              "prompt_tokens_est", "num_ctx")
                              if k in term)
             reasons.insert(0, f"termination: {term.get('cause')}"
                               + (f" ({bits})" if bits else ""))
+        elif not passed and window_refused({"detail": detail}):
+            # W2: a `turns` case cut short by the window carries it on the turn entry
+            turn_no = next(t.get("turn") for t in detail["turns"]
+                           if (t.get("termination") or {}).get("cause") == "window")
+            reasons.insert(0, f"termination: window (turn {turn_no})")
         # R7: same console-only courtesy for a parse break — a `turns` case carries
         # the marker on the turn that broke, a single-turn case at the top level.
         # Nothing here reaches per_case either.
@@ -1845,6 +2154,10 @@ def run_exam(agent: dict, exam: dict, provider: str, model: str,
         extra = f"  ({'; '.join(reasons)})" if reasons and not passed else ""
         print(f"  [{mark}] {case['id']} ({split}){extra}")
 
+    refused = sum(1 for c in per_case if window_refused(c))
+    if refused:
+        print(f"  window preflight refused {refused} case(s) on {model!r} "
+              f"(num_ctx={window['num_ctx']}): {WINDOW_FIX}")
     result = {"agent": agent["name"], "provider": provider, "model": model, "mode": mode,
               "train": {"passed": totals["train"][0], "total": totals["train"][1]},
               "heldout": {"passed": totals["heldout"][0], "total": totals["heldout"][1]},
@@ -1899,8 +2212,21 @@ def ollama_version() -> str:
     urllib only, no shell-out. Raises on any failure (bad JSON, no 'version' key,
     connection refused, timeout) — never a placeholder version."""
     url = _ollama_native_base_url() + "/api/version"
-    with urllib.request.urlopen(url, timeout=10) as resp:
-        data = json.loads(resp.read())
+    try:
+        with urllib.request.urlopen(url, timeout=10) as resp:
+            data = json.loads(resp.read())
+    except urllib.error.HTTPError as exc:
+        # W7: the server answered, but not with a version (e.g. something else on the port)
+        raise OllamaUnreachable(f"Ollama at {_ollama_native_base_url()} answered /api/version "
+                                f"with HTTP {exc.code} — is `ollama serve` the server on that "
+                                f"port?") from exc
+    except OSError as exc:
+        # W7: `check` and `run --snapshot` reach the server here first, before any
+        # /api/show — same one line as the window preflight (a RuntimeError subclass).
+        # OSError covers URLError (refused), TimeoutError (a hung server), resets.
+        raise OllamaUnreachable(f"cannot reach Ollama at {_ollama_native_base_url()} "
+                                f"({getattr(exc, 'reason', exc)}) — start it with "
+                                f"`ollama serve`") from exc
     return data["version"]
 
 
@@ -2347,6 +2673,15 @@ def refuse_snapshot_on_outage(result: dict) -> None:
     Loud, never a placeholder: sys.exit naming the count, so the operator reruns rather
     than silently committing a floor.
     """
+    # W2: a window refusal is not a measurement either — the case never ran, so a
+    # snapshot would commit it as a stable FAIL that every later `check` clears.
+    windowed = [c["id"] for c in result["cases"] if window_refused(c)]
+    if windowed:
+        sys.exit(
+            f"error: refusing --snapshot: {len(windowed)} of {len(result['cases'])} cases "
+            f"were refused or cut short by the window preflight ({', '.join(windowed[:5])}"
+            f"{', ...' if len(windowed) > 5 else ''}): they were not measured, and a "
+            f"snapshot would commit them as stable FAILs. {WINDOW_FIX.split(';')[0]}.")
     dead = [c["id"] for c in result["cases"]
             if (c.get("detail") or {}).get("termination", {}).get("cause") == "timeout"]
     if dead:
@@ -2368,7 +2703,12 @@ def save_result(result: dict, *, subdir: str | None = None,
         base = RESULTS_DIR / f"arm-{result['scoped_rule']}"
         d = base if subdir is None else base / subdir
     d.mkdir(parents=True, exist_ok=True)
-    safe_model = result["model"].replace("/", "_").replace(":", "_")
+    if is_placeholder_model(result["model"]):
+        # W7: a stub run of a fresh scaffold carries the placeholder (or an empty / None)
+        # model; the file name says so instead of '<', '>' and spaces. Real ids untouched.
+        safe_model = "placeholder-model"
+    else:
+        safe_model = result["model"].replace("/", "_").replace(":", "_")
     safe_provider = result["provider"].replace("/", "_").replace(":", "_")
     # Provider in the filename: a --provider stub run must never overwrite the real
     # scoreboard row for the same model name (it silently clobbered one 2026-07-21).
@@ -2407,6 +2747,16 @@ def _validate_loads(n: int) -> None:
             f"always defined (got {n})")
 
 
+def _served_by_local_ollama(provider) -> bool:
+    """True iff `provider` is served by the local Ollama: its base_url equals
+    PROVIDERS["ollama"]["base_url"] (so "systemone", which fronts the same server, counts).
+    `.get` so a provider name read from a snapshot file that is not in PROVIDERS is False;
+    stub (base_url None) and mlx (its own port) are False. The one predicate behind every
+    unload / version / KV-stamp decision (take_snapshot_loads, snapshot_preflight, cmd_check,
+    cmd_check_all)."""
+    return PROVIDERS.get(provider, {}).get("base_url") == PROVIDERS["ollama"]["base_url"]
+
+
 def take_snapshot_loads(agent: dict, exam: dict, provider: str, model: str, loads: int,
                         *, timeout: int | None = None, dedupe_tools: bool = False,
                         assembly: str = "full", scoped_rule: str = "off",
@@ -2414,7 +2764,8 @@ def take_snapshot_loads(agent: dict, exam: dict, provider: str, model: str, load
     """The ONE mechanism `cmd_run --snapshot` and `cmd_run_all --snapshot` both
     go through (criterion v3's closing sentence on clause 2). Runs `loads` full
     passes of the exam — unloading the model via the native API before each pass
-    when `provider == "ollama"`; for any other provider, no unload runs and the
+    when the provider is served by the local Ollama (base_url equals PROVIDERS["ollama"]);
+    for any other provider, no unload runs and the
     console says these are N samples, not N model loads (the hosted-provider
     decision in the brief). Every load's outage guard runs before the next load
     starts (refuse_snapshot_on_outage — D4 hardening, unchanged semantics), and
@@ -2427,7 +2778,7 @@ def take_snapshot_loads(agent: dict, exam: dict, provider: str, model: str, load
     environment (AS-4): once BEFORE load 1 (undeterminable -> SystemExit before any
     inference) and once AFTER the last load; a difference raises (the server restarted
     mid-snapshot). `server_settings_fn` defaults to `ollama_server_settings`."""
-    is_ollama = provider == "ollama"
+    is_ollama = _served_by_local_ollama(provider)
     if server_settings_fn is None:
         server_settings_fn = ollama_server_settings
     if provider == "mlx":
@@ -2477,10 +2828,23 @@ def cmd_run(args) -> int:
     provider = args.provider or agent["provider"]
     model = args.model or agent["model"]
     exam = load_exam(args.agent)
-    print(f"exam: {args.agent}  mode={exam.get('mode', 'labels')}  "
-          f"provider={provider}  model={model}")
-    print_not_verified(exam)
+    # W7: every refusal below runs BEFORE the `exam:` header, so a refused run prints
+    # its one sentence and nothing that looks like a run starting.
+    refuse_placeholder_model(args.agent, provider, model, "--model" if args.model else None)
     _validate_loads(args.loads)
+    # W2: refused before any adapter is built. getattr: hand-built Namespaces predate
+    # both flags.
+    allow_breach = getattr(args, "allow_tier_breach", False)
+    allow_trunc = getattr(args, "allow_truncation", False)
+    if args.snapshot and (allow_breach or allow_trunc):
+        print("error: --snapshot refuses --allow-tier-breach / --allow-truncation: the "
+              "committed baseline is never a breached or truncated run", file=sys.stderr)
+        return EXIT_REFUSED
+    try:
+        breach = tier_check(agent, provider, allow_breach)
+    except TierBreach as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_REFUSED
     # getattr: callers (and tests) that build the Namespace by hand predate the flag.
     scoped_rule = getattr(args, "scoped_rule", "off")
     if scoped_rule != "off" and getattr(args, "assembly", "full") != "full":
@@ -2502,6 +2866,9 @@ def cmd_run(args) -> int:
         # a scoped snapshot would silently redefine the gate. Refused before any inference.
         raise SystemExit(f"--snapshot requires --split all (got {split!r}): "
                          f"the committed snapshot always covers every case")
+    print(f"exam: {args.agent}  mode={exam.get('mode', 'labels')}  "
+          f"provider={provider}  model={model}")
+    print_not_verified(exam)
     if split != "all":
         exam = {**exam, "cases": [c for c in exam["cases"] if c.get("split", "train") == split]}
         if not exam["cases"]:
@@ -2530,7 +2897,9 @@ def cmd_run(args) -> int:
         return 0
     result = run_exam(agent, exam, provider, model, timeout=args.timeout,
                       dedupe_tools=args.dedupe_tools, assembly=args.assembly,
-                      scoped_rule=scoped_rule)
+                      scoped_rule=scoped_rule, allow_truncation=allow_trunc)
+    if breach:
+        result["tier_breach"] = True
     if split != "all":
         # A partial run must never pose as the full one: taxonomy.py and policy.py glob
         # results/*.json at the top level and would adopt it as the canonical row. Same
@@ -2577,7 +2946,8 @@ def snapshot_preflight(snap: dict, exam: dict, version_fn=None,
     untouched.
 
     `version_fn` defaults to `ollama_version` and is called ONLY when
-    `snap["provider"] == "ollama"` — injected so a test can assert a
+    the snapshot's provider is served by the local Ollama (base_url equals
+    PROVIDERS["ollama"]) — injected so a test can assert a
     non-ollama snapshot never touches the network at all (pass a version_fn
     that raises if invoked). `mlx_runtime_fn` defaults to `mlx_runtime` and is
     called ONLY when `snap["provider"] == "mlx"`, and only after the snapshot's
@@ -2604,7 +2974,7 @@ def snapshot_preflight(snap: dict, exam: dict, version_fn=None,
                 f"intervention-arm artifact, never a baseline - restore the committed snapshot")
     if "runtime" not in snap:
         return "RUNTIME: snapshot has no runtime block; re-snapshot"
-    if snap.get("provider") == "ollama":
+    if _served_by_local_ollama(snap.get("provider")):
         live = version_fn()
         want = snap["runtime"].get("version")
         if live != want:
@@ -2771,7 +3141,7 @@ def cmd_check(args) -> int:
           f"provider={snap['provider']}  model={snap['model']}")
     print_not_verified(exam)
     print(f"check: {args.agent} against snapshot ({snap['model']})")
-    if snap["provider"] == "ollama":
+    if _served_by_local_ollama(snap["provider"]):
         ollama_unload(snap["model"])
     result = run_exam(agent, exam, snap["provider"], snap["model"],
                       dedupe_tools=args.dedupe_tools)
@@ -2997,16 +3367,39 @@ def cmd_diff(args) -> int:
     """The demo moment: same exam, N models, one table."""
     agent = load_agent(args.agent)
     exam = load_exam(args.agent)
-    provider = args.provider or agent["provider"]
+    if not (getattr(args, "models", None) or "").strip(" ,"):   # absent, empty, or only commas
+        # W7: --models is no longer argparse-required, so this says what to type instead
+        # of argparse's usage dump. Same exit code as before (2).
+        raise Refused(f"name the candidates: wilco diff {args.agent} --models "
+                      f"ollama/<m>,openrouter/<id>")
+    # W2: `provider/model` per entry (parse_model_entries); every entry's tier is checked
+    # BEFORE the first row runs, so a breach on row 3 cannot spend rows 1-2 first.
+    allow_breach = getattr(args, "allow_tier_breach", False)
+    try:
+        entries = parse_model_entries(args.models, args.provider, agent["provider"])
+        for prov, m in entries:   # W7: a placeholder entry is refused before any row runs
+            refuse_placeholder_model(args.agent, prov, m, "--models")
+        breaches = [tier_check(agent, prov, allow_breach) for prov, _m in entries]
+    except TierBreach as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_REFUSED
     rows = []
-    for model in args.models.split(","):
-        model = model.strip()
-        print(f"\n--- {model} ---")
+    for (provider, model), breach in zip(entries, breaches):
+        print(f"\n--- {provider}/{model} ---")
         result = run_exam(agent, exam, provider, model, timeout=args.timeout,
-                          dedupe_tools=args.dedupe_tools, assembly=args.assembly)
+                          dedupe_tools=args.dedupe_tools, assembly=args.assembly,
+                          allow_truncation=getattr(args, "allow_truncation", False))
+        if breach:
+            result["tier_breach"] = True
         save_result(result)
         rows.append(result)
     champion = agent["model"]
+    # W2: the champion is (agent provider, agent model). A row with the champion's model
+    # id on ANOTHER provider (stub/<champion>, systemone/<champion>) is a challenger, so
+    # it is named `<provider>/<model>` for the table and the name-keyed verdict below.
+    # When every row is on the agent's provider (all pre-W2 usage) nothing is renamed.
+    rows = [r if r["provider"] == agent["provider"] else {**r, "model": f"{r['provider']}/{r['model']}"}
+            for r in rows]
     ran = {r["model"] for r in rows}
     # If the champion wasn't among the models run, it can't be compared by name alone —
     # load its snapshot score so a lone challenger can't win by default (a diff of one
@@ -3019,19 +3412,21 @@ def cmd_diff(args) -> int:
     # incomplete now says so in the table instead of printing a partial total.
     # A3: the heldout 95% Wilson interval sits beside the fraction it belongs to —
     # on n=9..18 it is 0.3-0.4 wide, which is the honest width behind every "tie".
-    print(f"\n{'model':<28} {'train':>7} {'heldout':>9} {'95% CI':>11} {'tok/case':>13} "
-          f"{'ms/case':>13} {'think%':>7}")
+    print(f"\n{'provider':<11} {'model':<28} {'train':>7} {'heldout':>9} {'95% CI':>11} "
+          f"{'tok/case':>13} {'ms/case':>13} {'think%':>7}")
     for r in rows:
         tag = "  <- current" if r["model"] == champion else ""
+        tag += "  TIER BREACH" if r.get("tier_breach") else ""
         tok, ms = _diff_metrics_cols(r)
         lo, hi = stats.wilson(r['heldout']['passed'], r['heldout']['total'])
-        print(f"{r['model']:<28} {r['train']['passed']}/{r['train']['total']:>4}"
+        print(f"{r['provider']:<11} {r['model']:<28} {r['train']['passed']}/{r['train']['total']:>4}"
               f" {r['heldout']['passed']}/{r['heldout']['total']:>6} {lo:.2f}-{hi:.2f}"
               f" {tok:>13} {ms:>13} {_think_share_col(r):>7}{tag}")
     if champ_snap:
         # Snapshots predate the metrics totals block (they capture scores only) —
         # cost-unknown rather than a fabricated figure.
-        print(f"{champion:<28} {champ_snap['train_score']:>7} "
+        print(f"{champ_snap.get('provider', agent['provider']):<11} "
+              f"{champion:<28} {champ_snap['train_score']:>7} "
               f"{champ_snap['heldout_score']:>9} {policy.COST_UNKNOWN:>13} "
               f"{policy.COST_UNKNOWN:>13}  <- current (snapshot)")
 
@@ -3049,6 +3444,9 @@ def cmd_run_all(args) -> int:
     the SAME `take_snapshot_loads` mechanism as `cmd_run --snapshot` (criterion
     v3's closing sentence on clause 2) — one implementation, not two."""
     _validate_loads(args.loads)
+    for name in _all_agents():   # W7: every agent checked before the first one runs
+        a = load_agent(name)
+        refuse_placeholder_model(name, a["provider"], a["model"])
     failed = []
     for name in _all_agents():
         agent = load_agent(name)
@@ -3102,7 +3500,7 @@ def cmd_check_all(args) -> int:
             print(f"REFUSED: {exc}")
             problems.append(name)
             continue
-        if snap["provider"] == "ollama":
+        if _served_by_local_ollama(snap["provider"]):
             ollama_unload(snap["model"])
         result = run_exam(agent, exam, snap["provider"], snap["model"])
         verdict = compare_to_snapshot(snap, result, tolerance=args.tolerance)
@@ -3125,6 +3523,8 @@ def _live_attempt(agent: dict, agent_name: str, exam: dict, provider: str, model
     # only — the agent dict is not mutated, so the next tier starts clean.
     adapter = adapter_for({**agent, **({"provider_routing": pin} if pin is not None else {})},
                           provider)
+    # W2: live has no --allow-truncation — an over-window live input is refused (exit 2).
+    install_window_guard(adapter, provider, model)
     case = {"input": text, "expected": {"max_steps": 6}}
     if exam.get("mode") == "trajectory":
         tools_mod = load_tools(agent_name, for_exam=False)
@@ -3146,7 +3546,14 @@ def live_output_checks(agent_name: str, exam: dict, output: dict, trace: dict | 
                      exactly: answer present, step budget (live's 6), every number
                      grounded in the tool results or the input, no fabricated name.
       properties  -> evals/<agent>/properties.py check_* (input, output), which never
-                     take an expected block at all.
+                     take an expected block at all — EXCEPT a check marked
+                     `expectation_bound = True` (reply-draft check_must_address,
+                     2026-10-22): it resolves per-case terms from cases.json by exact
+                     input text and raises on any uncommitted input, i.e. on every
+                     live input. It is skipped here, never run. Declared gap: live
+                     routing cannot catch a reply that dodges the ask. (recap's
+                     checks resolve expectations the same way and carry no marker —
+                     a live recap raises; a separate follow-up, not changed here.)
       labels/fields -> structural only for the label half: the output must carry the
                      keys the exam scores —
                      read off the committed exam (the key set of its first case's
@@ -3169,6 +3576,7 @@ def live_output_checks(agent_name: str, exam: dict, output: dict, trace: dict | 
             known_entities=_known_entities(load_tools(agent_name, for_exam=False)))
         return list(failures)
     prop_failures = [f"{name}: {msg}" for name, fn in load_properties(agent_name)
+                     if not getattr(fn, "expectation_bound", False)
                      for ok, msg in [fn(text, output)] if not ok]
     if mode == "properties":
         return prop_failures
@@ -3179,7 +3587,8 @@ def live_output_checks(agent_name: str, exam: dict, output: dict, trace: dict | 
 
 def live_run_and_log(agent_name: str, text: str, provider: str | None = None,
                      model: str | None = None, extra: dict | None = None,
-                     log: bool = True) -> tuple[dict, dict]:
+                     log: bool = True,
+                     allow_tier_breach: bool = False) -> tuple[dict, dict]:
     """Run an agent on real input and (by default) append one JSONL line to
     results/live/<agent>.jsonl — the SINGLE shared run+log path behind `runner.py
     live` and any other live producer (e.g. sandbox/shadow_gmail.py). Keeping one
@@ -3229,15 +3638,58 @@ def live_run_and_log(agent_name: str, text: str, provider: str | None = None,
     # closed one of those for TRAJECTORY mode: a tier that answers in prose now
     # returns parsed={} with a protocol_break record, fails answer_present in
     # live_output_checks, and escalates like any other failed answer.
+    routes = None
     if provider or model:
         tiers = [{"provider": provider or agent["provider"], "model": model or agent["model"]}]
     else:
-        tiers = load_routes(agent_name) or [{"provider": agent["provider"], "model": agent["model"]}]
-    attempts: list = []
+        routes = load_routes(agent_name)
+        tiers = routes or [{"provider": agent["provider"], "model": agent["model"]}]
     for k, tier in enumerate(tiers):
-        record, termination = _live_attempt(agent, agent_name, exam, tier["provider"],
-                                            tier["model"], text,
-                                            pin=tier.get("provider_routing"))
+        # W7: every tier, before tier 0 runs — a placeholder is never sent, and a
+        # placeholder fallback refuses the whole run rather than surfacing mid-walk.
+        # The sentence names the value's source: --model, a routes.yaml fallback (tier 0
+        # is pinned to the champion, so it is agent.yaml's), or agent.yaml.
+        src = "--model" if model else ("routes.yaml" if routes and k > 0 else None)
+        refuse_placeholder_model(agent_name, tier["provider"], tier["model"], src)
+    attempts: list = []
+    breached = False
+    for k, tier in enumerate(tiers):
+        # W2 tier guard, per tier and BEFORE its request. Tier 0 (the champion, or an
+        # explicit --provider) breaching raises TierBreach: nothing ran, cmd_live exits 2.
+        # A breaching FALLBACK is not called: the walk stops there with the refusal on
+        # record, and the outcome is the last tier that did run (flagged -> exit 2, dead
+        # -> raises), exactly as if the table ended one tier earlier. routes.yaml's
+        # hosted tiers on local-tier exams are therefore unreachable without the flag.
+        # A refused tier IS listed in `attempts`, so `tier`/`attempts` can now appear on
+        # a line where only one tier actually ran (the refusal is the second attempt).
+        try:
+            tier_breached = tier_check(agent, tier["provider"], allow_tier_breach)
+        except TierBreach as exc:
+            if k == 0:
+                raise
+            attempts.append({"tier": k, "provider": tier["provider"],
+                             "model": tier["model"], "refused": "tier_breach",
+                             "reason": str(exc)})
+            break
+        try:
+            attempt_out = _live_attempt(agent, agent_name, exam, tier["provider"],
+                                        tier["model"], text,
+                                        pin=tier.get("provider_routing"))
+        except WindowExceeded as exc:
+            # W2 window preflight on a FALLBACK: same handling as a breaching fallback —
+            # not sent, the walk stops with the refusal on record, and the outcome (and
+            # the logged line) is the last tier that did run. On tier 0 nothing ran, so
+            # it raises and cmd_live/cmd_intake exit 2. Only a refusal BEFORE the tier's
+            # first call reaches here: one after earlier calls is recorded inside the
+            # tool loop as termination cause "window" and takes the dead-run path.
+            if k == 0:
+                raise
+            attempts.append({"tier": k, "provider": tier["provider"], "model": tier["model"],
+                             "refused": "window", **exc.details})
+            break
+        ran_k, ran_tier = k, tier
+        breached = breached or tier_breached
+        record, termination = attempt_out
         checks_failed = ([] if termination is not None else
                          live_output_checks(agent_name, exam, record["output"],
                                             record.get("trace"), text))
@@ -3253,13 +3705,15 @@ def live_run_and_log(agent_name: str, text: str, provider: str | None = None,
         if termination is None and not checks_failed:
             break            # healthy answer: stop here, never escalate further
         # dead or failed checks: try the next tier, if there is one
-    provider, model = tier["provider"], tier["model"]
+    k, provider, model = ran_k, ran_tier["provider"], ran_tier["model"]
     if checks_failed:
         record = {**record, "checks_failed": checks_failed}
     if termination is not None:
         record = {**record, "termination": termination}
     if len(attempts) > 1:
         record = {**record, "tier": k, "attempts": attempts}
+    if breached:
+        record = {**record, "tier_breach": True}
     entry = {"ts": datetime.now().isoformat(timespec="seconds"),
              "model": model, "provider": provider, "input": text,
              **(extra or {}), **record}
@@ -3289,8 +3743,12 @@ def cmd_live(args) -> int:
     if not text.strip():
         sys.exit("error: no input (use --input or pipe text on stdin)")
     try:
-        _entry, record = live_run_and_log(args.agent, text,
-                                          provider=args.provider, model=args.model)
+        _entry, record = live_run_and_log(
+            args.agent, text, provider=args.provider, model=args.model,
+            allow_tier_breach=getattr(args, "allow_tier_breach", False))
+    except (TierBreach, WindowExceeded) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_REFUSED
     except TerminationError as exc:
         # Still loud and still non-zero, but through this repo's convention instead of
         # a raw traceback. The JSONL line was already written (live_run_and_log logs
@@ -3336,6 +3794,9 @@ def cmd_intake(args) -> int:
         sys.exit("error: no input (use --input or pipe text on stdin)")
     try:
         _entry, verdict = live_run_and_log(INTAKE_AGENT, text)
+    except (TierBreach, WindowExceeded) as exc:   # W2: refused before any request
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_REFUSED
     except TerminationError as exc:
         sys.exit(f"error: {INTAKE_AGENT} emitted no answer — {exc.details}. Logged to "
                  f"results/live/{INTAKE_AGENT}.jsonl.")
@@ -3353,6 +3814,9 @@ def cmd_intake(args) -> int:
     try:
         _entry, record = live_run_and_log(agent, handed,
                                           extra={"via": INTAKE_AGENT, "request": text})
+    except (TierBreach, WindowExceeded) as exc:   # W2: refused before any request
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_REFUSED
     except TerminationError as exc:
         sys.exit(f"error: {agent} emitted no answer — {exc.details}. Logged to "
                  f"results/live/{agent}.jsonl.")
@@ -3557,11 +4021,17 @@ def cmd_bakeoff(args) -> int:
     """E21: score N architectures on the SAME committed cases. Heldout untouched."""
     agent = load_agent(args.agent)
     exam = load_exam(args.agent)
+    model = args.model or agent["model"]
+    refuse_placeholder_model(args.agent, agent["provider"], model,
+                             "--model" if args.model else None)   # W7: before any adapter
+    if "filter-then-recap" in [n.strip() for n in args.strategies.split(",")]:
+        fa = load_agent(args.filter_agent)   # W7: the filter stage too, before any adapter
+        refuse_placeholder_model(args.filter_agent, fa["provider"], fa["model"])
     props = load_properties(args.agent)
     if not props:
         sys.exit(f"error: {args.agent} has no properties.py — nothing to score against")
-    model = args.model or agent["model"]
     adapter = adapter_for(agent, timeout=args.timeout)
+    install_window_guard(adapter, agent["provider"], model)   # W2: bakeoff is a long-band probe
     names = [n.strip() for n in args.strategies.split(",") if n.strip()]
     unknown = [n for n in names if n not in strategies.STRATEGIES]
     if unknown:
@@ -3573,6 +4043,7 @@ def cmd_bakeoff(args) -> int:
         triage_agent = load_agent(args.filter_agent)
         triage_model = triage_agent["model"]
         triage_adapter = adapter_for(triage_agent, timeout=args.timeout)
+        install_window_guard(triage_adapter, triage_agent["provider"], triage_model)
         print(f"filter stage: {args.filter_agent} @ {triage_model}")
 
     ctx = _BakeoffCtx(agent, adapter, model, triage_agent, triage_adapter, triage_model)
@@ -3586,9 +4057,17 @@ def cmd_bakeoff(args) -> int:
         print(f"\n=== {name} ===")
         for case in cases:
             try:
-                parsed, metrics = fn(ctx, case)
+                # Gotcha 18: the strategy gets a COPY without the answer key; scoring
+                # and the limit column below keep using the original `case`.
+                parsed, metrics = fn(ctx, {k: v for k, v in case.items() if k != "expected"})
                 ok, checks = _bakeoff_score(props, case, parsed)
+            except WindowExceeded:              # W2: refused before the request, named
+                parsed = None
+                ok, checks, metrics = False, ["termination:window"], []
             except Exception as exc:            # fail loud, per case, keep going
+                # parsed reset: an erroring case must not inherit the previous case's
+                # output into out_chars, nor hit UnboundLocalError when it is the first.
+                parsed = None
                 ok, checks, metrics = False, [f"error:{type(exc).__name__}"], []
             split = case["split"]
             tot[split][1] += 1
@@ -3655,13 +4134,49 @@ def cmd_bakeoff(args) -> int:
     return 0
 
 
-def main() -> int:
-    p = argparse.ArgumentParser(description=__doc__)
+PROG_ENV = "WILCO_PROG"   # W7: the `wilco` shim sets it to "wilco"; unset = run directly
+DEBUG_ENV = "WILCO_DEBUG"  # W7: "1" re-raises with the full traceback instead of one line
+HELP_ADVANCED = "--help-advanced"
+# W7: research flags, hidden from --help (they keep working unchanged; `<cmd>
+# --help-advanced` lists them). Pinned by sandbox/test_w7_cli_polish.py.
+ADVANCED_FLAGS = {"run": ("--assembly", "--scoped-rule", "--dedupe-tools", "--loads"),
+                  "check": ("--dedupe-tools", "--tolerance", "--provider"),
+                  "diff": ("--assembly", "--dedupe-tools")}
+COMMAND_HELP = {
+    "run": "one model sits the task's exam: train and held-out scored, the result written "
+           "to results/<task>__<provider>__<model>.json",
+    "check": "re-sit the exam with the snapshot's model; fails on any stable case that moved",
+    "diff": "every candidate sits the exam; one table",
+    "live": "answer one real input (through routes.yaml when the task has routes)",
+    "list": "the tasks, their champions and exam status",
+}
+
+
+def build_parser(prog: str | None = None, advanced: bool = False) -> argparse.ArgumentParser:
+    """W7: the CLI's parser. `prog` names the command in every usage line ("wilco" under
+    the shim, "runner.py" run directly); `advanced` shows the ADVANCED_FLAGS help, which
+    is otherwise argparse.SUPPRESS. Hidden or shown, every flag parses identically."""
+    prog = prog or os.environ.get(PROG_ENV) or "runner.py"
+
+    def adv(name: str, text: str):
+        return text if advanced else argparse.SUPPRESS
+
+    p = argparse.ArgumentParser(prog=prog, description=__doc__,
+                                formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
     for name, fn in (("run", cmd_run), ("check", cmd_check), ("diff", cmd_diff)):
-        sp = sub.add_parser(name)
-        sp.add_argument("agent")
-        sp.add_argument("--provider")
+        sp = sub.add_parser(name, description=COMMAND_HELP[name],
+                            epilog=None if advanced else f"advanced flags: {prog} {name} {HELP_ADVANCED}")
+        sp.add_argument("agent", metavar="task")
+        if name == "check":
+            # W7, measured: cmd_check never reads args.provider — it always re-sits the
+            # snapshot's own provider. Kept so existing invocations still parse; the
+            # advanced help says what it does (nothing).
+            sp.add_argument("--provider", help=adv(name, "accepted and ignored: check always "
+                                                         "re-sits the snapshot's own provider"))
+        else:
+            sp.add_argument("--provider", help="a provider from sandbox/router.py "
+                                               "(default: agent.yaml provider)")
         # WHICH MODEL-AFFECTING FLAGS MAY SIT ON `check` (one rule, two flags).
         # `check` is the regression gate, so a flag it accepts must never be able to
         # move a score without saying so. The test is whether the flag's effect is
@@ -3681,8 +4196,8 @@ def main() -> int:
         # them cost the same. Raising --timeout would still silently redefine a green
         # gate, so --timeout stays off `check`.
         sp.add_argument("--dedupe-tools", action="store_true",
-                        help="suppress repeated identical tool calls at runtime "
-                             "(serve the cached result; default off)")
+                        help=adv(name, "suppress repeated identical tool calls at runtime "
+                                       "(serve the cached result; default off)"))
         sp.set_defaults(fn=fn)
         if name in ("run", "diff"):
             sp.add_argument("--timeout", type=int, default=None,
@@ -3693,33 +4208,47 @@ def main() -> int:
             # committed snapshot, which is a "full" run. CLI-only — never an
             # agent.yaml field (champion fields are operator-signed).
             sp.add_argument("--assembly", choices=list(ASSEMBLY_MODES), default="full",
-                            help="multi-turn context assembly: full history (default, "
-                                 "byte-identical to before) or a rule-scoped slice "
-                                 "(E27 A/B arm; single-turn cases and turn 0 unaffected)")
+                            help=adv(name, "multi-turn context: full history (default) or "
+                                           "a rule-scoped slice (experiment arm)"))
         if name == "run":
             # AS-3: the scoped-rule arm. `run` ONLY - `check` reproduces the committed
             # baseline and must not be able to move a score; never an agent.yaml field.
             # Unrelated to --assembly scoped (E27).
             sp.add_argument("--scoped-rule", choices=list(SCOPED_RULE_ARMS), default="off",
-                            help="AS-3 arm: show one rule inside the tool loop after a "
-                                 "repeated successful call (scoped = E6 fix text, sham = "
-                                 "length-matched generic text; default off; refused with "
-                                 "--dedupe-tools)")
-            sp.add_argument("--model")
-            sp.add_argument("--snapshot", action="store_true")
+                            help=adv(name, "experiment arm: one rule shown in the tool loop "
+                                           "after a repeated call (sham = generic text)"))
+            sp.add_argument("--model", help="a model id (default: agent.yaml model)")
+            sp.add_argument("--snapshot", action="store_true",
+                            help="write evals/<task>/snapshot.json, the baseline `check` "
+                                 "re-sits (several fresh loads, one verdict per case)")
             sp.add_argument("--split", choices=["all", "train", "heldout"], default="all",
-                            help="run one split only (the pages report held-out; a hosted pass "
-                                 "need not spend on train). Refused with --snapshot.")
+                            help="run one split only (a hosted pass need not spend on "
+                                 "train). Refused with --snapshot.")
             # SNAPSHOT-REPRODUCIBILITY: default 3, validated (odd, >= 3) in
             # cmd_run via _validate_loads BEFORE any inference. Only --snapshot
             # runs the multi-load protocol; a plain `run` ignores this flag.
             sp.add_argument("--loads", type=int, default=3,
-                            help="fresh model loads to aggregate under --snapshot "
-                                 "(default 3; must be odd and >= 3)")
+                            help=adv(name, "fresh model loads to aggregate under --snapshot "
+                                           "(default 3; must be odd and >= 3)"))
         if name == "check":
-            sp.add_argument("--tolerance", type=float, default=0.0)
+            sp.add_argument("--tolerance", type=float, default=0.0,
+                            help=adv(name, "held-out score drop to tolerate (default 0)"))
         if name == "diff":
-            sp.add_argument("--models", required=True)
+            # W7: not argparse-required; cmd_diff refuses a missing --models with the
+            # line to type (exit 2, as argparse's own error was).
+            sp.add_argument("--models",
+                            help="comma list; an entry may name its provider as "
+                                 "<provider>/<model> (ignored when --provider is given)")
+        if name in ("run", "diff"):
+            # W2. Off `check` for the --timeout reason: the gate reproduces the
+            # committed snapshot and must not be able to breach or truncate.
+            sp.add_argument("--allow-tier-breach", action="store_true",
+                            help="run a provider above the exam's agent.yaml tier "
+                                 "(refused by default); recorded as tier_breach: true")
+            sp.add_argument("--allow-truncation", action="store_true",
+                            help="run an Ollama case whose estimated prompt exceeds the "
+                                 "model's num_ctx (refused by default); stamped "
+                                 "window_exceeded: true per case")
     sp = sub.add_parser("run-all")
     sp.add_argument("--snapshot", action="store_true")
     sp.add_argument("--loads", type=int, default=3,
@@ -3729,11 +4258,13 @@ def main() -> int:
     sp = sub.add_parser("check-all")
     sp.add_argument("--tolerance", type=float, default=0.0)
     sp.set_defaults(fn=cmd_check_all)
-    sp = sub.add_parser("live")
-    sp.add_argument("agent")
-    sp.add_argument("--input")
-    sp.add_argument("--model")
-    sp.add_argument("--provider")
+    sp = sub.add_parser("live", description=COMMAND_HELP["live"])
+    sp.add_argument("agent", metavar="task")
+    sp.add_argument("--input", help="the input text (default: read stdin)")
+    sp.add_argument("--model", help="one model instead of the routes (default: agent.yaml model)")
+    sp.add_argument("--provider", help="one provider instead of the routes")
+    sp.add_argument("--allow-tier-breach", action="store_true",
+                    help="run a provider above the agent's tier (refused by default)")
     sp.set_defaults(fn=cmd_live)
     sp = sub.add_parser("intake")
     sp.add_argument("--input")
@@ -3760,7 +4291,7 @@ def main() -> int:
     sp = sub.add_parser("worker")
     sp.add_argument("args", nargs=argparse.REMAINDER)
     sp.set_defaults(fn=cmd_worker)
-    sp = sub.add_parser("list")
+    sp = sub.add_parser("list", description=COMMAND_HELP["list"])
     sp.set_defaults(fn=cmd_list)
     # Report, not a gate: deliberately absent from check-all, and it never writes.
     sp = sub.add_parser("taxonomy")
@@ -3790,8 +4321,27 @@ def main() -> int:
                     help="per-request seconds (default: agent.yaml timeout_s, "
                          f"else {DEFAULT_TIMEOUT_S})")
     sp.set_defaults(fn=cmd_bakeoff)
-    args = p.parse_args()
-    return args.fn(args)
+    return p
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Parse and dispatch. W7: an exception escaping a command prints ONE line,
+    `<prog> <cmd>: <message>`, to stderr and RETURNS (never sys.exit) EXIT_REFUSED for a
+    Refused, else 1 — no traceback. SystemExit (argparse, every `sys.exit("error: …")`)
+    and KeyboardInterrupt pass through untouched. WILCO_DEBUG=1 re-raises instead."""
+    argv = sys.argv[1:] if argv is None else list(argv)
+    advanced = HELP_ADVANCED in argv
+    if advanced:   # `<cmd> --help-advanced` == `<cmd> --help` with the research flags shown
+        argv = ["--help" if a == HELP_ADVANCED else a for a in argv]
+    p = build_parser(advanced=advanced)
+    args = p.parse_args(argv)
+    try:
+        return args.fn(args)
+    except Exception as exc:  # noqa: BLE001 — one line for any error; WILCO_DEBUG for the stack
+        if os.environ.get(DEBUG_ENV) == "1":
+            raise
+        print(f"{p.prog} {args.cmd}: {_one_line(exc)}", file=sys.stderr)
+        return EXIT_REFUSED if _is_a(exc, "Refused") else 1
 
 
 if __name__ == "__main__":

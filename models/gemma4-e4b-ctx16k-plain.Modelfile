@@ -1,0 +1,7 @@
+# gemma4-e4b-ctx16k-plain: the non-QAT comparison arm (gemma4:e4b, post-hoc Q4_K_M) at a 16,384-token window.
+# Not a champion; measured in docs/probes/e31-quantisation-2026-09-09 and docs/probes/call-fields-2026-09-25.
+# Committed recipe: docs/probes/e31-quantisation-prep-2026-09-09/Modelfile.gemma4-e4b-ctx16k-plain.
+# The gemma4:e4b tag has MOVED since that build (models.sh checks the weight digest and says so).
+#   ollama create gemma4-e4b-ctx16k-plain -f models/gemma4-e4b-ctx16k-plain.Modelfile    (or ./models/models.sh)
+FROM gemma4:e4b
+PARAMETER num_ctx 16384

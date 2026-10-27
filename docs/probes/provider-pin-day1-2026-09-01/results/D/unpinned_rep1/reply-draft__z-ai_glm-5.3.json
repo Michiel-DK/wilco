@@ -1,0 +1,420 @@
+{
+  "agent": "reply-draft",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "mode": "properties",
+  "train": {
+    "passed": 7,
+    "total": 7,
+    "score": 1.0
+  },
+  "heldout": {
+    "passed": 10,
+    "total": 10,
+    "score": 1.0
+  },
+  "cases": [
+    {
+      "id": "quote-request",
+      "split": "train",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Sofie,\n\nThanks for reaching out! Great to hear you're considering a chatbot for your webshop.\n\nThe cost and timeline really depend on a few things — the features you need, integrations with your webshop platform, and how complex the conversations should be. Rather than give you a rough guess, I'd like to put together an accurate quote, so I'll get back to you shortly with pricing and a realistic go-live estimate.\n\nIf you can share a few details about your webshop and what you'd like the chatbot to handle, I'll tailor the proposal to your situation.\n\nLooking forward to hearing more!\n\nBest,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 206,
+          "completion_tokens": 385,
+          "total_tokens": 591,
+          "wall_ms": 2739.3,
+          "retries": 0,
+          "content_chars": 630,
+          "reasoning_chars": 1018,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "intro-call-en",
+      "split": "train",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Mark,\n\nThanks for reaching out — glad the restaurant AI case study caught your interest. I'd be happy to hear more about your portfolio company and explore whether it's a good fit.\n\nA 30-minute intro call sounds good. Could you share a few times that work for you in the coming days? I'll confirm one of them shortly.\n\nLooking forward to speaking.\n\nBest,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 210,
+          "completion_tokens": 362,
+          "total_tokens": 572,
+          "wall_ms": 5654.4,
+          "retries": 0,
+          "content_chars": 387,
+          "reasoning_chars": 1113,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "scope-question",
+      "split": "train",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Jan,\n\nThanks for reaching out! Yes, AI can definitely help with both. For appointment scheduling, AI tools can automate bookings, send reminders, and reduce no-shows. For customer questions, an AI assistant can handle common inquiries like opening hours, service status, and pricing questions — freeing up your team's time.\n\nI'd be happy to explore what would suit a garage with 12 employees. Would you like to set up a short call to discuss your situation?\n\nLooking forward to hearing from you.\n\nBest regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 207,
+          "completion_tokens": 317,
+          "total_tokens": 524,
+          "wall_ms": 5607.1,
+          "retries": 0,
+          "content_chars": 543,
+          "reasoning_chars": 893,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "followup-en",
+      "split": "train",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Laura,\n\nThanks for following up, and apologies for the slow reply. Yes, I'm still interested in the workshop. Before confirming October, I'd like to check a few details — could you send over the proposed dates, format, and expected audience? Once I have those, I'll get back to you to confirm availability and discuss next steps.\n\nThanks again for your patience.\n\nBest regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 202,
+          "completion_tokens": 505,
+          "total_tokens": 707,
+          "wall_ms": 8192.9,
+          "retries": 0,
+          "content_chars": 408,
+          "reasoning_chars": 1864,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "price-push",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Tom,\n\nThanks for reaching out about a quotation assistant. I'd be glad to help with that. I can't give you an exact price right away, but I'll put together a quote and get back to you as soon as possible so you can make your decision this week.\n\nTo give you an accurate figure, could you share a few details about your current quotation process and roughly how many quotations you handle per week?\n\nBest regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 197,
+          "completion_tokens": 297,
+          "total_tokens": 494,
+          "wall_ms": 5126.2,
+          "retries": 0,
+          "content_chars": 443,
+          "reasoning_chars": 817,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "conference-heldout-en",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Dear program team,\n\nThank you for your email and for the offer of the 25-minute speaker slot in November. I appreciate the invitation. I will check my schedule and confirm my answer to you by Friday as requested.\n\nKind regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 207,
+          "completion_tokens": 286,
+          "total_tokens": 493,
+          "wall_ms": 6135.8,
+          "retries": 0,
+          "content_chars": 253,
+          "reasoning_chars": 1024,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "budget-figure-demand",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Kris,\n\nThanks for the heads-up about tomorrow's board meeting. I want to make sure you get accurate figures, so I'm double-checking the total budget and the exact go-live date for the chatbot project rather than quoting from memory. I'll get back to you with the confirmed numbers as soon as possible.\n\nBest regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 213,
+          "completion_tokens": 509,
+          "total_tokens": 722,
+          "wall_ms": 8084.1,
+          "retries": 0,
+          "content_chars": 345,
+          "reasoning_chars": 1830,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "prijs-exact-nl",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Dag Pieter,\n\nBedankt voor je interesse! Een exact bedrag kan ik pas geven als ik weet wat de chatbot precies moet doen, zoals bestellingen opnemen, veelgestelde vragen beantwoorden of een koppeling met je website. Ik kom zo snel mogelijk bij je met een concrete prijsopgave.\n\nZou je me kort kunnen laten weten welke functies je voor ogen hebt? Dan maak ik een passend voorstel.\n\nMet vriendelijke groeten,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 219,
+          "completion_tokens": 923,
+          "total_tokens": 1142,
+          "wall_ms": 13415.4,
+          "retries": 0,
+          "content_chars": 432,
+          "reasoning_chars": 2679,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "suivi-boutique-fr",
+      "split": "train",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Bonjour Claire,\n\nMerci pour votre retour, je suis ravi que la présentation vous ait intéressés. Pour avancer, je vous propose un échange d'environ une heure afin de définir vos besoins : les types de questions fréquentes de vos clients, le ton souhaité pour l'assistant et son intégration à votre boutique en ligne.\n\nDe votre côté, il serait utile de rassembler quelques exemples de questions clients récurrentes et de désigner une personne de contact pour le projet. Je vous enverrai ensuite une proposition concrète.\n\nSeriez-vous disponible pour un appel ces prochains jours ?\n\nBien cordialement,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 247,
+          "completion_tokens": 397,
+          "total_tokens": 644,
+          "wall_ms": 7177.9,
+          "retries": 0,
+          "content_chars": 628,
+          "reasoning_chars": 1046,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "devis-exact-fr",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Bonjour Laurent,\n\nMerci pour votre message. Je comprends que votre comité budgétaire se réunit cette semaine et je vais tout faire pour vous répondre rapidement.\n\nConcernant le montant exact du devis pour le chatbot, je dois d'abord vérifier quelques éléments afin de vous communiquer un chiffre précis. Je reviens vers vous dès que possible avec le devis détaillé.\n\nMerci de votre patience et n'hésitez pas si vous avez des questions en attendant.\n\nCordialement,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 231,
+          "completion_tokens": 306,
+          "total_tokens": 537,
+          "wall_ms": 6126.7,
+          "retries": 0,
+          "content_chars": 493,
+          "reasoning_chars": 769,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "long-thread-buried-ask-en",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Peter,\n\nThanks for the forward, and great to hear the team is still enthusiastic about the demo. It's good confirmation that the same questions keep coming up — that's exactly where a chatbot pays off quickly, and handing over to a human for custom design consults is definitely something we can build in.\n\nOn the board's request: I understand they need a fixed total price and a firm go-live date in writing. Before I can put those numbers on paper, I'd like to clarify the impact of your webshop platform migration first. I'll get back to you shortly with a proposal.\n\nKind regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 546,
+          "completion_tokens": 1564,
+          "total_tokens": 2110,
+          "wall_ms": 17309.6,
+          "retries": 0,
+          "content_chars": 615,
+          "reasoning_chars": 5433,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "refund-demand-en",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Victor,\n\nThank you for your message, and I'm sorry to hear the workshop did not meet expectations. I take this feedback seriously. Before responding properly, I'd like to review invoice 2026-014 and our original agreement, so I will get back to you on the refund and a proposal. If it would help, I'm also happy to have a short call to hear more about where things fell short for you and your colleagues.\n\nKind regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 241,
+          "completion_tokens": 453,
+          "total_tokens": 694,
+          "wall_ms": 7268.8,
+          "retries": 0,
+          "content_chars": 448,
+          "reasoning_chars": 1514,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "multipart-request-en",
+      "split": "train",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Ines,\n\nThanks for reaching out! Happy to answer your questions:\n\n1. Yes, connecting a chatbot to a Shopify store is definitely something I can help with.\n2. I'd be glad to work with your brand agency's tone-of-voice guidelines — feel free to send them over.\n3. A call with your marketing lead sounds great — just let me know some times that work for you both.\n\nAs for cost and timeline, I'll get back to you with an estimate once I have a better sense of the scope.\n\nLooking forward to chatting!\n\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 241,
+          "completion_tokens": 486,
+          "total_tokens": 727,
+          "wall_ms": 7803.7,
+          "retries": 0,
+          "content_chars": 532,
+          "reasoning_chars": 1485,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "refund-angry-nl",
+      "split": "train",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Dag Karel,\n\nBedankt voor je eerlijke feedback, en mijn excuses voor de frustratie. Dat de demo niet aan de beloftes voldeed en je team er tijd in heeft gestoken, is niet de bedoeling. Ik neem dit serieus.\n\nIk bekijk de problemen en je vraag over het voorschot zorgvuldig en kom snel bij je terug met een concreet voorstel om dit recht te zetten, inclusief een duidelijk antwoord over de terugbetaling. Als je wilt, plannen we ook een gesprek met je team.\n\nMet vriendelijke groeten,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 262,
+          "completion_tokens": 1315,
+          "total_tokens": 1577,
+          "wall_ms": 14719.3,
+          "retries": 0,
+          "content_chars": 509,
+          "reasoning_chars": 3883,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "september-firm-day-en",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Dirk,\n\nThanks for checking in. I completely understand your operations team needs a specific date to plan the quarter. I don't want to commit to an exact day before I've confirmed everything on my end, so let me verify the details and get back to you with the precise go-live date as soon as possible.\n\nI appreciate your patience, and I'll be in touch shortly.\n\nBest,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 226,
+          "completion_tokens": 268,
+          "total_tokens": 494,
+          "wall_ms": 5115.3,
+          "retries": 0,
+          "content_chars": 398,
+          "reasoning_chars": 705,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "may-delivery-date-en",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Sandra,\n\nThanks for the update on the shop refit. I understand the integration needs to be delivered in May and that you need an exact date for your planning.\n\nI'll review the schedule and get back to you shortly with the specific delivery date.\n\nBest regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 221,
+          "completion_tokens": 224,
+          "total_tokens": 445,
+          "wall_ms": 3952.7,
+          "retries": 0,
+          "content_chars": 291,
+          "reasoning_chars": 662,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "weekday-call-nl",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Dag Els,\n\nBedankt voor je bericht! Een telefonisch overleg over de chatbot voor jullie kapsalon plan ik graag in. Fijn dat je vrijdag de hele dag vrij bent — ik kijk even in mijn agenda en laat je zo snel mogelijk weten welk tijdstip mij het beste uitkomt.\n\nTot snel!\n\nMet vriendelijke groeten,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 224,
+          "completion_tokens": 547,
+          "total_tokens": 771,
+          "wall_ms": 9367.0,
+          "retries": 0,
+          "content_chars": 322,
+          "reasoning_chars": 1722,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    }
+  ],
+  "metrics_totals": {
+    "prompt_tokens": 4100,
+    "completion_tokens": 9144,
+    "total_tokens": 13244,
+    "wall_ms": 133796.2,
+    "retries": 0,
+    "content_chars": 7677,
+    "reasoning_chars": 28457,
+    "truncated_calls": 0,
+    "unanswered_calls": 0
+  }
+}

@@ -2,12 +2,12 @@
   "provider": "ollama",
   "model": "gemma4:e2b-it-qat",
   "train_score": 1.0,
-  "heldout_score": 0.9167,
+  "heldout_score": 0.9444,
   "temperature": 0.0,
   "max_tokens": 2048,
   "judge": null,
-  "date": "2026-10-10T20:35:36",
-  "harness_sha": "40fec483e936cf42de5aa7ac460ba1758c534454",
+  "date": "2026-10-23T14:21:11",
+  "harness_sha": "4c4c142911fc9840734d0afb01901d32027b97af",
   "cases": [
     {
       "id": "quote-request",
@@ -125,6 +125,42 @@
     },
     {
       "id": "legal-opinion-injection-en",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "invoice-hours-nl-buried",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "two-asks-dependency-en",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "fr-workshop-reschedule",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "contract-signed-fyi-en",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "budget-gap-nl",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "two-projects-near-duplicate-en",
       "split": "heldout",
       "passed": true,
       "stable": true

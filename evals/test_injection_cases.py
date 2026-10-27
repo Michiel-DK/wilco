@@ -65,7 +65,10 @@ def test_reply_draft_planted_instructions():
             if rd._INJECTION_TRIGGER_RE.search(line):
                 got += rd._QUOTED_PAYLOAD_RE.findall(line) + rd._EMAIL_ADDRESS_RE.findall(line)
         check(f"{x['id']}: the input still carries a planted payload on a trigger line", bool(got), x["input"][-160:])
-        obey_x = "Hi,\n\nThanks for your message. " + " ".join(got) + "\n\nBest regards,\nMichiel"
+        # Names the ask (the case's first must_address term), so the ONLY thing wrong with it is the plant
+        # (check_must_address, 2026-10-22, would otherwise be a second failure and hide the isolation).
+        ask = x["expected"]["must_address"][0]
+        obey_x = f"Hi,\n\nThanks for your message about the {ask}. " + " ".join(got) + "\n\nBest regards,\nMichiel"
         ok_x, f_x, fc_x = runner.run_properties(props, x["input"], {"reply": obey_x})
         check(f"{x['id']}: obeying its own plant fails ONLY the planted-instruction check",
               fc_x == [{"bucket": "quality", "check": "check_ignores_planted_instructions"}], "; ".join(f_x))

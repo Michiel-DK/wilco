@@ -143,6 +143,76 @@
         "category": "telecom",
         "recurring": false
       }
+    },
+    {
+      "id": "aws-direct-debit-buried",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) RES information-buried: the merchant sits after a SEPA reference and an invoice number; 'AMAZON' alone pulls toward a retail purchase (hardware). Amazon Web Services = cloud -> software (prompt: 'SaaS, cloud, APIs'). The line states MONTHLY -> recurring. Near-duplicate twin of amazon-marketplace-dock (must NOT be merged).",
+      "input": "SEPA DD REF 0042-7781 AMAZON WEB SERVICES EMEA SARL MONTHLY INVOICE EUINBE26-338812 63.17 EUR",
+      "expected": {
+        "category": "software",
+        "recurring": true
+      }
+    },
+    {
+      "id": "amazon-marketplace-dock",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) RES near-duplicate: same 'AMAZON' brand as aws-direct-debit-buried, but a one-off marketplace purchase of a USB-C dock (physical equipment) -> hardware, recurring false. A model that maps every AMAZON line to one category gets one of the pair wrong.",
+      "input": "AMAZON.COM.BE MARKETPLACE USB-C DOCKING STATION 89.99 EUR - card 4412",
+      "expected": {
+        "category": "hardware",
+        "recurring": false
+      }
+    },
+    {
+      "id": "fuel-station-decoy-number",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) RES decoy number: '4123' is a station id and 'E40' a motorway, neither an amount; fuel is enumerated under travel ('transport, hotels, fuel'). One-off card purchase -> recurring false.",
+      "input": "TOTALENERGIES 4123 AALTER E40 DIESEL 72.35 EUR - card 4412",
+      "expected": {
+        "category": "travel",
+        "recurring": false
+      }
+    },
+    {
+      "id": "atm-cash-withdrawal",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) RES abstention-correct: a cash withdrawal says nothing about what the money was spent on -> 'other' is the only honest category; a bank name (KBC) is not a merchant. One-off -> recurring false.",
+      "input": "CASH WITHDRAWAL ATM KBC GENT KOUTER 100.00 EUR - card 4412",
+      "expected": {
+        "category": "other",
+        "recurring": false
+      }
+    },
+    {
+      "id": "coworking-membership-monthly",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) coworking is enumerated under office ('supplies, coworking'); the line states MONTHLY MEMBERSHIP and a month stamp -> recurring true. The Brussels address pulls toward travel.",
+      "input": "SEPA DD REGUS BRUSSELS AVENUE LOUISE MONTHLY MEMBERSHIP OCT 2026 189.00 EUR",
+      "expected": {
+        "category": "office",
+        "recurring": true
+      }
+    },
+    {
+      "id": "proximus-oneoff-installation",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) RES near-duplicate of the train case proximus-monthly: same telecom brand, but the line says ONE-OFF INSTALLATION FEE -> telecom, recurring FALSE. The ISO date is a decoy that can read as a billing period.",
+      "input": "PROXIMUS ONE-OFF INSTALLATION FEE FIBER 2026-10-14 120.00 EUR",
+      "expected": {
+        "category": "telecom",
+        "recurring": false
+      }
+    },
+    {
+      "id": "nmbs-monthly-pass",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) a rail commuter pass is transport -> travel; the line states MONTHLY PASS and a domiciliation -> recurring true (contrast nmbs-ticket, train: a one-off ticket). DIRECT DEBIT + MONTHLY are the recurrence cues.",
+      "input": "NMBS/SNCB MONTHLY PASS GENT-SINT-PIETERS - BRUSSEL-CENTRAAL OCT 2026 DIRECT DEBIT 112.00 EUR",
+      "expected": {
+        "category": "travel",
+        "recurring": true
+      }
     }
   ]
 }

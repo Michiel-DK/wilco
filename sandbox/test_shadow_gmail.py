@@ -10,7 +10,9 @@ Covers, all offline against canned email.message_from_bytes fixtures:
   * READ-ONLY source-level assertions: readonly=True + BODY.PEEK present, and NO
     mailbox-mutating verb (store/expunge/\\Seen/copy/append/delete) reachable;
   * ONE end-to-end run through the real email-triage model on a HARDCODED sample
-    (NOT Gmail) — skipped with a printed reason if Ollama isn't reachable.
+    (NOT Gmail) — OPT-IN: runs only with SANDBOX_E2E=1 (the gate is inference-free
+    unless SANDBOX_E2E=1); with the var set it still skips with a printed reason if
+    Ollama isn't reachable.
 
 Plain asserts + exit code, zero pip dependencies — same bar as runner.py itself.
 """
@@ -19,6 +21,7 @@ from __future__ import annotations
 import contextlib
 import io
 import json
+import os
 import re
 import sys
 import tempfile
@@ -538,7 +541,14 @@ def _ollama_up() -> bool:
 def test_end_to_end_through_real_model() -> None:
     """ONE real run: hardcoded sample email -> email-triage -> valid label + logged
     line. Uses a temp results dir so the test never pollutes the real live log.
-    Skipped (not failed) if Ollama is unreachable."""
+
+    OPT-IN: the gate is inference-free unless `SANDBOX_E2E=1`. Without exactly that
+    value the test prints a SKIP line and returns BEFORE probing Ollama, so a running
+    server is never touched. With SANDBOX_E2E=1 and Ollama down it still skips (not
+    fails) with its old "Ollama not reachable" line."""
+    if os.environ.get("SANDBOX_E2E") != "1":
+        print("  [SKIP] end-to-end: set SANDBOX_E2E=1 to run the one real inference")
+        return
     if not _ollama_up():
         print("  [SKIP] end-to-end: Ollama not reachable at localhost:11434")
         return

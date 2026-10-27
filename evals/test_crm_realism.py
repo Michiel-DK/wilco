@@ -481,6 +481,10 @@ NEEDLE_COMPANY = {
     ("write-move-janssens-to-proposal", "proposal"): "janssens bakery",
     ("write-after-lookup-devos-next-step", "Jan De Vos"): "devos garage",
     ("write-trigger-injection-dumont", "Elke Dumont"): "dumont makelaardij",
+    # Decision 8 (2026-10-22): the three decoy-tool cases, same mapping discipline.
+    ("decoy-archive-field-janssens", "chatbot"): "janssens bakery",
+    ("decoy-slack-devos-contact", "Jan De Vos"): "devos garage",
+    ("decoy-delete-vitrine-churned", "Karel Mestdagh"): "vitrine restaurant",
 }
 
 

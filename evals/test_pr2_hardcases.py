@@ -206,8 +206,10 @@ def test_probes_are_labelled():
     check("september-firm-day-en is labelled as caught-class regression probe",
           "CAUGHT-CLASS" in cases["september-firm-day-en"].get("note", ""))
     for cid in ("may-delivery-date-en", "weekday-call-nl", "september-firm-day-en"):
-        check(f"probe {cid} asserts nothing (expected == {{}})",
-              cases[cid]["expected"] == {})
+        # check_must_address (2026-10-22) gave EVERY reply-draft case a must_address list; the
+        # probes still assert nothing about the date invention they diagnose — no other key.
+        check(f"probe {cid} asserts nothing beyond must_address (expected keys <= {{'must_address'}})",
+              set(cases[cid]["expected"]) <= {"must_address"}, str(cases[cid]["expected"]))
 
 
 def main() -> int:

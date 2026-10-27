@@ -1,0 +1,25 @@
+# wilco-exams: the `wilco` command over this repo's exams. The package is the CLI shim only (wilco_cli.py); the
+# exams, agents and runner stay in the checkout, so install from a clone: `pip install -e .`
+[build-system]
+requires = ["setuptools>=77"]   # PEP 660 editable installs (64) + the PEP 639 licence string (77)
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wilco-exams"
+version = "0.1.0"
+description = "Pick the cheapest model that passes your task's exam, and know the day it stops passing."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = ["requests>=2.28", "PyYAML>=6.0"]
+
+[project.urls]
+Homepage = "https://roger3000.com/wilco"
+Source = "https://github.com/Michiel-DK/wilco"
+
+[project.scripts]
+wilco = "wilco_cli:main"
+
+[tool.setuptools]
+# explicit: flat-layout auto-discovery would otherwise find sandbox/, evals/, agents/ ... and refuse to build
+py-modules = ["wilco_cli"]

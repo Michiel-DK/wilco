@@ -1,0 +1,16 @@
+# systemone tier (2026-09-30): the email-triage exam as ONE typed question for Ollama's
+# decision endpoint (nimble / tev1). Criteria are the prompt.md definitions, verbatim in
+# substance. Run: python3 sandbox/runner.py run email-triage --provider systemone --model tev1:0.8b
+# Never --snapshot until a diff against the committed champion says it belongs in the ladder.
+state_key: input
+questions:
+  label:
+    type: choice
+    instructions: >-
+      This is an email received by a freelance AI consultant. Which label applies?
+    criteria:
+      reply_now: "Needs a response today: client requests, money matters, legal or compliance requests, production incidents."
+      reply_later: "Worth answering but not urgent: networking, invitations, non-urgent personal messages, recruiter outreach."
+      ignore: "No reply needed: newsletters, promotions, cold sales spam, automated notifications that require no action."
+outputs:
+  label: label

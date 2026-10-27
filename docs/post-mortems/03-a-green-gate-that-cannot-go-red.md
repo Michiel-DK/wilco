@@ -13,7 +13,7 @@ output; the score would have moved the right way while measuring nothing. The on
 whose injection had been seen failing.
 
 **What changed.** The gate is a shell script that runs every test file as its own process and captures the exit code at once;
-pytest is only the public clone's CI, and its green carries the same blind spot, which the README now says. Three rules entered
+the public clone's CI ran pytest until 23 Oct 2026, with the same blind spot, which the README said; since then it runs the same shell gate (`.github/workflows/tests.yml`). Three rules entered
 the project file: *a green guard proves nothing until seen red* — build the attacker's input by hand and run it; *a new check
 earns its place only if some case isolates it* — name one case that passes every other check and fails only the new one; and
 *presence is not effect* — a `num_ctx` accepted and ignored, a judge module imported and dormant, a test-count floor counting

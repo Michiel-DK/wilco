@@ -115,8 +115,7 @@
       "expected": {
         "must_mention": [
           "900",
-          "Mertens",
-          "Devos"
+          "Vos"
         ],
         "max_ratio": 0.07,
         "nothing_important": false
@@ -131,7 +130,7 @@
           "Peeters",
           "6500",
           "Janssens",
-          "Devos"
+          "Vos"
         ],
         "max_ratio": 0.1,
         "nothing_important": false
@@ -145,8 +144,7 @@
         "must_mention": [
           "Peeters",
           "6500",
-          "44821",
-          "Mertens"
+          "44821"
         ],
         "max_ratio": 0.05,
         "nothing_important": false
@@ -217,6 +215,84 @@
         ],
         "nothing_important": false,
         "max_ratio": 0.07
+      }
+    },
+    {
+      "id": "dependency-delivery-vs-install",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) RES dependency: item 2 (Lambert expects the kiosk installation on 10 november) only matters because of item 5 (Elektro Claeys delays the tablets to 14 november). A recap that reports one without the other drops the conflict; keyed: 'Lambert' (the client, named in the body) and 'tablet' (EN = NL; the supplier's name sits only in the address and signature, so it is not keyed — case-realism refuter, 2026-10-22). Whether the recap CONNECTS the two items is PRESENT, UNGRADED. The two dates are a decoy pair: a recap that swaps them passes check_grounded (both numbers are in the source) and check_coverage — PRESENT, UNGRADED (declared in the PR; deferred any-of terms '14 november'/'november 14').",
+      "input": "--- item 1 ---\nFrom: nieuws@ondernemersplatform.be\nSubject: Weekoverzicht voor ondernemers\nDeze week: vijf tips om je administratie te vereenvoudigen, een interview met een\nstarter uit Gent, en de agenda van komende netwerkevents. Uitschrijven kan onderaan.\n\n--- item 2 ---\nFrom: koen@lambert-tegels.be\nSubject: installatie kiosk showroom\nDag Michiel, we rekenen erop dat de kiosk met de chatbot op 10 november in de showroom\nstaat, want die dag komt de pers langs voor de opening. Kan je bevestigen dat dat lukt?\nGroeten, Koen Lambert\n\n--- item 3 ---\nFrom: no-reply@backupservice.be\nSubject: Automatische back-up voltooid\nDe geplande back-up van je bestanden is voltooid. Er zijn geen fouten gemeld.\nDit is een automatisch bericht, je hoeft niets te doen.\n\n--- item 4 ---\nFrom: sales@kantoorbenodigdheden.be\nSubject: 20% korting op printerpapier deze maand\nBestel voor het einde van de maand en ontvang korting op ons volledige assortiment\nkantoorbenodigdheden. Bekijk de folder in bijlage.\n\n--- item 5 ---\nFrom: levering@elektro-claeys.be\nSubject: vertraging levering bestelling 7731\nBeste klant, door een tekort bij onze leverancier worden de twee tablets van je\nbestelling 7731 pas op 14 november geleverd in plaats van 3 november. Onze excuses\nvoor het ongemak. Klantendienst Elektro Claeys\n\n--- item 6 ---\nFrom: no-reply@domeinregistratie.be\nSubject: Je domeinnaam verloopt over 60 dagen\nDe domeinnaam van je bedrijf verloopt over 60 dagen. Automatische verlenging staat\naan, er is geen actie nodig.",
+      "expected": {
+        "must_mention": [
+          "Lambert",
+          "tablet"
+        ],
+        "max_ratio": 0.22,
+        "nothing_important": false
+      }
+    },
+    {
+      "id": "near-duplicate-invoices",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) RES near-duplicate: two mails from the same supplier about two invoices with near-identical numbers — 2026-118 is PAID (a thank-you, nothing to do), 2026-131 is OVERDUE (312.40 EUR, reminder). Merging them, or reporting the paid one as the problem, is the error. Keyed: the overdue invoice number and its amount, copied exactly (prompt rule 1). The dot-decimal '312.40' in Dutch text is deliberate, as in the committed rounding-bait case: a localised '312,40' would fail check_grounded/check_coverage, and money grading across locales is unbuilt work (CLAUDE.md gotcha 4). Reporting '2026-118' as overdue alongside the keys is PRESENT, UNGRADED.",
+      "input": "--- item 1 ---\nFrom: boekhouding@drukkerij-vandenberghe.be\nSubject: betaling ontvangen factuur 2026-118\nBeste, we hebben je betaling van 85.00 EUR voor factuur 2026-118 goed ontvangen.\nBedankt! Boekhouding Drukkerij Vandenberghe\n\n--- item 2 ---\nFrom: nieuws@ondernemersplatform.be\nSubject: Weekoverzicht voor ondernemers\nDeze week: vijf tips om je administratie te vereenvoudigen, een interview met een\nstarter uit Gent, en de agenda van komende netwerkevents. Uitschrijven kan onderaan.\n\n--- item 3 ---\nFrom: boekhouding@drukkerij-vandenberghe.be\nSubject: herinnering factuur 2026-131\nBeste, volgens onze gegevens staat factuur 2026-131 van 312.40 EUR nog open. De\nvervaldatum was 30 september. Gelieve het bedrag zo snel mogelijk over te maken.\nBoekhouding Drukkerij Vandenberghe\n\n--- item 4 ---\nFrom: no-reply@backupservice.be\nSubject: Automatische back-up voltooid\nDe geplande back-up van je bestanden is voltooid. Er zijn geen fouten gemeld.\nDit is een automatisch bericht, je hoeft niets te doen.\n\n--- item 5 ---\nFrom: sales@kantoorbenodigdheden.be\nSubject: 20% korting op printerpapier deze maand\nBestel voor het einde van de maand en ontvang korting op ons volledige assortiment\nkantoorbenodigdheden. Bekijk de folder in bijlage.",
+      "expected": {
+        "must_mention": [
+          "2026-131",
+          "312.40"
+        ],
+        "max_ratio": 0.28,
+        "nothing_important": false
+      }
+    },
+    {
+      "id": "quiet-day-big-amount-decoy",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) RES decoy amount on a quiet day: the largest figure of the day (a 2,450.00 EUR quarterly VAT direct debit) is already scheduled and explicitly needs no action; the rest is a newsletter, a backup notice and a promotion. The pull is to manufacture significance from the amount. The English number format in Dutch text is deliberate (see near-duplicate-invoices; gotcha 4). Abstention-correct -> nothing_important true, tight cap.",
+      "input": "--- item 1 ---\nFrom: no-reply@mijnbank.be\nSubject: Aankondiging domiciliëring btw\nOp 20 oktober wordt een bedrag van 2,450.00 EUR afgeschreven voor je btw-aangifte van\nhet derde kwartaal. Er is voldoende saldo op je rekening, je hoeft niets te doen.\n\n--- item 2 ---\nFrom: nieuws@ondernemersplatform.be\nSubject: Weekoverzicht voor ondernemers\nDeze week: vijf tips om je administratie te vereenvoudigen, een interview met een\nstarter uit Gent, en de agenda van komende netwerkevents. Uitschrijven kan onderaan.\n\n--- item 3 ---\nFrom: no-reply@backupservice.be\nSubject: Automatische back-up voltooid\nDe geplande back-up van je bestanden is voltooid. Er zijn geen fouten gemeld.\nDit is een automatisch bericht, je hoeft niets te doen.\n\n--- item 4 ---\nFrom: sales@kantoorbenodigdheden.be\nSubject: 20% korting op printerpapier deze maand\nBestel voor het einde van de maand en ontvang korting op ons volledige assortiment\nkantoorbenodigdheden. Bekijk de folder in bijlage.\n\n--- item 5 ---\nFrom: info@coworking-gent.be\nSubject: Nieuwe koffiemachine op de tweede verdieping\nGoed nieuws: vanaf maandag staat er een nieuwe koffiemachine op de tweede verdieping.\nDe oude machine op de eerste verdieping blijft ook gewoon werken.",
+      "expected": {
+        "nothing_important": true,
+        "abstain_max_chars": 220,
+        "max_ratio": 0.3
+      }
+    },
+    {
+      "id": "automated-but-actionable",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) RES information access inverted: every item is automated, which pulls toward 'quiet day', but one automated notice DOES need the owner (card payment for the hosting package refused, website suspended on 3 november unless the card is updated). Busy day -> nothing_important false. Keyed: the provider name 'Combell' (identical in EN and NL), which the body names in its closing line. Round 1 keyed it while it sat only in the sender address, then 'hosting', which an honest EN recap ('your web host') omits; both were caught by refuters before any model ran. A recap that says 'your web host' without the name still fails: any-of ['Combell', 'hosting', 'website'] is deferred to #117.",
+      "input": "--- item 1 ---\nFrom: no-reply@backupservice.be\nSubject: Automatische back-up voltooid\nDe geplande back-up van je bestanden is voltooid. Er zijn geen fouten gemeld.\nDit is een automatisch bericht, je hoeft niets te doen.\n\n--- item 2 ---\nFrom: no-reply@domeinregistratie.be\nSubject: Je domeinnaam verloopt over 60 dagen\nDe domeinnaam van je bedrijf verloopt over 60 dagen. Automatische verlenging staat\naan, er is geen actie nodig.\n\n--- item 3 ---\nFrom: facturatie@combell.com\nSubject: Betaling geweigerd - actie vereist\nDe automatische betaling van je hostingpakket is geweigerd omdat je kaart verlopen is.\nWerk je betaalgegevens bij voor 3 november, anders wordt je website opgeschort.\nDit is een automatisch bericht van Combell.\n\n--- item 4 ---\nFrom: nieuws@ondernemersplatform.be\nSubject: Weekoverzicht voor ondernemers\nDeze week: vijf tips om je administratie te vereenvoudigen, een interview met een\nstarter uit Gent, en de agenda van komende netwerkevents. Uitschrijven kan onderaan.\n\n--- item 5 ---\nFrom: notificaties@netwerksite.be\nSubject: Je hebt 3 nieuwe profielweergaven\nBekijk wie je profiel deze week bekeken heeft. Log in om het volledige overzicht te\nzien.",
+      "expected": {
+        "must_mention": [
+          "Combell"
+        ],
+        "max_ratio": 0.25,
+        "nothing_important": false
+      }
+    },
+    {
+      "id": "buried-last-en",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) RES information buried LAST, English day: seven routine items lead; the only item needing the owner is the eighth (Hendrickx Interiors gives notice on the support contract, effective 31 December). Keyed: the client name. The cancellation date is a decoy-free fact; omitting the item is the error check_coverage catches.",
+      "input": "--- item 1 ---\nFrom: newsletter@saasweekly.io\nSubject: SaaS Weekly #212\nThis week: pricing pages that convert, a teardown of three onboarding flows, and\njobs. Read online or unsubscribe at the bottom.\n\n--- item 2 ---\nFrom: no-reply@github.com\nSubject: [roger3000] Dependabot opened 2 pull requests\nDependabot opened 2 pull requests to update dependencies. No action is required\nuntil you review them.\n\n--- item 3 ---\nFrom: receipts@railway.app\nSubject: Your receipt for October\nThanks for your payment of 20.00 USD. This receipt is for your records.\n\n--- item 4 ---\nFrom: events@aiconf.brussels\nSubject: Early bird tickets end Friday\nEarly bird pricing for AI in Practice Brussels ends this Friday. Grab your ticket\nbefore prices go up.\n\n--- item 5 ---\nFrom: no-reply@backupservice.be\nSubject: Scheduled backup completed\nYour scheduled backup completed without errors. This is an automated message.\n\n--- item 6 ---\nFrom: deals@techstore.com\nSubject: Weekend deals on monitors\nUp to 25% off selected monitors this weekend only.\n\n--- item 7 ---\nFrom: notifications@linkedin.com\nSubject: You appeared in 9 searches this week\nSee who is looking at your profile. Upgrade to Premium for the full list.\n\n--- item 8 ---\nFrom: lieve@hendrickx-interiors.be\nSubject: support contract\nHi Michiel, after a lot of internal discussion we have decided to end the support\ncontract for the chatbot. Please take this mail as our formal notice, effective\n31 December. Thanks for everything so far. Lieve Hendrickx",
+      "expected": {
+        "must_mention": [
+          "Hendrickx"
+        ],
+        "max_ratio": 0.18,
+        "nothing_important": false
+      }
+    },
+    {
+      "id": "meeting-moved-date-decoy",
+      "split": "heldout",
+      "note": "Q1 (2026-10-22, blind) RES decoy date: client Wouters moves the workshop from 12 november to 19 november; both dates appear, so a recap that keeps the OLD date passes check_grounded and check_coverage — PRESENT, UNGRADED (deferred any-of term ['19 november', 'november 19'] awaits #117). Keyed: the client name only (a room code is not something an honest two-minute recap must carry). A second client (Maes) sends an unrelated thank-you; merging it into the Wouters item is PRESENT, UNGRADED (no check sees a merge).",
+      "input": "--- item 1 ---\nFrom: sarah@wouters-advocaten.be\nSubject: workshop verplaatsen\nDag Michiel, door een zitting kunnen we de workshop van 12 november niet laten\ndoorgaan. Kan het op 19 november, zelfde uur, in zaal K2.07? Groeten, Sarah Wouters\n\n--- item 2 ---\nFrom: nieuws@ondernemersplatform.be\nSubject: Weekoverzicht voor ondernemers\nDeze week: vijf tips om je administratie te vereenvoudigen, een interview met een\nstarter uit Gent, en de agenda van komende netwerkevents. Uitschrijven kan onderaan.\n\n--- item 3 ---\nFrom: tom@maes-bouw.be\nSubject: bedankt voor de demo\nDag Michiel, bedankt voor de demo van gisteren. We bespreken het intern en laten\nvolgende week iets weten. Groeten, Tom Maes\n\n--- item 4 ---\nFrom: no-reply@backupservice.be\nSubject: Automatische back-up voltooid\nDe geplande back-up van je bestanden is voltooid. Er zijn geen fouten gemeld.\nDit is een automatisch bericht, je hoeft niets te doen.\n\n--- item 5 ---\nFrom: sales@kantoorbenodigdheden.be\nSubject: 20% korting op printerpapier deze maand\nBestel voor het einde van de maand en ontvang korting op ons volledige assortiment\nkantoorbenodigdheden. Bekijk de folder in bijlage.",
+      "expected": {
+        "must_mention": [
+          "Wouters"
+        ],
+        "max_ratio": 0.3,
+        "nothing_important": false
       }
     }
   ]

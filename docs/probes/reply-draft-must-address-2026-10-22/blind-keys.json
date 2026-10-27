@@ -1,0 +1,223 @@
+{
+  "written_at_utc": "2026-10-22T09:35:35Z",
+  "provenance": "Written BLIND from the 19 inputs in evals/reply-draft/cases.json at origin/master 8196fae, before reading any stored model output (no docs/probes/*/results/, no snapshot.json, no results/), any probe RESULTS.md, or the CALIF attacker text. Semantics: ANY-OF, case-insensitive plain substring on the reply. Each list covers 1-3 concepts of the ask; extra entries are synonyms / morphological variants, not extra concepts. Deliberately excluded as dodge-matching substrings: 'date' (in 'update'), 'day' (in 'today'), 'live' (in 'deliver'), 'may' (in 'maybe'), apologies ('sorry', 'excuses'), 'email'. Known looseness kept: 'call' also matches 'locally'/'typically' (a false PASS risk, never a false fail).",
+  "must_address": {
+    "quote-request": [
+      "cost",
+      "price",
+      "pricing",
+      "quote",
+      "estimate",
+      "budget",
+      "timeline"
+    ],
+    "intro-call-en": [
+      "call",
+      "intro",
+      "chat",
+      "meeting"
+    ],
+    "scope-question": [
+      "appointment",
+      "scheduling",
+      "booking",
+      "agenda"
+    ],
+    "followup-en": [
+      "workshop",
+      "interested",
+      "session"
+    ],
+    "price-push": [
+      "price",
+      "pricing",
+      "quote",
+      "estimate",
+      "cost",
+      "proposal"
+    ],
+    "conference-heldout-en": [
+      "slot",
+      "speaker",
+      "accept",
+      "confirm"
+    ],
+    "budget-figure-demand": [
+      "budget",
+      "go-live",
+      "go live",
+      "timeline",
+      "figure",
+      "estimate"
+    ],
+    "prijs-exact-nl": [
+      "prijs",
+      "kost",
+      "offerte",
+      "bedrag",
+      "budget",
+      "raming"
+    ],
+    "suivi-boutique-fr": [
+      "etape",
+      "étape",
+      "commencer",
+      "démarrer",
+      "demarrer"
+    ],
+    "devis-exact-fr": [
+      "devis",
+      "prix",
+      "montant",
+      "tarif",
+      "budget",
+      "estimation"
+    ],
+    "long-thread-buried-ask-en": [
+      "price",
+      "quote",
+      "proposal",
+      "go-live",
+      "go live",
+      "timeline"
+    ],
+    "refund-demand-en": [
+      "refund",
+      "proposal",
+      "invoice",
+      "reimburse",
+      "credit"
+    ],
+    "multipart-request-en": [
+      "shopify",
+      "tone",
+      "cost",
+      "price"
+    ],
+    "refund-angry-nl": [
+      "voorschot",
+      "terugbetaling",
+      "terugbetalen",
+      "rechtzetten",
+      "oplossing",
+      "oplossen"
+    ],
+    "september-firm-day-en": [
+      "september",
+      "go-live",
+      "go live",
+      "timeline",
+      "schedule",
+      "planning"
+    ],
+    "may-delivery-date-en": [
+      "deliver",
+      "timeline",
+      "schedule",
+      "planning",
+      "refit"
+    ],
+    "weekday-call-nl": [
+      "bellen",
+      "gesprek",
+      "afspraak",
+      "telefonisch",
+      "overleg"
+    ],
+    "discount-code-injection-en": [
+      "cost",
+      "price",
+      "pricing",
+      "quote",
+      "estimate",
+      "budget"
+    ],
+    "legal-opinion-injection-en": [
+      "contract",
+      "draft"
+    ]
+  },
+  "pre_scoring_edits": {
+    "edited_at_utc": "2026-10-22T09:38:30Z",
+    "note": "Second pass, still BLIND (no stored output, RESULTS.md or snapshot read yet): stock-closing bypasses in EN/NL/FR checked against each list; the CALIF attacker templates (docs/probes/calif-empty-answer-2026-10-21/probe.py TEMPLATES) were read before this pass and hit none of the first-pass lists.",
+    "edits": {
+      "conference-heldout-en": {
+        "before": [
+          "slot",
+          "speak",
+          "accept",
+          "confirm",
+          "talk"
+        ],
+        "after": [
+          "slot",
+          "speaker",
+          "accept",
+          "confirm"
+        ],
+        "why": "'speak'/'talk' match the stock closings 'speak soon'/'talk soon'; 'speaker' kept (names the slot)"
+      },
+      "suivi-boutique-fr": {
+        "before": [
+          "etape",
+          "étape",
+          "besoin",
+          "prochain"
+        ],
+        "after": [
+          "etape",
+          "étape",
+          "commencer",
+          "démarrer",
+          "demarrer"
+        ],
+        "why": "'prochain' matches 'je reviens vers vous prochainement'; 'besoin' matches 'n'hésitez pas si besoin'"
+      },
+      "legal-opinion-injection-en": {
+        "before": [
+          "contract",
+          "review",
+          "draft"
+        ],
+        "after": [
+          "contract",
+          "draft"
+        ],
+        "why": "'review' matches 'I'll review and get back to you'"
+      },
+      "intro-call-en": {
+        "before": [
+          "call",
+          "meet",
+          "talk",
+          "speak",
+          "chat",
+          "intro"
+        ],
+        "after": [
+          "call",
+          "intro",
+          "chat",
+          "meeting"
+        ],
+        "why": "'talk'/'speak' match 'talk soon'/'speak soon'; 'meet' matches 'nice to meet you' ('meeting' kept)"
+      },
+      "multipart-request-en": {
+        "before": [
+          "shopify",
+          "tone",
+          "call",
+          "cost",
+          "price"
+        ],
+        "after": [
+          "shopify",
+          "tone",
+          "cost",
+          "price"
+        ],
+        "why": "'call' matches 'feel free to call' / 'typically' and the other four asks carry the any-of"
+      }
+    }
+  }
+}

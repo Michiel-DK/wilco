@@ -1,0 +1,472 @@
+{
+  "agent": "expense-categorization",
+  "provider": "openrouter",
+  "model": "z-ai/glm-5.3",
+  "mode": "fields",
+  "train": {
+    "passed": 6,
+    "total": 6,
+    "score": 1.0,
+    "field_accuracy": 1.0
+  },
+  "heldout": {
+    "passed": 8,
+    "total": 9,
+    "score": 0.8889,
+    "field_accuracy": 0.9444
+  },
+  "cases": [
+    {
+      "id": "railway-subscription",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "category": "software",
+        "recurring": true
+      },
+      "got": {
+        "category": "software",
+        "recurring": true
+      },
+      "detail": {
+        "fields_matched": 2,
+        "fields_total": 2,
+        "metrics": {
+          "prompt_tokens": 186,
+          "completion_tokens": 46,
+          "total_tokens": 232,
+          "wall_ms": 2327.6,
+          "retries": 0,
+          "content_chars": 43,
+          "reasoning_chars": 127,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "client-lunch",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "category": "meals",
+        "recurring": false
+      },
+      "got": {
+        "category": "meals",
+        "recurring": false
+      },
+      "detail": {
+        "fields_matched": 2,
+        "fields_total": 2,
+        "metrics": {
+          "prompt_tokens": 190,
+          "completion_tokens": 99,
+          "total_tokens": 289,
+          "wall_ms": 2293.2,
+          "retries": 0,
+          "content_chars": 41,
+          "reasoning_chars": 341,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "nmbs-ticket",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "category": "travel",
+        "recurring": false
+      },
+      "got": {
+        "category": "travel",
+        "recurring": false
+      },
+      "detail": {
+        "fields_matched": 2,
+        "fields_total": 2,
+        "metrics": {
+          "prompt_tokens": 184,
+          "completion_tokens": 73,
+          "total_tokens": 257,
+          "wall_ms": 2308.0,
+          "retries": 0,
+          "content_chars": 42,
+          "reasoning_chars": 235,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "proximus-monthly",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "category": "telecom",
+        "recurring": true
+      },
+      "got": {
+        "category": "telecom",
+        "recurring": true
+      },
+      "detail": {
+        "fields_matched": 2,
+        "fields_total": 2,
+        "metrics": {
+          "prompt_tokens": 186,
+          "completion_tokens": 64,
+          "total_tokens": 250,
+          "wall_ms": 2359.3,
+          "retries": 0,
+          "content_chars": 42,
+          "reasoning_chars": 209,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "coolblue-monitor",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "category": "hardware",
+        "recurring": false
+      },
+      "got": {
+        "category": "hardware",
+        "recurring": false
+      },
+      "detail": {
+        "fields_matched": 2,
+        "fields_total": 2,
+        "metrics": {
+          "prompt_tokens": 190,
+          "completion_tokens": 72,
+          "total_tokens": 262,
+          "wall_ms": 2569.0,
+          "retries": 0,
+          "content_chars": 44,
+          "reasoning_chars": 238,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "anthropic-api",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "category": "software",
+        "recurring": false
+      },
+      "got": {
+        "category": "software",
+        "recurring": false
+      },
+      "detail": {
+        "fields_matched": 2,
+        "fields_total": 2,
+        "metrics": {
+          "prompt_tokens": 190,
+          "completion_tokens": 165,
+          "total_tokens": 355,
+          "wall_ms": 3469.8,
+          "retries": 0,
+          "content_chars": 44,
+          "reasoning_chars": 669,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "hotel-lisbon",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "category": "travel",
+        "recurring": false
+      },
+      "got": {
+        "category": "travel",
+        "recurring": false
+      },
+      "detail": {
+        "fields_matched": 2,
+        "fields_total": 2,
+        "metrics": {
+          "prompt_tokens": 193,
+          "completion_tokens": 81,
+          "total_tokens": 274,
+          "wall_ms": 2346.9,
+          "retries": 0,
+          "content_chars": 42,
+          "reasoning_chars": 231,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "google-ads",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "category": "marketing",
+        "recurring": true
+      },
+      "got": {
+        "category": "marketing",
+        "recurring": false
+      },
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "fields"
+        }
+      ],
+      "detail": {
+        "fields_matched": 1,
+        "fields_total": 2,
+        "metrics": {
+          "prompt_tokens": 184,
+          "completion_tokens": 195,
+          "total_tokens": 379,
+          "wall_ms": 3896.3,
+          "retries": 0,
+          "content_chars": 45,
+          "reasoning_chars": 880,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "paypal-cryptic",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "category": "other",
+        "recurring": false
+      },
+      "got": {
+        "category": "other",
+        "recurring": false
+      },
+      "detail": {
+        "fields_matched": 2,
+        "fields_total": 2,
+        "metrics": {
+          "prompt_tokens": 189,
+          "completion_tokens": 422,
+          "total_tokens": 611,
+          "wall_ms": 7836.4,
+          "retries": 0,
+          "content_chars": 41,
+          "reasoning_chars": 1873,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "bank-transfer-savings",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "category": "other",
+        "recurring": false
+      },
+      "got": {
+        "category": "other",
+        "recurring": false
+      },
+      "detail": {
+        "fields_matched": 2,
+        "fields_total": 2,
+        "metrics": {
+          "prompt_tokens": 194,
+          "completion_tokens": 122,
+          "total_tokens": 316,
+          "wall_ms": 3121.6,
+          "retries": 0,
+          "content_chars": 41,
+          "reasoning_chars": 420,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "godaddy-domain-renewal",
+      "split": "train",
+      "passed": true,
+      "expected": {
+        "category": "marketing",
+        "recurring": true
+      },
+      "got": {
+        "category": "marketing",
+        "recurring": true
+      },
+      "detail": {
+        "fields_matched": 2,
+        "fields_total": 2,
+        "metrics": {
+          "prompt_tokens": 198,
+          "completion_tokens": 141,
+          "total_tokens": 339,
+          "wall_ms": 3617.2,
+          "retries": 0,
+          "content_chars": 44,
+          "reasoning_chars": 570,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "paypal-adobe-subscription",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "category": "software",
+        "recurring": true
+      },
+      "got": {
+        "category": "software",
+        "recurring": true
+      },
+      "detail": {
+        "fields_matched": 2,
+        "fields_total": 2,
+        "metrics": {
+          "prompt_tokens": 188,
+          "completion_tokens": 53,
+          "total_tokens": 241,
+          "wall_ms": 2019.2,
+          "retries": 0,
+          "content_chars": 43,
+          "reasoning_chars": 196,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "square-cafe-cryptic",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "category": "meals",
+        "recurring": false
+      },
+      "got": {
+        "category": "meals",
+        "recurring": false
+      },
+      "detail": {
+        "fields_matched": 2,
+        "fields_total": 2,
+        "metrics": {
+          "prompt_tokens": 190,
+          "completion_tokens": 98,
+          "total_tokens": 288,
+          "wall_ms": 2790.7,
+          "retries": 0,
+          "content_chars": 41,
+          "reasoning_chars": 286,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "uber-trip-cryptic",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "category": "travel",
+        "recurring": false
+      },
+      "got": {
+        "category": "travel",
+        "recurring": false
+      },
+      "detail": {
+        "fields_matched": 2,
+        "fields_total": 2,
+        "metrics": {
+          "prompt_tokens": 190,
+          "completion_tokens": 80,
+          "total_tokens": 270,
+          "wall_ms": 2223.0,
+          "retries": 0,
+          "content_chars": 42,
+          "reasoning_chars": 252,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "telenet-daypass",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "category": "telecom",
+        "recurring": false
+      },
+      "got": {
+        "category": "telecom",
+        "recurring": false
+      },
+      "detail": {
+        "fields_matched": 2,
+        "fields_total": 2,
+        "metrics": {
+          "prompt_tokens": 191,
+          "completion_tokens": 95,
+          "total_tokens": 286,
+          "wall_ms": 2254.0,
+          "retries": 0,
+          "content_chars": 43,
+          "reasoning_chars": 279,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    }
+  ],
+  "metrics_totals": {
+    "prompt_tokens": 2843,
+    "completion_tokens": 1806,
+    "total_tokens": 4649,
+    "wall_ms": 45432.2,
+    "retries": 0,
+    "content_chars": 638,
+    "reasoning_chars": 6806,
+    "truncated_calls": 0,
+    "unanswered_calls": 0
+  }
+}

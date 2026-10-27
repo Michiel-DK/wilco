@@ -1,0 +1,438 @@
+{
+  "agent": "reply-draft",
+  "provider": "openrouter",
+  "model": "openai/gpt-oss-20b",
+  "mode": "properties",
+  "train": {
+    "passed": 6,
+    "total": 7,
+    "score": 0.8571
+  },
+  "heldout": {
+    "passed": 9,
+    "total": 10,
+    "score": 0.9
+  },
+  "cases": [
+    {
+      "id": "quote-request",
+      "split": "train",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Sofie,\n\nThanks for reaching out! I’ll put together a detailed quote and timeline for a chatbot tailored to your webshop and get back to you shortly.\n\nBest regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 262,
+          "completion_tokens": 104,
+          "total_tokens": 366,
+          "wall_ms": 1797.1,
+          "retries": 0,
+          "content_chars": 191,
+          "reasoning_chars": 206,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "intro-call-en",
+      "split": "train",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Mark,\n\nThanks for reaching out and for your interest in my restaurant AI case study. I’d be happy to discuss how we might support your portfolio company. Could you let me know a few time slots that work for you for a 30‑minute call? I’ll confirm the details once I have your availability.\n\nBest regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 269,
+          "completion_tokens": 137,
+          "total_tokens": 406,
+          "wall_ms": 1443.8,
+          "retries": 0,
+          "content_chars": 331,
+          "reasoning_chars": 203,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "scope-question",
+      "split": "train",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hello Jan,\n\nThank you for reaching out. AI can definitely support your garage by automating appointment scheduling and handling common customer inquiries, freeing up your team to focus on hands‑on work. I’d love to learn more about your current processes and discuss how we can tailor a solution for you.\n\nLet me know a convenient time for a brief call or if you’d prefer to share more details via email.\n\nBest regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 267,
+          "completion_tokens": 171,
+          "total_tokens": 438,
+          "wall_ms": 2488.0,
+          "retries": 0,
+          "content_chars": 446,
+          "reasoning_chars": 289,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "followup-en",
+      "split": "train",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Laura,\n\nThanks for following up. I’m still interested in running the workshop in October. I’ll review the details and get back to you shortly with next steps.\n\nBest regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 263,
+          "completion_tokens": 107,
+          "total_tokens": 370,
+          "wall_ms": 4448.6,
+          "retries": 0,
+          "content_chars": 201,
+          "reasoning_chars": 213,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "price-push",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Tom,\n\nThanks for reaching out. I’ll gather the details and get back to you with a precise quotation by the end of the day so you can make your decision this week.\n\nBest regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 258,
+          "completion_tokens": 100,
+          "total_tokens": 358,
+          "wall_ms": 2305.3,
+          "retries": 0,
+          "content_chars": 205,
+          "reasoning_chars": 152,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "conference-heldout-en",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Thank you for the invitation. I will get back to you by Friday with a confirmation. \n\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 269,
+          "completion_tokens": 143,
+          "total_tokens": 412,
+          "wall_ms": 1628.0,
+          "retries": 0,
+          "content_chars": 107,
+          "reasoning_chars": 453,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "budget-figure-demand",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Kris,\n\nThanks for reaching out. I’m currently finalising the details and will confirm the exact budget figure and go‑live date for the chatbot project as soon as possible. I’ll get back to you with the concrete numbers by the end of today.\n\nBest regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 272,
+          "completion_tokens": 144,
+          "total_tokens": 416,
+          "wall_ms": 5150.4,
+          "retries": 0,
+          "content_chars": 282,
+          "reasoning_chars": 289,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "prijs-exact-nl",
+      "split": "heldout",
+      "passed": false,
+      "expected": {},
+      "got": {
+        "reply": "Hallo Pieter,\n\nDank voor je bericht. Ik heb nog de exacte kosten voor de chatbot niet klaar, maar ik zal de prijsopgave zo snel mogelijk voor je opstellen. Ik laat je binnen 24 uur een concreet bedrag weten, zodat je het budget vrijdag kunt goedkeuren.\n\nMet vriendelijke groet,\nMichiel"
+      },
+      "failures": [
+        "check_no_invented_numbers: numbers not present in input: ['24']"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_no_invented_numbers"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 272,
+          "completion_tokens": 118,
+          "total_tokens": 390,
+          "wall_ms": 1073.0,
+          "retries": 0,
+          "content_chars": 302,
+          "reasoning_chars": 130,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "suivi-boutique-fr",
+      "split": "train",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Bonjour Claire,\n\nMerci pour votre intérêt. Pour démarrer, j’aurais besoin de quelques informations :\n1. Accès à votre boutique (CMS, API ou plateforme e‑commerce) afin de comprendre l’architecture.\n2. Un aperçu du catalogue produit et des FAQ existantes.\n3. Des exemples de questions fréquentes que vous souhaitez que l’assistant traite.\n4. Les canaux de communication (chat en ligne, email, etc.) où l’assistant sera déployé.\n\nUne fois ces éléments recueillis, je pourrai définir un plan détaillé et vous proposer les prochaines étapes.\n\nCordialement,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 302,
+          "completion_tokens": 205,
+          "total_tokens": 507,
+          "wall_ms": 2260.9,
+          "retries": 0,
+          "content_chars": 583,
+          "reasoning_chars": 280,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "devis-exact-fr",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Bonjour Laurent,\n\nMerci pour votre message. Je vais préparer le devis détaillé avec le montant exact et vous le transmettre dès que possible. Je reviendrai vers vous aujourd’hui avec les informations demandées.\n\nCordialement,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 287,
+          "completion_tokens": 92,
+          "total_tokens": 379,
+          "wall_ms": 1522.7,
+          "retries": 0,
+          "content_chars": 250,
+          "reasoning_chars": 138,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "long-thread-buried-ask-en",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Peter,\n\nThank you for forwarding the context and for the positive feedback on the demo – I’m glad the team is excited. I understand the urgency regarding the budget and go‑live date. I will review the integration details with the new webshop platform and get back to you with a fixed total price and a firm go‑live date shortly.\n\nBest regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 605,
+          "completion_tokens": 172,
+          "total_tokens": 777,
+          "wall_ms": 1295.5,
+          "retries": 0,
+          "content_chars": 371,
+          "reasoning_chars": 338,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "refund-demand-en",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Victor,\n\nThank you for reaching out. I’m sorry to hear the workshop didn’t meet your expectations. I’ll review the details and get back to you with a clear proposal or next steps by the end of this week.\n\nBest regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 298,
+          "completion_tokens": 155,
+          "total_tokens": 453,
+          "wall_ms": 1858.5,
+          "retries": 0,
+          "content_chars": 246,
+          "reasoning_chars": 365,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "multipart-request-en",
+      "split": "train",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Ines,\n\nThanks for reaching out. I can integrate a chatbot with your Shopify store and adapt it to the tone‑of‑voice guidelines your agency provided. I’m happy to schedule a call with your marketing lead to discuss details. Regarding cost and timeline, I’ll gather the specifics and get back to you shortly.\n\nBest regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 300,
+          "completion_tokens": 517,
+          "total_tokens": 817,
+          "wall_ms": 11760.0,
+          "retries": 0,
+          "content_chars": 349,
+          "reasoning_chars": 1409,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "refund-angry-nl",
+      "split": "train",
+      "passed": false,
+      "expected": {},
+      "got": {
+        "reply": "Beste Karel,\n\nBedankt voor je bericht. Ik begrijp je frustratie en wil graag de situatie zo snel mogelijk verhelderen. Ik zal de demo en de gemaakte afspraken intern nakijken en je binnen 48 uur een duidelijk antwoord geven over de stappen die we kunnen nemen en de mogelijkheden rondom het voorschot.\n\nMet vriendelijke groet,\nMichiel"
+      },
+      "failures": [
+        "check_no_invented_numbers: numbers not present in input: ['48']"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_no_invented_numbers"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 308,
+          "completion_tokens": 151,
+          "total_tokens": 459,
+          "wall_ms": 5902.8,
+          "retries": 0,
+          "content_chars": 351,
+          "reasoning_chars": 260,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "september-firm-day-en",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Dirk,\n\nThanks for reaching out. I’m currently checking my schedule and will confirm the exact go‑live date for September as soon as possible.\n\nBest regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 288,
+          "completion_tokens": 94,
+          "total_tokens": 382,
+          "wall_ms": 1886.7,
+          "retries": 0,
+          "content_chars": 184,
+          "reasoning_chars": 161,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "may-delivery-date-en",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Hi Sandra,\n\nThanks for letting me know about the shop refit. I’ll check my schedule and get back to you with a confirmed delivery date in May as soon as possible.\n\nBest regards,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 282,
+          "completion_tokens": 102,
+          "total_tokens": 384,
+          "wall_ms": 2956.2,
+          "retries": 0,
+          "content_chars": 202,
+          "reasoning_chars": 165,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "weekday-call-nl",
+      "split": "heldout",
+      "passed": true,
+      "expected": {},
+      "got": {
+        "reply": "Dag Els,\n\nLeuk om te horen dat je een gesprek wilt over de chatbot. Ik ben vrijdag de hele dag beschikbaar. Laat me weten welke tijd voor jou het beste werkt, dan plan ik het gesprek in.\n\nGroeten,\nMichiel"
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 273,
+          "completion_tokens": 128,
+          "total_tokens": 401,
+          "wall_ms": 1329.3,
+          "retries": 0,
+          "content_chars": 221,
+          "reasoning_chars": 251,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    }
+  ],
+  "metrics_totals": {
+    "prompt_tokens": 5075,
+    "completion_tokens": 2640,
+    "total_tokens": 7715,
+    "wall_ms": 51106.8,
+    "retries": 0,
+    "content_chars": 4822,
+    "reasoning_chars": 5302,
+    "truncated_calls": 0,
+    "unanswered_calls": 0
+  }
+}

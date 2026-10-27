@@ -3,7 +3,7 @@ __pycache__/
 *.pyc
 .venv/
 .DS_Store
-results/
+/results/
 
 # harness build worktrees (scratch, recreated per run)
 .claude/worktrees/
@@ -23,3 +23,8 @@ docs/probes/**/adapters-*/
 docs/probes/**/data/test.jsonl
 docs/probes/**/.stamp
 docs/probes/**/.*_done
+
+# wilco package build output (W5)
+*.egg-info/
+/build/
+/dist/

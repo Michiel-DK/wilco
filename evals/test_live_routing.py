@@ -448,5 +448,25 @@ def test_14_unknown_tier_key_raises_never_dropped():
         runner.ROUTES_PATH = saved
 
 
+def test_15_expectation_bound_check_is_skipped_live_kept_in_the_exam():
+    """reply-draft check_must_address (2026-10-22) resolves per-case terms by EXACT input
+    text and raises on any uncommitted input — i.e. on every live one. WRONG BUILD: no
+    filter, so every live reply-draft dies with KeyError (seen red on this branch before
+    the filter: tests 2-13 all raised). The EXAM path keeping it is pinned through
+    run_exam itself in evals/reply-draft/test_must_address.py test_g; the last assertion
+    here only shows the check object still scores via run_properties."""
+    props = dict(runner.load_properties("reply-draft"))
+    assert getattr(props.get("check_must_address"), "expectation_bound", False), sorted(props)
+    dodge = {"reply": "Hi Anna, thanks for your email. I will get back to you on this.\nMichiel"}
+    assert live_output_checks("reply-draft", load_exam("reply-draft"), dodge, None, EN_INPUT) == []
+    assert "expectation_bound" in live_output_checks.__doc__
+    committed = load_exam("reply-draft")["cases"][0]["input"]
+    # On a COMMITTED input the check would NOT raise, it would FAIL the dodge — so an empty
+    # list here proves it was skipped by the marker, not swallowed by a catch-all (mutant m6g).
+    assert live_output_checks("reply-draft", load_exam("reply-draft"), dodge, None, committed) == []
+    ok, _f, failed = runner.run_properties(list(props.items()), committed, dodge)
+    assert not ok and {"bucket": "quality", "check": "check_must_address"} in failed, failed
+
+
 if __name__ == "__main__":
     sys.exit(main())

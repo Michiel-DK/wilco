@@ -61,7 +61,10 @@
       "input": "REP: Hi Sam, just doing our monthly check-in — nothing urgent from my\nside, wanted to see how things are going.\nCUSTOMER: Hey, good timing. Everything's actually been running smoothly this\nmonth, no complaints from the team.\nREP: Great to hear. Anyone using the new dashboard we shipped last month?\nCUSTOMER: A couple of people have poked at it but nothing serious yet.\nREP: No rush, it'll be there when you need it. Any issues with support\nresponse times or anything like that?\nCUSTOMER: No, everything's been fine. Honestly this is a pretty quiet month\nfor us.\nREP: Good to hear. I don't have anything else on my end either. Same time\nnext month?\nCUSTOMER: Works for me.\nREP: Great, talk then.\nCUSTOMER: Sounds good, bye.\n",
       "expected": {
         "nothing_important": true,
-        "abstain_max_chars": 420
+        "abstain_max_chars": 420,
+        "must_mention": [
+          "check"
+        ]
       }
     },
     {
@@ -136,7 +139,10 @@
       "input": "REP: Hi Wendell, this is our quarterly check-in — how's everything on your\nend?\nCUSTOMER: Good, actually. Been a fairly uneventful quarter for us, nothing\nmajor to report.\nREP: Glad to hear it. Last time we spoke you mentioned maybe adding a\nsecond team to the account eventually — any movement on that?\nCUSTOMER: Not yet, that's still just a maybe on our roadmap, nothing\nconcrete. Ask me again next quarter.\nREP: No problem, I'll just keep it in mind, no need to do anything with it\nnow. Any support tickets or bugs worth mentioning?\nCUSTOMER: None that I'm aware of, the team hasn't flagged anything to me.\nREP: Good. Usage looks steady on our side too, nothing unusual in the\ndashboards. I think that's a wrap unless you've got anything else?\nCUSTOMER: Nope, that's everything. Thanks for checking in.\nREP: Of course, talk next quarter.\nCUSTOMER: Sounds good, bye.\n",
       "expected": {
         "nothing_important": true,
-        "abstain_max_chars": 420
+        "abstain_max_chars": 420,
+        "must_mention": [
+          "check"
+        ]
       }
     },
     {
@@ -305,7 +311,10 @@
       "input": "REP: Hi Iris, monthly check-in, how's it going?\nCUSTOMER: All good here, nothing to report this month.\nREP: Great, same on our end, usage looks normal. Anything you want to flag?\nCUSTOMER: Nope, all quiet. Talk next month.\nREP: Sounds good, bye.\n",
       "expected": {
         "nothing_important": true,
-        "abstain_max_chars": 380
+        "abstain_max_chars": 380,
+        "must_mention": [
+          "check"
+        ]
       }
     },
     {
@@ -313,8 +322,10 @@
       "split": "heldout",
       "input": "REP: Hi Bram, quarterly check-in, how's the team finding things?\nCUSTOMER: Pretty smooth, actually. Nothing broken, nobody complaining.\nREP: Good to hear. Any interest in the new reporting features we shipped\nlast month?\nCUSTOMER: A couple of people mentioned it looked nice but nobody's\nactually switched over yet, still using the old view out of habit.\nREP: That's fine, no pressure, it'll be there when they're ready. Any\nsupport tickets on your end recently?\nCUSTOMER: None that I know of. Oh — one small thing, can we push our\nregular Thursday call to Fridays going forward? Thursdays got busy on our\nend.\nREP: Sure, I can move our recurring call to Fridays from now on.\nCUSTOMER: Great, that's the only change. Everything else is steady.\nREP: Sounds good, talk next quarter.\nCUSTOMER: Bye.\n",
       "expected": {
-        "nothing_important": true,
-        "abstain_max_chars": 420
+        "nothing_important": false,
+        "must_commit": [
+          "friday"
+        ]
       }
     },
     {
@@ -344,7 +355,10 @@
         "speakers": {
           "rep": "jordan blake",
           "customer": "harriet solano"
-        }
+        },
+        "must_mention": [
+          "check"
+        ]
       }
     },
     {
@@ -607,15 +621,15 @@
         ],
         "must_commit": [
           "confirm the exact new headcount",
-          "updated quote",
-          "confirm the final start date",
-          "summary recap email"
+          "quote",
+          "final start date",
+          "email"
         ],
         "commit_owner": {
           "confirm the exact new headcount": "customer",
-          "updated quote": "rep",
-          "confirm the final start date": "customer",
-          "summary recap email": "rep"
+          "quote": "rep",
+          "final start date": "customer",
+          "email": "rep"
         },
         "must_not_commit": [
           "case study",

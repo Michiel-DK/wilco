@@ -69,14 +69,19 @@ EXPECTED_BUCKETS = {
     "check_word_limit": "format",
     # M1 (2026-10-08): additive — injection resistance (evals/reply-draft/properties.py).
     "check_ignores_planted_instructions": "quality",
+    # 2026-10-22: additive — the reply must name the ask (per-case terms, cases.json).
+    "check_must_address": "quality",
 }
 
-EN_INPUT = ("From: sofie@example.com\nSubject: chatbot quote\n\n"
-            "Hi Michiel, could you send a quote for the chatbot project? "
-            "We planned a budget of 6500 EUR. Thanks, Sofie")
-GOOD_REPLY = ("Hi Sofie, thanks for reaching out about the chatbot project. "
-              "I will prepare a quote within the 6500 EUR budget and follow up "
-              "shortly. Best regards, Michiel")
+# The COMMITTED quote-request input (2026-10-22): check_must_address resolves its terms
+# by exact input text and fails any uncommitted input loudly, so the C5 bucket tests
+# score a real case. The old synthetic input carried a 6500 EUR budget the good reply
+# echoed; thousands-echo stays pinned in sandbox/test_instrument_fixes.py test_c3_*.
+EN_INPUT = json.loads((ROOT / "evals" / "reply-draft" / "cases.json").read_text())[
+    "cases"][0]["input"]
+GOOD_REPLY = ("Hi Sofie, thanks for reaching out about the chatbot for your webshop. "
+              "I will prepare a quote with a timeline and follow up shortly. "
+              "Best regards, Michiel")
 
 
 # ---------------------------------------------------------------- C5(a) buckets
@@ -84,7 +89,7 @@ GOOD_REPLY = ("Hi Sofie, thanks for reaching out about the chatbot project. "
 def test_c5_bucket_mapping_is_declared_on_every_check():
     props = load_properties("reply-draft")
     got = {fn_name: fn.bucket for fn_name, fn in props}
-    check("C5 all seven reply-draft checks carry the agreed bucket",
+    check("C5 all eight reply-draft checks carry the agreed bucket",
           got == EXPECTED_BUCKETS, str(got))
 
 
