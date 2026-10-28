@@ -28,7 +28,7 @@ write the exam? Send us your task: [**roger3000.com/wilco/pricing**](https://rog
 ```
 git clone https://github.com/Michiel-DK/wilco && cd wilco
 pip install -e .                                                     # the `wilco` command; requests, PyYAML
-wilco list                                                           # the eight example tasks (+ recap-en), their champions
+wilco list                                                           # the eight example tasks, their champions
 wilco run email-triage --provider stub --model stub
 ```
 
@@ -164,7 +164,7 @@ times the instrument itself was wrong, and what fixed it: [`docs/post-mortems/`]
 ## Tests
 
 ```
-./.cline/test.sh        # the gate: every test file, one process each, exit code captured; offline
+./scripts/test.sh       # the gate: every test file, one process each, exit code captured; offline
 ```
 
 `pytest` is blind to this repo's `check()`-style test files: they record a failure in a list and return it as the

@@ -7,7 +7,7 @@ docs/probes/i0-mlx-lora-2026-09-18/RESULTS.md). So the runner has to be able to 
 provider-specific key in the body, resolved from an env var, without touching any committed
 provider's request. This file pins both halves and the byte-identity of every other provider.
 
-check()-style (CLAUDE.md gotcha 17): run it directly, or through ./.cline/test.sh.
+check()-style (CLAUDE.md gotcha 17): run it directly, or through ./scripts/test.sh.
 """
 import json
 import os

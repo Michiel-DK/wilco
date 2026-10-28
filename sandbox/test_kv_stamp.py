@@ -13,7 +13,7 @@ order; hosted and mlx snapshots are never asked for the fields — halt 2).
 
 Everything is offline: no Ollama, no inference. Section (6) spawns a child python that
 LISTENS on an ephemeral loopback port with a constructed environment, and points the real
-reader at it. check()-style (CLAUDE.md gotcha 17): run directly or via ./.cline/test.sh.
+reader at it. check()-style (CLAUDE.md gotcha 17): run directly or via ./scripts/test.sh.
 """
 import argparse
 import contextlib

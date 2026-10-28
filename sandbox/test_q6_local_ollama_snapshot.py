@@ -7,7 +7,7 @@ systemone` took 3 samples with NO reload between them, stamped runtime.version N
 systemone snapshot was never version/KV-checked nor reloaded before `check`.
 
 Everything is offline: every Ollama call is monkeypatched, no inference, no network.
-check()-style (CLAUDE.md gotcha 17): run directly or via ./.cline/test.sh.
+check()-style (CLAUDE.md gotcha 17): run directly or via ./scripts/test.sh.
 
 WITNESS vs CONTROL: checks tagged [W] are RED on the unfixed runner.py (the defect);
 checks tagged [C] are green on both sides (negative controls / regression pins).

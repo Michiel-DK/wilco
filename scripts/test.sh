@@ -1,9 +1,9 @@
 #!/bin/bash
-# The deterministic test gate for this repo. `cship` resolves its test command as
-#   $CLINE_TEST_CMD  >  ./.cline/test.sh  >  detect(pytest|npm test|make test)
-# and REFUSES to ship when it finds none. Before this file existed the detect step
-# found nothing here (no pyproject.toml / pytest.ini / tests/ / npm test), so every
-# cline lane aborted fail-closed. This is what makes the lane shippable.
+# The deterministic test gate for this repo: `./scripts/test.sh` from the repo root (moved here from
+# .cline/test.sh on 2026-10-28; a private shim at that old path still execs this file, because the
+# lane tooling resolves its test command as $CLINE_TEST_CMD > ./.cline/test.sh > detect(pytest|npm
+# test|make test) and REFUSES to ship when it finds none — before this file existed the detect step
+# found nothing here, so every lane aborted fail-closed). This is what makes a lane shippable.
 #
 # WHY NOT pytest. Every test file in this repo is a module-level script that ends in
 # sys.exit(1) — `sandbox/test_router_knobs.py` has zero `def test_` functions. pytest

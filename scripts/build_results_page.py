@@ -216,7 +216,7 @@ footer{{margin-top:48px;color:var(--muted);font-size:.85rem;border-top:1px solid
 <pre><code>git clone https://github.com/Michiel-DK/wilco && cd wilco
 python3 docs/probes/pass3-column-2026-09-28/pass_k.py     # finding 2, from the committed snapshots and the six-run files
 python3 docs/probes/matrix-2026-09-27/build_tables.py       # the seven tables (local wall times need a local results/ dir)
-./.cline/test.sh                                            # the deterministic test gate, one process per file</code></pre>
+./scripts/test.sh                                            # the deterministic test gate, one process per file</code></pre>
 <p class="muted">Re-sitting an exam locally needs Ollama and the champion model: <code>python3 sandbox/runner.py check email-triage</code> compares a fresh run with the committed snapshot per case.</p>
 
 <footer>Built {today} by <code>scripts/build_results_page.py</code> from committed files; no number on this page was typed by hand. Probe folders: <code>docs/probes/matrix-2026-09-27</code>, <code>pass3-column-2026-09-28</code>, <code>l0-resnapshot-2026-10-02</code>, <code>l3-own-gpu-cost-2026-10-02</code>, <code>i0-mlx-lora-2026-09-18</code>, <code>i0b-champion-thinking-2026-09-20</code>, <code>i2-crm-lora-2026-09-20</code>, <code>i2v2-</code>/<code>i2v3-</code>/<code>i2v4-crm-lora-2026-09-21</code>. Earlier write-up: <a href="eval-suite-is-the-asset.html">Agents are disposable, the eval suite is the asset</a>.</footer>

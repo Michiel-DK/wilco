@@ -3,7 +3,7 @@
 
 Why: `test_shadow_gmail.py::test_end_to_end_through_real_model` made ONE real
 email-triage call whenever Ollama answered on localhost:11434 and skipped silently
-otherwise, so `./.cline/test.sh` meant different things on different machines and a
+otherwise, so `./scripts/test.sh` meant different things on different machines and a
 "CPU-only" job running the gate loaded the champion into the GPU. The fix makes the
 call opt-in: it runs only with SANDBOX_E2E exactly "1".
 
@@ -17,7 +17,7 @@ that raises (the e2e test imports it from `runner` at call time; a copy that bou
 name at import is also patched on the module) and (b) refuses every outbound
 `socket.connect` / `connect_ex` and every `subprocess.Popen` / `os.system` for the rest
 of the run — import included. Per drive, `mod._ollama_up` is a recorder too. The env var
-is cleared IN-PROCESS, so `SANDBOX_E2E=1 ./.cline/test.sh` cannot leak into this file.
+is cleared IN-PROCESS, so `SANDBOX_E2E=1 ./scripts/test.sh` cannot leak into this file.
 
 What it checks. (1) Shape: the FIRST statement of the e2e function (after its docstring)
 is exactly `if os.environ.get("SANDBOX_E2E") != "1":` ending in `return` — that pins the
