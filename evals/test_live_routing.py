@@ -91,7 +91,8 @@ def test_1_committed_routes_tier0_is_the_champion_for_every_agent():
     snapshotted). Also: an agent missing from the table would silently run single-tier;
     the table must be complete."""
     table = yaml.safe_load((ROOT / "routes.yaml").read_text())
-    agents = sorted(p.name for p in (ROOT / "agents").iterdir() if (p / "agent.yaml").exists())
+    agents = sorted(p.name for p in (ROOT / "agents").iterdir() if (p / "agent.yaml").exists()
+                    and not yaml.safe_load((p / "agent.yaml").read_text()).get("variant_of"))  # a language variant is exam-only, never routed
     assert sorted(table) == agents, f"routes.yaml agents {sorted(table)} != {agents}"
     for name in agents:
         tiers = load_routes(name)

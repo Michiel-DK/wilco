@@ -99,7 +99,7 @@ RUNNER = ROOT / "sandbox" / "runner.py"
 out = same("list", ["list"], [RUNNER, "list"], 0)
 exams = sorted(p.parent.name for p in (ROOT / "evals").glob("*/cases.json"))
 listed = sorted(ln.split()[0] for ln in out[1].splitlines() if "[exam ok" in ln)
-check("[D] list names every committed exam (eight in this repo)", listed == exams and len(exams) == 8, f"{listed} vs {exams}")
+check("[D] list names every committed exam (nine in this repo: eight tasks + recap-en, the English variant)", listed == exams and len(exams) == 9, f"{listed} vs {exams}")
 
 same("validate email-triage", ["validate", "email-triage"], [ROOT / "scripts" / "exam_validate.py", "email-triage"], 0)
 v_bad, v_dir = wilco("validate", "no-such-task"), sh([ROOT / "scripts" / "exam_validate.py", "no-such-task"])

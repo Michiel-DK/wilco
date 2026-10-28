@@ -580,8 +580,11 @@ def test_9_no_other_provider_entry_moved():
     #   "kind" key and its own adapter class; see sandbox/test_systemone.py for its pins.
     # + "openai" (W2, 2026-10-23): OpenAI direct, one config line, frontier tier; no
     #   committed agent or route names it — see sandbox/test_w2_runner_guards.py.
-    check("provider roster is exactly the 5 old ones + openrouter + mlx + systemone + openai",
-          sorted(PROVIDERS) == ["mlx", "nebius", "ollama", "openai", "openrouter", "ovh",
+    # + "anthropic" (2026-10-28): Anthropic direct via the vendor's OpenAI-compatible
+    #   endpoint, one config line + `drop_body_keys: [temperature]` (the endpoint 400s on
+    #   it), frontier tier; probe-grade — see sandbox/test_anthropic_provider.py.
+    check("provider roster is exactly the 5 old ones + openrouter + mlx + systemone + openai + anthropic",
+          sorted(PROVIDERS) == ["anthropic", "mlx", "nebius", "ollama", "openai", "openrouter", "ovh",
                                 "scaleway", "stub", "systemone"],
           f"got {sorted(PROVIDERS)}")
 

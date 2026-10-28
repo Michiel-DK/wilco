@@ -32,6 +32,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "sandbox"))
+import yaml  # noqa: E402
 import runner  # noqa: E402
 from runner import _load_module, load_exam, load_properties, run_exam  # noqa: E402
 
@@ -48,7 +49,8 @@ props = _load_module(ROOT / "evals" / "task-intake" / "properties.py", "props_in
 EXAM = load_exam("task-intake")
 PROMPT = (ROOT / "agents" / "task-intake" / "prompt.md").read_text()
 AGENTS = sorted(p.name for p in (ROOT / "agents").iterdir()
-                if (p / "agent.yaml").exists() and p.name != "task-intake")
+                if (p / "agent.yaml").exists() and p.name != "task-intake"
+                and not yaml.safe_load((p / "agent.yaml").read_text()).get("variant_of"))  # a language variant is not a specialist
 
 
 def test_roster_matches_committed_agents_and_the_prompt():

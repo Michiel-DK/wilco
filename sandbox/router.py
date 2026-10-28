@@ -57,6 +57,15 @@ PROVIDERS: dict[str, dict] = {
     # a base_url and the env var that holds its key; no adapter class. No call is made
     # by adding it, and no committed agent or route names it.
     "openai": {"base_url": "https://api.openai.com/v1", "api_key_env": "OPENAI_API_KEY"},
+    # Anthropic direct (2026-10-28): the vendor's OpenAI-compatible endpoint
+    # (/v1/chat/completions; tool_calls round-trip verified by hand 28 Oct). It REJECTS
+    # `temperature` with a 400 ("deprecated for this model"): thinking is always on for the
+    # 5.5 family and the model samples as it likes, so a run here is PROBE-GRADE like
+    # openrouter — one pass, no rule-A stability, never a committed snapshot.
+    # `drop_body_keys` removes the key from the body for THIS provider only; every other
+    # provider's body stays byte-identical (sandbox/test_anthropic_provider.py).
+    "anthropic": {"base_url": "https://api.anthropic.com/v1", "api_key_env": "ANTHROPIC_API_KEY",
+                  "drop_body_keys": ["temperature"]},
     "stub": {"base_url": None, "api_key_env": None},
 }
 
@@ -70,7 +79,7 @@ TIER_ORDER = ("local", "eu", "frontier")
 PROVIDER_TIER: dict[str, str] = {
     "ollama": "local", "mlx": "local", "systemone": "local", "stub": "local",
     "scaleway": "eu", "ovh": "eu", "nebius": "eu",
-    "openrouter": "frontier", "openai": "frontier",
+    "openrouter": "frontier", "openai": "frontier", "anthropic": "frontier",
 }
 
 
@@ -141,8 +150,12 @@ class ChatCompletionsAdapter(Adapter):
                  timeout: int = DEFAULT_TIMEOUT_S, json_mode: bool = False,
                  reasoning_effort: str | None = None,
                  provider_routing: dict | None = None,
-                 extra_body: dict | None = None):
+                 extra_body: dict | None = None,
+                 drop_body_keys: tuple[str, ...] | list[str] = ()):
         self.base_url = base_url.rstrip("/")
+        # 2026-10-28: request-body keys this provider's endpoint rejects outright (Anthropic
+        # 400s on `temperature`). Empty for every other provider, so their body is unchanged.
+        self.drop_body_keys = tuple(drop_body_keys or ())
         # Sprint I (2026-09-18): provider-level opaque request-body keys, resolved from env
         # by get_adapter (PROVIDERS[...]["body_from_env"]). Empty for every committed
         # provider, so the default body stays byte-identical. First user: mlx_lm.server
@@ -214,6 +227,8 @@ class ChatCompletionsAdapter(Adapter):
         if self.extra_body:
             for k, v in self.extra_body.items():   # never clobber a core key
                 body.setdefault(k, v)
+        for k in self.drop_body_keys:   # provider-level: the endpoint rejects this key
+            body.pop(k, None)
         resp = requests.post(
             f"{self.base_url}/chat/completions",
             headers=headers,
@@ -599,4 +614,5 @@ def get_adapter(provider: str, timeout: int | None = None,
         json_mode=json_mode,
         reasoning_effort=reasoning_effort,
         provider_routing=provider_routing,
-        extra_body=extra_body)
+        extra_body=extra_body,
+        drop_body_keys=cfg.get("drop_body_keys", ()))
