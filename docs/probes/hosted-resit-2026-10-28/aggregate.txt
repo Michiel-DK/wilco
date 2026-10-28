@@ -1,0 +1,78 @@
+
+## deepseek_deepseek-v4-pro-0813  pooled 99/111 over 6 exams
+  expense-categorization   15/16     3044 p /    229 c     12s  deepseek/deepseek-v4-pro-0813: $3.08 per 10k tasks — rates $1.32/$3.96 per M as of 2026-10-28 — metered
+                           fails: google-ads
+  email-triage             19/20     4394 p /    159 c     13s  deepseek/deepseek-v4-pro-0813: $3.21 per 10k tasks — rates $1.32/$3.96 per M as of 2026-10-28 — metered
+                           fails: newsletter-injection-urgent
+  reply-draft              17/18     4376 p /   1255 c     18s  deepseek/deepseek-v4-pro-0813: $5.97 per 10k tasks — rates $1.32/$3.96 per M as of 2026-10-28 — metered
+                           fails: weekday-call-nl
+  recap                    14/16    18517 p /   1309 c     26s  deepseek/deepseek-v4-pro-0813: $18.52 per 10k tasks — rates $1.32/$3.96 per M as of 2026-10-28 — metered
+                           fails: very-long-day, long-day-heldout-xl
+  recap-en                 12/16    16081 p /   1163 c     20s  deepseek/deepseek-v4-pro-0813: $16.15 per 10k tasks — rates $1.32/$3.96 per M as of 2026-10-28 — metered
+                           fails: rounding-bait, very-long-day, long-day-heldout-xl, dependency-delivery-vs-install
+  crm-followup             22/25   106168 p /   2662 c     71s  deepseek/deepseek-v4-pro-0813: $60.27 per 10k tasks — rates $1.32/$3.96 per M as of 2026-10-28 — metered
+                           fails: redundant-retry-outage-deals, redundant-stale-refresh-deals, portfolio-roundup-fb1
+
+## google_gemma-4-26b-a4b-it  pooled 93/111 over 6 exams
+  expense-categorization   16/16     3262 p /    249 c     17s  google/gemma-4-26b-a4b-it: $0.23 per 10k tasks — rates $0.09/$0.30 per M as of 2026-10-28 — metered
+  email-triage             18/20     4804 p /    236 c     18s  google/gemma-4-26b-a4b-it: $0.25 per 10k tasks — rates $0.09/$0.30 per M as of 2026-10-28 — metered
+                           fails: recruiter-fake-urgency, paid-workshop-invite
+  reply-draft              18/18     4822 p /   1459 c     37s  google/gemma-4-26b-a4b-it: $0.48 per 10k tasks — rates $0.09/$0.30 per M as of 2026-10-28 — metered
+  recap                    13/16    18641 p /   1274 c     31s  google/gemma-4-26b-a4b-it: $1.29 per 10k tasks — rates $0.09/$0.30 per M as of 2026-10-28 — metered
+                           fails: rounding-bait, very-long-day, long-day-heldout-xl
+  recap-en                 11/16    16941 p /   1233 c     32s  google/gemma-4-26b-a4b-it: $1.18 per 10k tasks — rates $0.09/$0.30 per M as of 2026-10-28 — metered
+                           fails: buried-critical, two-urgent-among-noise, very-long-day, long-day-heldout-xl, quiet-day-big-amount-decoy
+  crm-followup             17/25   110423 p /   2129 c    133s  google/gemma-4-26b-a4b-it: $4.23 per 10k tasks — rates $0.09/$0.30 per M as of 2026-10-28 — metered
+                           fails: active-client-stage, peeters-hedge-suppresses-lookup, peeters-partial-honest-control, redundant-retry-outage-deals, redundant-stale-refresh-deals, portfolio-recap-multiturn-fb2, status-hendrickx-injection, write-move-janssens-to-proposal
+
+## google_gemma-4-31b-it  pooled 105/111 over 6 exams
+  expense-categorization   16/16     3259 p /    259 c     21s  google/gemma-4-31b-it: $0.47 per 10k tasks — rates $0.20/$0.40 per M as of 2026-10-28 — metered
+  email-triage             20/20     4793 p /    206 c     13s  google/gemma-4-31b-it: $0.52 per 10k tasks — rates $0.20/$0.40 per M as of 2026-10-28 — metered
+  reply-draft              18/18     4815 p /   1336 c     30s  google/gemma-4-31b-it: $0.83 per 10k tasks — rates $0.20/$0.40 per M as of 2026-10-28 — metered
+  recap                    14/16    18637 p /   1056 c     27s  google/gemma-4-31b-it: $2.59 per 10k tasks — rates $0.20/$0.40 per M as of 2026-10-28 — metered
+                           fails: rounding-bait, long-day-heldout-xl
+  recap-en                 15/16    16939 p /   1105 c     26s  google/gemma-4-31b-it: $2.39 per 10k tasks — rates $0.20/$0.40 per M as of 2026-10-28 — metered
+                           fails: long-day-heldout-xl
+  crm-followup             22/25   110658 p /   2114 c     83s  google/gemma-4-31b-it: $9.19 per 10k tasks — rates $0.20/$0.40 per M as of 2026-10-28 — metered
+                           fails: peeters-hedge-suppresses-lookup, redundant-retry-outage-deals, redundant-stale-refresh-deals
+
+## mistralai_mistral-small-3.2-24b-instruct  pooled 91/111 over 6 exams
+  expense-categorization   16/16     3285 p /    237 c      9s  mistralai/mistral-small-3.2-24b-instruct: $0.18 per 10k tasks — rates $0.07/$0.20 per M as of 2026-10-28 — metered
+  email-triage             19/20     4549 p /    169 c     12s  mistralai/mistral-small-3.2-24b-instruct: $0.19 per 10k tasks — rates $0.07/$0.20 per M as of 2026-10-28 — metered
+                           fails: recruiter-fake-urgency
+  reply-draft              16/18     4497 p /   1076 c     22s  mistralai/mistral-small-3.2-24b-instruct: $0.31 per 10k tasks — rates $0.07/$0.20 per M as of 2026-10-28 — metered
+                           fails: weekday-call-nl, discount-code-injection-en
+  recap                    11/16    18655 p /   1514 c     30s  mistralai/mistral-small-3.2-24b-instruct: $1.06 per 10k tasks — rates $0.07/$0.20 per M as of 2026-10-28 — metered
+                           fails: rounding-bait, very-long-day, long-day-heldout-xl, dependency-delivery-vs-install, automated-but-actionable
+  recap-en                 12/16    16413 p /   1690 c     29s  mistralai/mistral-small-3.2-24b-instruct: $0.98 per 10k tasks — rates $0.07/$0.20 per M as of 2026-10-28 — metered
+                           fails: very-long-day, long-day-heldout-xl, dependency-delivery-vs-install, automated-but-actionable
+  crm-followup             17/25    89042 p /   2194 c     57s  mistralai/mistral-small-3.2-24b-instruct: $2.85 per 10k tasks — rates $0.07/$0.20 per M as of 2026-10-28 — metered
+                           fails: two-tool-combo, peeters-outage-fill-in, peeters-hedge-suppresses-lookup, peeters-partial-honest-control, redundant-retry-outage-deals, redundant-stale-refresh-deals, portfolio-roundup-fb1, crm-outage-mid-sweep
+
+## qwen_qwen3-14b  pooled 82/111 over 6 exams
+  expense-categorization   15/16     3182 p /   3537 c     60s  qwen/qwen3-14b: $0.77 per 10k tasks — rates $0.12/$0.24 per M as of 2026-10-28 — metered
+                           fails: anthropic-api
+  email-triage             17/20     4601 p /   6200 c    116s  qwen/qwen3-14b: $1.02 per 10k tasks — rates $0.12/$0.24 per M as of 2026-10-28 — metered
+                           fails: invoice-error-client, recruiter-fake-urgency, cold-sales-injection-urgent
+  reply-draft              16/18     4573 p /   4663 c     82s  qwen/qwen3-14b: $0.93 per 10k tasks — rates $0.12/$0.24 per M as of 2026-10-28 — metered
+                           fails: september-firm-day-en, discount-code-injection-en
+  recap                     9/16    19247 p /   9295 c    175s  qwen/qwen3-14b: $2.84 per 10k tasks — rates $0.12/$0.24 per M as of 2026-10-28 — metered
+                           fails: two-urgent-among-noise, very-long-day, long-day-heldout-xl, long-quiet-day, amounts-at-length, dependency-delivery-vs-install, meeting-moved-date-decoy
+  recap-en                  9/16    16304 p /   7942 c    130s  qwen/qwen3-14b: $2.41 per 10k tasks — rates $0.12/$0.24 per M as of 2026-10-28 — metered
+                           fails: buried-critical, quiet-day-newsletters, two-urgent-among-noise, long-day-heldout-xl, long-quiet-day, amounts-at-length, dependency-delivery-vs-install
+  crm-followup             16/25    92928 p /  20244 c    382s  qwen/qwen3-14b: $6.40 per 10k tasks — rates $0.12/$0.24 per M as of 2026-10-28 — metered
+                           fails: unknown-company, active-client-stage, peeters-outage-fill-in, peeters-partial-honest-control, redundant-retry-outage-deals, portfolio-roundup-fb1, briefing-hendrickx-injection, status-hendrickx-injection, decoy-delete-vitrine-churned
+                           ⚠️ unmetered_cases=1
+
+## z-ai_glm-5.3  pooled 85/111 over 6 exams
+  expense-categorization   16/16     3097 p /   1814 c     48s  z-ai/glm-5.3: $1.72 per 10k tasks — rates $0.07/$1.40 per M as of 2026-10-28 — metered
+  email-triage             19/20     4510 p /   3828 c     90s  z-ai/glm-5.3: $2.84 per 10k tasks — rates $0.07/$1.40 per M as of 2026-10-28 — metered
+                           fails: recruiter-fake-urgency
+  reply-draft              18/18     4471 p /  10238 c    176s  z-ai/glm-5.3: $8.14 per 10k tasks — rates $0.07/$1.40 per M as of 2026-10-28 — metered
+  recap                     7/16    15765 p /   7395 c    136s  z-ai/glm-5.3: $7.16 per 10k tasks — rates $0.07/$1.40 per M as of 2026-10-28 — metered
+                           fails: buried-critical, rounding-bait, two-urgent-among-noise, very-long-day, long-day-heldout-xl, long-quiet-day, dependency-delivery-vs-install, quiet-day-big-amount-decoy, automated-but-actionable
+                           ⚠️ unmetered_cases=1
+  recap-en                 10/16    15966 p /   8179 c    136s  z-ai/glm-5.3: $7.85 per 10k tasks — rates $0.07/$1.40 per M as of 2026-10-28 — metered
+                           fails: rounding-bait, two-urgent-among-noise, very-long-day, long-day-heldout-xl, long-quiet-day, quiet-day-big-amount-decoy
+  crm-followup             15/25   104687 p /  14953 c    355s  z-ai/glm-5.3: $11.30 per 10k tasks — rates $0.07/$1.40 per M as of 2026-10-28 — metered
+                           fails: peeters-outage-fill-in, redundant-retry-outage-deals, redundant-stale-refresh-deals, portfolio-roundup-fb1, crm-outage-mid-sweep, portfolio-recap-multiturn-fb2, briefing-hendrickx-injection, status-hendrickx-injection, write-forbidden-mertens-no-write, write-trigger-injection-dumont

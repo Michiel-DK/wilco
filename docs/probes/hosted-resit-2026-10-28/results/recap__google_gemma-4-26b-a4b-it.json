@@ -1,0 +1,541 @@
+{
+  "agent": "recap",
+  "provider": "openrouter",
+  "model": "google/gemma-4-26b-a4b-it",
+  "mode": "properties",
+  "train": {
+    "passed": 0,
+    "total": 0,
+    "score": null
+  },
+  "heldout": {
+    "passed": 13,
+    "total": 16,
+    "score": 0.8125
+  },
+  "cases": [
+    {
+      "id": "buried-critical",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "44821"
+        ],
+        "max_ratio": 0.14,
+        "nothing_important": false
+      },
+      "got": {
+        "recap": "Kredietbank requires the annual accounts for dossier 44821 by 12 augustus to prevent the application from expiring.",
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1165,
+          "completion_tokens": 46,
+          "total_tokens": 1211,
+          "wall_ms": 1175.5,
+          "retries": 0,
+          "content_chars": 168,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "quiet-day-newsletters",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "nothing_important": true,
+        "abstain_max_chars": 180,
+        "max_ratio": 0.55
+      },
+      "got": {
+        "recap": "Nothing important today - one weekly newsletter and a marketing email regarding printer paper discounts.",
+        "nothing_important": true
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 523,
+          "completion_tokens": 34,
+          "total_tokens": 557,
+          "wall_ms": 1109.5,
+          "retries": 0,
+          "content_chars": 156,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "quiet-day-with-receipt",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "nothing_important": true,
+        "abstain_max_chars": 260,
+        "max_ratio": 0.4
+      },
+      "got": {
+        "recap": "Nothing important today - a monthly invoice, a newsletter, a domain renewal notice, and an insurance overview.",
+        "nothing_important": true
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 655,
+          "completion_tokens": 39,
+          "total_tokens": 694,
+          "wall_ms": 2988.2,
+          "retries": 0,
+          "content_chars": 162,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "rounding-bait",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "47.50"
+        ],
+        "max_ratio": 0.28,
+        "nothing_important": false
+      },
+      "got": {
+        "recap": "Nothing important today - hosting rates increase from 42.00 EUR to 47.50 EUR on 1 januari, a backup was completed, a 78.20 EUR invoice was domiciled, and there is a 20% discount on printer paper.",
+        "nothing_important": true
+      },
+      "failures": [
+        "check_abstention: busy day: expected nothing_important=false, got True — abstained on a day that needed attention"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_abstention"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 668,
+          "completion_tokens": 77,
+          "total_tokens": 745,
+          "wall_ms": 2198.4,
+          "retries": 0,
+          "content_chars": 247,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "two-urgent-among-noise",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "Peeters",
+          "44821"
+        ],
+        "max_ratio": 0.16,
+        "nothing_important": false
+      },
+      "got": {
+        "recap": "Els Peeters from Peeters Transport reported a billing module issue causing 14 duplicate invoices. Kredietbank requires the annual accounts for dossier 44821 by 12 augustus to avoid application expiration.",
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1046,
+          "completion_tokens": 63,
+          "total_tokens": 1109,
+          "wall_ms": 2844.3,
+          "retries": 0,
+          "content_chars": 257,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "very-long-day",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "Peeters",
+          "6500",
+          "Janssens",
+          "Vos"
+        ],
+        "max_ratio": 0.1,
+        "nothing_important": false
+      },
+      "got": {
+        "recap": "Sofie Janssens agreed to the 6500 EUR webshop chatbot proposal for a September start. Tom De Vos requested to move Thursday's meeting to a week later. Els Peeters reported an urgent issue where 14 invoices had to be cancelled due to a billing module error. Van Hove Accountants filed the Q2 VAT return with a balance of 1240.75 EUR due by 20 July. Vitrine Interieur put their project on hold until Q4. A candidate applied for the junior developer position. Hostingpartner will increase monthly rates from 42.00 EUR to 47.50 EUR starting 1 January.",
+        "nothing_important": false
+      },
+      "failures": [
+        "check_compression: recap is 547 chars vs limit 429 (0.10 x 4292 source chars)"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_compression"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1635,
+          "completion_tokens": 156,
+          "total_tokens": 1791,
+          "wall_ms": 3440.3,
+          "retries": 0,
+          "content_chars": 600,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "long-day-heldout-xl",
+      "split": "heldout",
+      "passed": false,
+      "expected": {
+        "must_mention": [
+          "Peeters",
+          "6500",
+          "44821"
+        ],
+        "max_ratio": 0.05,
+        "nothing_important": false
+      },
+      "got": {
+        "recap": "Els Peeters reports an urgent issue with the invoicing module causing double invoices (14 cancelled so far). Sofie Janssens confirmed the 6500 EUR proposal for a webshop chatbot starting in September. Peter Mertens asks for clarification on a 900 EUR 'integration' post in an offer. Kredietbank needs the previous year's annual accounts by 12 August for dossier 44821. VanHove Accountants reports a VAT balance of 1240.75 EUR due by 20 July. Anke requested leave from 14 to 18 October. Tom De Vos asked to move Thursday's meeting to a week later. Vitrine-Interieur put their project on hold until Q4. A junior developer applied for the vacancy. Certificeringsbureau needs two preferred dates and a contact person for the audit in the week of 6 October. Wagenparkbeheer notes the van lease ends 30 September. Integratiepartner proposed a joint client proposal. Legal office sent updated general terms for review.",
+        "nothing_important": false
+      },
+      "failures": [
+        "check_compression: recap is 911 chars vs limit 379 (0.05 x 7597 source chars)"
+      ],
+      "failed_checks": [
+        {
+          "bucket": "quality",
+          "check": "check_compression"
+        }
+      ],
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 2606,
+          "completion_tokens": 240,
+          "total_tokens": 2846,
+          "wall_ms": 2177.1,
+          "retries": 0,
+          "content_chars": 964,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "long-quiet-day",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "nothing_important": true,
+        "abstain_max_chars": 240,
+        "max_ratio": 0.18
+      },
+      "got": {
+        "recap": "Nothing important today - the messages consist of newsletters, automated service notifications, and marketing materials.",
+        "nothing_important": true
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1769,
+          "completion_tokens": 36,
+          "total_tokens": 1805,
+          "wall_ms": 2272.2,
+          "retries": 0,
+          "content_chars": 172,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "buried-critical-xl",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "Vermeulen"
+        ],
+        "nothing_important": false,
+        "max_ratio": 0.15
+      },
+      "got": {
+        "recap": "Katrien Vermeulen reported that their payment terminal has been down since Monday morning, forcing customers to pay in cash, and is requesting a callback today. Additionally, the business center announced that the driveway will be resurfaced next week, though the parking remains accessible via the side street.",
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 2121,
+          "completion_tokens": 75,
+          "total_tokens": 2196,
+          "wall_ms": 850.5,
+          "retries": 0,
+          "content_chars": 364,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "amounts-at-length",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "nothing_important": false,
+        "max_ratio": 0.18,
+        "must_mention": [
+          "De Wilde",
+          "Vanhoof",
+          "Claes",
+          "1249.50"
+        ]
+      },
+      "got": {
+        "recap": "Ann De Wilde reports an unpaid invoice of 1249.50 EUR. Tom Claes sent an offer for a kastenwand for 3480 EUR. Jan Vanhoof issued a creditnota of 612.40 EUR. Peter Segers is ordering 18 stalen. Guy Timmermans confirmed receipt of a 2150 EUR voorschotfactuur. Bart Wouters requested a price for 40 lopende meter of standardprofiel. Lies Vergote noted that a previous 890 EUR payment is now in order. An electricity settlement of 87.35 EUR in your favor was also noted.",
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 1874,
+          "completion_tokens": 159,
+          "total_tokens": 2033,
+          "wall_ms": 4705.4,
+          "retries": 0,
+          "content_chars": 519,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "dependency-delivery-vs-install",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "Lambert",
+          "tablet"
+        ],
+        "max_ratio": 0.22,
+        "nothing_important": false
+      },
+      "got": {
+        "recap": "Koen Lambert asks for confirmation that the chatbot kiosk will be installed in the showroom by 10 november for the press visit. Elektro Claeys reports a delay for order 7731, with the two tablets now arriving on 14 november instead of 3 november.",
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 828,
+          "completion_tokens": 76,
+          "total_tokens": 904,
+          "wall_ms": 527.0,
+          "retries": 0,
+          "content_chars": 299,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "near-duplicate-invoices",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "2026-131",
+          "312.40"
+        ],
+        "max_ratio": 0.28,
+        "nothing_important": false
+      },
+      "got": {
+        "recap": "Drukkerij Vandenberghe sent a reminder for unpaid invoice 2026-131 of 312.40 EUR, which was due on 30 september.",
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 782,
+          "completion_tokens": 59,
+          "total_tokens": 841,
+          "wall_ms": 887.6,
+          "retries": 0,
+          "content_chars": 165,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "quiet-day-big-amount-decoy",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "nothing_important": true,
+        "abstain_max_chars": 220,
+        "max_ratio": 0.3
+      },
+      "got": {
+        "recap": "Nothing important today - a VAT debit of 2,450.00 EUR is scheduled for 20 oktober, and the rest are newsletters, automated notices, or general updates.",
+        "nothing_important": true
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 739,
+          "completion_tokens": 57,
+          "total_tokens": 796,
+          "wall_ms": 1632.9,
+          "retries": 0,
+          "content_chars": 203,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "automated-but-actionable",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "Combell"
+        ],
+        "max_ratio": 0.25,
+        "nothing_important": false
+      },
+      "got": {
+        "recap": "Combell reported a failed automatic payment for your hosting package because your card has expired; you must update your payment details before 3 november to avoid website suspension.",
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 725,
+          "completion_tokens": 50,
+          "total_tokens": 775,
+          "wall_ms": 1192.1,
+          "retries": 0,
+          "content_chars": 236,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "buried-last-en",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "Hendrickx"
+        ],
+        "max_ratio": 0.18,
+        "nothing_important": false
+      },
+      "got": {
+        "recap": "Lieve Hendrickx from Hendrickx Interiors has given formal notice to end the chatbot support contract, effective 31 December.",
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 777,
+          "completion_tokens": 43,
+          "total_tokens": 820,
+          "wall_ms": 748.7,
+          "retries": 0,
+          "content_chars": 177,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    },
+    {
+      "id": "meeting-moved-date-decoy",
+      "split": "heldout",
+      "passed": true,
+      "expected": {
+        "must_mention": [
+          "Wouters"
+        ],
+        "max_ratio": 0.3,
+        "nothing_important": false
+      },
+      "got": {
+        "recap": "Sarah Wouters needs to reschedule the workshop from 12 november to 19 november in room K2.07. Tom Maes sent a thank you for yesterday's demo and will follow up next week.",
+        "nothing_important": false
+      },
+      "detail": {
+        "metrics": {
+          "prompt_tokens": 728,
+          "completion_tokens": 64,
+          "total_tokens": 792,
+          "wall_ms": 2560.3,
+          "retries": 0,
+          "content_chars": 223,
+          "reasoning_chars": 0,
+          "finish_reason": "stop",
+          "truncated_calls": 0,
+          "unanswered_calls": 0
+        }
+      }
+    }
+  ],
+  "metrics_totals": {
+    "prompt_tokens": 18641,
+    "completion_tokens": 1274,
+    "total_tokens": 19915,
+    "wall_ms": 31310.0,
+    "retries": 0,
+    "content_chars": 4912,
+    "reasoning_chars": 0,
+    "truncated_calls": 0,
+    "unanswered_calls": 0
+  },
+  "tier_breach": true,
+  "split": "heldout"
+}
