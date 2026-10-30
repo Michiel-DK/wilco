@@ -63,9 +63,9 @@ fi
 # it with a placeholder). So count the assertions too.
 #
 # We count `check(` because that is what this repo actually uses. The harness ratchet
-# counts bare `assert` and therefore sees 7 lines here against 421 check() calls — about
-# 1.6% of the suite. This is the ratchet the harness cannot give us.
-MIN_CHECKS="${MIN_CHECKS:-505}"
+# counts bare `assert` and therefore sees 7 lines here against 2,176 check() calls (2026-10-30) — under
+# 1% of the suite. This is the ratchet the harness cannot give us.
+MIN_CHECKS="${MIN_CHECKS:-2000}"
 c=0
 while IFS= read -r t; do
   k=$(grep -cE '\bcheck\(|\b_check\(|\bok\(' "$t" || true)
