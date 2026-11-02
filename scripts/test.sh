@@ -28,6 +28,9 @@
 #                              substitution inside the same argument list
 #   - no bare globs anywhere — see the `rm -f gate_*.log` incident
 set -u
+# Item 4 (2026-10-31): snapshot loads probe the local server's processes (lsof/ps) and Ollama's /api/ps for
+# memory. Never from the gate: tests that want the probe inject fakes (sandbox/test_load_resources.py).
+export SANDBOX_OFFLINE_PROBES=1
 
 cd "$(dirname "$0")/.." || { echo "test.sh: cannot reach repo root"; exit 2; }
 

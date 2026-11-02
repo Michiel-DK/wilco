@@ -44,6 +44,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from judges import load_judge  # noqa: E402
 from numnorm import strip_thousands  # noqa: E402
 from retry import ParseFailure, call_with_retry, extract_json  # noqa: E402
+import grader_files  # noqa: E402  (2026-10-31: the one exam/grader file list, sandbox/grader_files.py)
 from router import (DEFAULT_TIMEOUT_S, PROVIDER_TIER, PROVIDERS, TIER_ORDER,  # noqa: E402
                     ChatCompletionsAdapter, TerminationError, get_adapter)
 import taxonomy  # noqa: E402  (report-only; imports nothing from here at load time)
@@ -337,7 +338,50 @@ def combine_metrics(steps: list[dict]) -> dict:
         # poisons the total to None. Unknown is not zero (the rule _empty_usage states).
         "truncated_calls": _null_safe_sum([s.get("truncated_calls") for s in steps]),
         "unanswered_calls": _null_safe_sum([s.get("unanswered_calls") for s in steps]),
+        **_combine_server_timings(steps),
+        **_combine_stream_timing(steps),
     }
+
+
+def _combine_stream_timing(steps: list[dict]) -> dict:
+    """{} when no step streamed (the default: old key set). When EVERY step did: the FIRST call's ttfts (what a
+    user waits for before anything appears) + the call count; summing ttfts across a tool loop would mean
+    nothing. Some but not all -> {"stream_timing": None} (unknown, never a partial)."""
+    have = [s.get("stream_timing") for s in steps if isinstance(s.get("stream_timing"), dict)]
+    if not have:
+        return {}
+    if len(have) != len(steps):
+        return {"stream_timing": None}
+    # combine_metrics runs at TWO levels (a case's calls; an exam's cases), and a plain case's metrics are its
+    # one call's, so items are either per-call ({ttft_any_ms, ...}) or already combined ({first_ttft_any_ms,
+    # calls}). Normalise, then report the first item's ttfts (what matters inside a case) and the median over
+    # items (what matters across an exam's cases).
+    def first(d, k):
+        return d.get(f"first_{k}", d.get(k))
+
+    def median(vals):
+        v = sorted(x for x in vals if x is not None)
+        return None if not v else (v[len(v) // 2] if len(v) % 2 else round((v[len(v) // 2 - 1] + v[len(v) // 2]) / 2, 1))
+    return {"stream_timing": {
+        "first_ttft_any_ms": first(have[0], "ttft_any_ms"),
+        "first_ttft_answer_ms": first(have[0], "ttft_answer_ms"),
+        "median_first_ttft_any_ms": median(first(d, "ttft_any_ms") for d in have),
+        "median_first_ttft_answer_ms": median(first(d, "ttft_answer_ms") for d in have),
+        "calls": sum(d.get("calls", 1) for d in have)}}
+
+
+def _combine_server_timings(steps: list[dict]) -> dict:
+    """{} when no step carries server_timings (every Ollama/hosted/stub run: the combined dict keeps its
+    exact old key set). Otherwise {"server_timings": per-field null-safe sums} when EVERY step carries
+    them, or {"server_timings": None} when only some do — a partial sum presented as a total is gotcha
+    13's shape, so it is reported as unknown instead."""
+    have = [s.get("server_timings") for s in steps if isinstance(s.get("server_timings"), dict)]
+    if not have:
+        return {}
+    if len(have) != len(steps):
+        return {"server_timings": None}
+    keys = ("prompt_n", "prompt_ms", "predicted_n", "predicted_ms", "cache_n")
+    return {"server_timings": {k: _null_safe_sum([t.get(k) for t in have]) for k in keys}}
 
 
 def call_model(agent, adapter, model, messages) -> tuple[dict, str, dict]:
@@ -414,6 +458,13 @@ def _call_metrics(meta: dict, wall_ms: float, retries: int) -> dict:
         "unanswered_calls": (None if content_chars is None
                              else int(content_chars == 0)),
     }
+    # SERVER TIMINGS (2026-10-31): only when the backend sent them (llama-server; router.py has the
+    # evidence). Absent key otherwise, so every Ollama/hosted/stub metrics dict is byte-identical.
+    if isinstance(meta.get("server_timings"), dict):
+        metrics["server_timings"] = dict(meta["server_timings"])
+    # STREAM TIMING (item 5): only when the adapter streamed (SANDBOX_STREAM_TIMING=1); absent otherwise.
+    if isinstance(meta.get("stream_timing"), dict):
+        metrics["stream_timing"] = dict(meta["stream_timing"])
     return metrics
 
 
@@ -1951,6 +2002,13 @@ def run_exam(agent: dict, exam: dict, provider: str, model: str,
         # injected message, so the combination is refused rather than mis-recorded.
         raise ValueError(f"scoped_rule={scoped_rule!r} requires assembly 'full' "
                          f"(got {assembly!r})")
+    # RUN-AT (31 Oct): when this exam run STARTED, local time WITH its UTC offset, so a
+    # results page can say "re-run <date>" (docs/inbox 2026-10-30 vendor-claims note, item 2).
+    # Observation only: it is written to the result file and never read by scoring,
+    # snapshots (`snapshot_payload` builds its own key set and keeps its own `date`) or
+    # `check`. Taken before the first model call so a run that dies mid-way still says
+    # when it began.
+    run_at = datetime.now().astimezone().isoformat(timespec="seconds")
     adapter = adapter_for(agent, provider, timeout)
     window = install_window_guard(adapter, provider, model, allow_truncation)
     mode = exam.get("mode", "labels")
@@ -2159,6 +2217,7 @@ def run_exam(agent: dict, exam: dict, provider: str, model: str,
         print(f"  window preflight refused {refused} case(s) on {model!r} "
               f"(num_ctx={window['num_ctx']}): {WINDOW_FIX}")
     result = {"agent": agent["name"], "provider": provider, "model": model, "mode": mode,
+              "run_at": run_at,
               "train": {"passed": totals["train"][0], "total": totals["train"][1]},
               "heldout": {"passed": totals["heldout"][0], "total": totals["heldout"][1]},
               "cases": per_case}
@@ -2454,6 +2513,171 @@ def mlx_runtime(env: dict | None = None) -> dict:
     }
 
 
+LLAMACPP_STAMP_FIELDS = ("version", "model_sha", "n_ctx", "chat_template_sha",
+                         "cache_type_k", "cache_type_v", "flash_attn", "server_args_sha")
+# llama-server's KV-cache / flash-attention settings (tools/server/README.md): CLI flag (short, long) and
+# env var. The CLI wins over the env var (README: "the argument will take precedence over env var").
+# None of them is in /props, so they are read from the listening process, like Ollama's (gotcha 21).
+LLAMACPP_SERVER_FLAGS = {"cache_type_k": (("-ctk", "--cache-type-k"), "LLAMA_ARG_CACHE_TYPE_K"),
+                         "cache_type_v": (("-ctv", "--cache-type-v"), "LLAMA_ARG_CACHE_TYPE_V"),
+                         "flash_attn": (("-fa", "--flash-attn"), "LLAMA_ARG_FLASH_ATTN")}
+
+
+def _llamacpp_listener_tokens(base_url: str | None = None, *, platform: str | None = None,
+                              which_fn=None, server_name: str = "llama-server") -> list[str]:
+    """argv + environment tokens of the ONE process listening on the llamacpp port (lsof -> pid; darwin
+    `ps -E -ww`, linux /proc/<pid>/cmdline + environ). Same refusals as ollama_server_settings: non-loopback
+    host, 0 or >1 listeners, a listener that is not `server_name`, unsupported platform, no PATH= visible.
+    ZERO inference."""
+    base = (base_url or os.environ.get(PROVIDERS["llamacpp"]["base_url_env"])
+            or PROVIDERS["llamacpp"]["base_url"])
+    parsed = urllib.parse.urlparse(base)
+    if parsed.hostname not in _LOOPBACK_HOSTS:
+        raise SystemExit(f"error: llamacpp_server_settings: host {parsed.hostname!r} is not loopback; "
+                         f"cannot read a remote server's flags")
+    port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    plat = platform if platform is not None else sys.platform
+    if plat != "darwin" and not plat.startswith("linux"):
+        raise SystemExit(f"error: llamacpp_server_settings: unsupported platform {plat!r}")
+    lsof = _find_tool("lsof", which_fn)
+    ps = _find_tool("ps", which_fn) if plat == "darwin" else None
+    try:
+        out = subprocess.run([lsof, "-nP", f"-iTCP:{port}", "-sTCP:LISTEN", "-t"],
+                             capture_output=True, text=True, timeout=15)
+    except (OSError, subprocess.SubprocessError) as e:
+        raise SystemExit(f"error: llamacpp_server_settings: lsof failed: {e}")
+    pids = sorted(set(out.stdout.split()))
+    if len(pids) != 1 or not pids[0].isdigit():
+        raise SystemExit(f"error: llamacpp_server_settings: expected exactly 1 listener on port {port}, "
+                         f"found {pids}")
+    pid = pids[0]
+    name = _process_name(pid, plat, ps)
+    if name != server_name:
+        raise SystemExit(f"error: llamacpp_server_settings: the listener on port {port} (pid {pid}) is "
+                         f"{name!r}, not {server_name!r}")
+    if plat == "darwin":
+        try:
+            proc = subprocess.run([ps, "-E", "-ww", "-p", pid, "-o", "command="],
+                                  capture_output=True, text=True, timeout=15)
+        except (OSError, subprocess.SubprocessError) as e:
+            raise SystemExit(f"error: llamacpp_server_settings: ps failed for pid {pid}: {e}")
+        if proc.returncode != 0 or not proc.stdout.strip():
+            raise SystemExit(f"error: llamacpp_server_settings: ps could not read pid {pid}")
+        tokens = proc.stdout.split()
+    else:
+        tokens = _linux_proc_tokens(pid)
+    if not any(t.startswith("PATH=") for t in tokens):
+        raise SystemExit(f"error: llamacpp_server_settings: no PATH= visible for pid {pid}; an absent "
+                         f"variable cannot be told from an unread one")
+    return tokens
+
+
+def _linux_proc_tokens(pid: str, proc_root: Path = Path("/proc")) -> list[str]:
+    """argv (cmdline) THEN environment (environ) tokens of `pid`, NUL-split. Unreadable -> SystemExit."""
+    try:
+        return [t.decode("utf-8", "replace") for f in ("cmdline", "environ")
+                for t in (proc_root / pid / f).read_bytes().split(b"\0") if t]
+    except OSError as e:
+        raise SystemExit(f"error: llamacpp_server_settings: cannot read {proc_root}/{pid}: {e}")
+
+
+_ENV_TOKEN = re.compile(r"^[A-Z_][A-Z0-9_]*=")
+
+
+def llamacpp_server_args_sha(tokens: list[str]) -> str:
+    """sha256 of the server's argv (every token before the first NAME=value env token) + its sorted
+    LLAMA_ARG_* env vars. Catches every OTHER output-moving flag the named fields do not (-b/-ub batch sizes,
+    --lora, -ngl/--fit, -np, -nkvo, --no-jinja, ...; PR #142 re-verify). Over-refuses on a harmless change
+    (port, path spelling) — the safe direction."""
+    argv = []
+    for t in tokens:
+        if _ENV_TOKEN.match(t):
+            break
+        argv.append(t)
+    env = sorted(t for t in tokens if t.startswith("LLAMA_ARG_"))
+    return hashlib.sha256("\0".join(argv + ["--env--"] + env).encode()).hexdigest()
+
+
+def llamacpp_server_settings(tokens_fn=None) -> dict:
+    """{"cache_type_k", "cache_type_v", "flash_attn"} of the listening llama-server: the CLI value if the
+    flag is given (`-ctk q8_0`, `--cache-type-k q8_0`, `--cache-type-k=q8_0`), else the env var, else the
+    literal "unset" (the server's default; a known state, never normalised to f16/auto). A flag or env var
+    given twice -> SystemExit (refuse to guess). `tokens_fn` injected for tests."""
+    tokens = (tokens_fn or _llamacpp_listener_tokens)()
+    out = {}
+    for field, (flags, env) in LLAMACPP_SERVER_FLAGS.items():
+        cli = []
+        for i, t in enumerate(tokens):
+            for fl in flags:
+                if t == fl:
+                    nxt = tokens[i + 1] if i + 1 < len(tokens) else None
+                    if nxt is None or nxt.startswith("-") or _ENV_TOKEN.match(nxt):
+                        raise SystemExit(f"error: llamacpp_server_settings: {fl} has no value (next token "
+                                         f"{nxt!r}); refusing to guess the server's {field}")
+                    cli.append(nxt)
+                elif t.startswith(fl + "="):
+                    cli.append(t[len(fl) + 1:])
+        envs = [t[len(env) + 1:] for t in tokens if t.startswith(env + "=")]
+        if len(cli) > 1 or len(envs) > 1:
+            raise SystemExit(f"error: llamacpp_server_settings: {field} given more than once "
+                             f"(cli {cli}, env {envs}); refusing to guess")
+        out[field] = cli[0] if cli else envs[0] if envs else "unset"
+    out["server_args_sha"] = llamacpp_server_args_sha(tokens)
+    return out
+
+
+def _llamacpp_props(base_url: str | None = None) -> dict:
+    """GET <server root>/props from the local llama-server (stdlib urllib, ZERO inference)."""
+    base = (base_url or os.environ.get(PROVIDERS["llamacpp"]["base_url_env"])
+            or PROVIDERS["llamacpp"]["base_url"]).rstrip("/")
+    root = base[:-3] if base.endswith("/v1") else base
+    with urllib.request.urlopen(root + "/props", timeout=10) as resp:
+        return json.loads(resp.read().decode())
+
+
+def llamacpp_runtime(props_fn=None, file_sha_fn=None, settings_fn=None) -> dict:
+    """The llama-server runtime stamp: {"name": "llamacpp", "version": build_info, "model_sha": sha256 of
+    the served GGUF (props.model_path, read locally), "n_ctx": the server's context window,
+    "chat_template_sha": sha256 of the template it renders with, "loads_are_samples": True}.
+    Refuses (SystemExit, before any inference) when build_info is empty, model_path is not a readable
+    local file, or n_ctx is missing: a null in any of them is the null version gotcha 15 is about.
+    n_ctx is stamped because a server started without `-c` truncates silently (gotcha 16).
+    ZERO inference: one GET /props + a local file hash. `props_fn` / `file_sha_fn` injected for tests."""
+    props = (props_fn or _llamacpp_props)()
+    version = props.get("build_info")
+    model_path = props.get("model_path")
+    n_ctx = (props.get("default_generation_settings") or {}).get("n_ctx")
+    template = props.get("chat_template")
+    if not version:
+        raise SystemExit("error: provider 'llamacpp': /props has no build_info — cannot stamp the "
+                         "server version (gotcha 15)")
+    if not n_ctx:
+        raise SystemExit("error: provider 'llamacpp': /props has no default_generation_settings.n_ctx — "
+                         "the window is unknown (gotcha 16); start llama-server with -c")
+    if not model_path or not Path(model_path).is_absolute() or not Path(model_path).is_file():
+        raise SystemExit(f"error: provider 'llamacpp': /props model_path {model_path!r} is not an ABSOLUTE "
+                         f"readable local file — the served weights cannot be hashed (gotcha 15). /props "
+                         f"echoes `-m` as given, relative to the server's cwd: start llama-server with an "
+                         f"absolute -m path")
+    if file_sha_fn is None:
+        def file_sha_fn(p):
+            h = hashlib.sha256()
+            with open(p, "rb") as fh:
+                for chunk in iter(lambda: fh.read(1 << 20), b""):
+                    h.update(chunk)
+            return h.hexdigest()
+    return {
+        "name": "llamacpp",
+        "version": version,
+        "model_sha": file_sha_fn(model_path),
+        "n_ctx": n_ctx,
+        "chat_template_sha": (hashlib.sha256(template.encode()).hexdigest() if isinstance(template, str)
+                              else None),
+        **(settings_fn or llamacpp_server_settings)(),
+        "loads_are_samples": True,
+    }
+
+
 def ollama_unload(model: str) -> None:
     """POST /api/generate {model, keep_alive: 0} to unload the model, then GET
     /api/ps and raise if it is still listed there. stdlib urllib only, no
@@ -2486,6 +2710,162 @@ def ollama_unload(model: str) -> None:
             f"ollama_unload({model!r}): still listed in /api/ps after unload "
             f"(keep_alive=0 request accepted, but the model did not leave "
             f"residency): {loaded}")
+
+
+# ------------------------------------------------------------ per-load resources (2026-10-31, item 4)
+# OBSERVATION ONLY. Recorded per snapshot load, never read by scoring, preflight or `check`; a reader that
+# cannot measure records why ({"unavailable": ...}) and the snapshot goes on — memory is not a gate.
+RESOURCE_BASIS = ("peak RSS of the listening server process AND its descendants (the model runner is a child "
+                  "on Ollama), summed per sample, sampled every interval_s with `ps`; ⚠️ on Apple Silicon "
+                  "GPU/Metal allocations may not appear in RSS (unverified) — `api_ps` is Ollama's own figure "
+                  "for the loaded model (size, size_vram) read after the load")
+
+
+def _ps_table(ps_path: str | None = None) -> list[tuple[int, int, int]]:
+    """(pid, ppid, rss_kb) for every process, one `ps -A -o pid=,ppid=,rss=` call."""
+    # NOT _find_tool: that raises SystemExit, which no observation path may ever do (PR #145 refuter).
+    ps = ps_path or shutil.which("ps") or _TOOL_FALLBACKS["ps"]
+    if not os.access(ps, os.X_OK):
+        raise RuntimeError(f"ps not found ({ps!r})")
+    out = subprocess.run([ps, "-A", "-o", "pid=,ppid=,rss="], capture_output=True, text=True, timeout=15)
+    rows = []
+    for line in out.stdout.splitlines():
+        parts = line.split()
+        if len(parts) == 3 and all(p.isdigit() for p in parts):
+            rows.append((int(parts[0]), int(parts[1]), int(parts[2])))
+    return rows
+
+
+def tree_rss_kb(root_pid: int, table: list[tuple[int, int, int]]) -> int | None:
+    """Sum of RSS (kB) over root_pid and all its descendants; None when root_pid is not in the table."""
+    if not any(pid == root_pid for pid, _, _ in table):
+        return None
+    children: dict[int, list[int]] = {}
+    rss = {}
+    for pid, ppid, r in table:
+        children.setdefault(ppid, []).append(pid)
+        rss[pid] = r
+    total, stack, seen = 0, [root_pid], set()
+    while stack:
+        p = stack.pop()
+        if p in seen:
+            continue
+        seen.add(p)
+        total += rss.get(p, 0)
+        stack.extend(children.get(p, []))
+    return total
+
+
+class ResourceSampler:
+    """Background thread: every `interval_s`, tree_rss_kb(root_pid, table_fn()); keeps the peak. A failed
+    sample is counted, never raised (observation only)."""
+
+    def __init__(self, root_pid: int, table_fn=None, interval_s: float = 1.0):
+        import threading
+        self.root_pid, self.table_fn, self.interval_s = root_pid, table_fn or _ps_table, interval_s
+        self.peak_kb, self.samples, self.failed = None, 0, 0
+        self._stop = threading.Event()
+        self._thread = threading.Thread(target=self._run, daemon=True)
+
+    def _sample(self) -> None:
+        try:
+            v = tree_rss_kb(self.root_pid, self.table_fn())
+        except (Exception, SystemExit):  # noqa: BLE001 — a sampler must never take a snapshot down
+            v = None
+        if v is None:
+            self.failed += 1
+        else:
+            self.samples += 1
+            self.peak_kb = v if self.peak_kb is None else max(self.peak_kb, v)
+
+    def _run(self) -> None:
+        while not self._stop.is_set():
+            self._sample()
+            self._stop.wait(self.interval_s)
+
+    def __enter__(self):
+        self._thread.start()
+        return self
+
+    def __exit__(self, *exc):
+        self._stop.set()
+        self._thread.join(timeout=10)
+        self._sample()   # one final sample after the load, so a sub-interval load still has one
+        return False
+
+    def result(self) -> dict:
+        return {"rss_tree_peak_kb": self.peak_kb, "samples": self.samples, "failed_samples": self.failed,
+                "interval_s": self.interval_s}
+
+
+def _listener_pid(base_url: str) -> int:
+    """The ONE pid listening on base_url's loopback port (lsof). SystemExit-free: raises ValueError with the
+    reason, which the caller records as {"unavailable": reason}."""
+    parsed = urllib.parse.urlparse(base_url)
+    if parsed.hostname not in _LOOPBACK_HOSTS:
+        raise ValueError(f"host {parsed.hostname!r} is not loopback")
+    port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    lsof = shutil.which("lsof") or _TOOL_FALLBACKS["lsof"]
+    out = subprocess.run([lsof, "-nP", f"-iTCP:{port}", "-sTCP:LISTEN", "-t"], capture_output=True, text=True,
+                         timeout=15)
+    pids = sorted(set(out.stdout.split()))
+    if len(pids) != 1 or not pids[0].isdigit():
+        raise ValueError(f"expected 1 listener on port {port}, found {pids}")
+    return int(pids[0])
+
+
+def _ollama_api_ps_entry(model: str) -> dict | None:
+    """Ollama's own figure for the loaded model: {size, size_vram} from GET /api/ps (no inference)."""
+    with urllib.request.urlopen(_ollama_native_base_url() + "/api/ps", timeout=10) as resp:
+        ps = json.loads(resp.read().decode())
+    for m in ps.get("models", []):
+        if (m.get("model") or m.get("name")) == model:
+            return {"size": m.get("size"), "size_vram": m.get("size_vram")}
+    return None
+
+
+def _local_server_url(provider: str, is_ollama: bool) -> str | None:
+    """The URL of the LOCAL server a snapshot load talks to (Ollama, mlx_lm.server, llama-server), or None
+    for hosted / stub providers, whose memory is not ours to measure."""
+    if is_ollama:
+        return PROVIDERS["ollama"]["base_url"]
+    if PROVIDER_TIER.get(provider) != "local" or provider == "stub":
+        return None
+    cfg = PROVIDERS.get(provider) or {}
+    return (os.environ.get(cfg["base_url_env"]) if cfg.get("base_url_env") else None) or cfg.get("base_url")
+
+
+def measure_load(run_fn, *, base_url: str | None, model: str, is_ollama: bool, pid_fn=None,
+                 table_fn=None, api_ps_fn=None, interval_s: float = 1.0) -> tuple[dict, dict]:
+    """Run ONE load (`run_fn()` -> run_exam result) under a ResourceSampler and return (result, resources).
+    resources = {"wall_s", "rss_tree_peak_kb", "samples", "failed_samples", "interval_s", "basis",
+    "api_ps" (ollama only)} or, when the listener cannot be found, {"wall_s", "unavailable": reason}.
+    The run itself is never skipped or altered by a measurement failure."""
+    t0 = time.perf_counter()
+    root, why = None, None
+    if base_url and os.environ.get("SANDBOX_OFFLINE_PROBES") == "1" and pid_fn is None:
+        # The deterministic gate (scripts/test.sh) exports this: no lsof / ps / /api/ps from a test run
+        # unless the test injects its own fakes (PR #145 refuter: six test files reached the live server).
+        why = "offline gate (SANDBOX_OFFLINE_PROBES=1): no process probes"
+    elif base_url:
+        try:
+            root = (pid_fn or _listener_pid)(base_url)
+        except (Exception, SystemExit) as e:  # noqa: BLE001 — observation never aborts the load
+            why = f"{type(e).__name__}: {e}"
+    else:
+        why = "provider has no local server (hosted or stub)"
+    if root is None:
+        result = run_fn()
+        return result, {"wall_s": round(time.perf_counter() - t0, 1), "unavailable": why}
+    with ResourceSampler(root, table_fn, interval_s) as smp:
+        result = run_fn()
+    res = {"wall_s": round(time.perf_counter() - t0, 1), **smp.result(), "basis": RESOURCE_BASIS}
+    if is_ollama:
+        try:
+            res["api_ps"] = (api_ps_fn or _ollama_api_ps_entry)(model)
+        except (Exception, SystemExit) as e:  # noqa: BLE001
+            res["api_ps"] = {"unavailable": f"{type(e).__name__}: {e}"}
+    return result, res
 
 
 def aggregate_loads(results: list[dict]) -> dict:
@@ -2530,6 +2910,8 @@ def aggregate_loads(results: list[dict]) -> dict:
                 "score": round(passed / total, 4) if total else None}
 
     agg = dict(results[0])
+    # run_at (when present) is therefore load 1's start = when the multi-load run began,
+    # which is the honest "re-run" date for the aggregate; no load's time is invented.
     # metrics_totals belongs to ONE load, not the aggregate of N — writing it here
     # unmarked would be gotcha 13's shape (a partial total presented as complete).
     agg.pop("metrics_totals", None)
@@ -2609,7 +2991,8 @@ def _snapshot_case(case: dict) -> dict:
 
 def snapshot_payload(agent: dict, exam: dict, provider: str, model: str, result: dict,
                      *, loads: int | None = None, runtime: dict | None = None,
-                     scoped_rule: str = "off") -> dict:
+                     scoped_rule: str = "off", grader_files: dict | None = None,
+                     load_resources: list | None = None) -> dict:
     """Evidence bundle written by --snapshot. Additive over the original
     {provider, model, train_score, heldout_score} — cmd_check only ever reads those
     four keys, so old snapshots without this bundle remain valid.
@@ -2641,6 +3024,15 @@ def snapshot_payload(agent: dict, exam: dict, provider: str, model: str, result:
         payload["loads"] = loads
     if runtime is not None:
         payload["runtime"] = runtime
+    # GRADER HASH (2026-10-31): sha256 per exam/grader file at snapshot time (sandbox/grader_files.py),
+    # omitted when not passed (legacy callers + test_observability's exact key set). ATTRIBUTION ONLY:
+    # snapshot_preflight never compares it; `check` prints which files changed when a case drifts.
+    if grader_files is not None:
+        payload["grader_files"] = grader_files
+    # ITEM 4 (2026-10-31): per-load wall + peak memory, observation only, omitted when not passed (legacy
+    # callers + test_observability's exact key set). Never read by snapshot_preflight or compare_to_snapshot.
+    if load_resources is not None:
+        payload["load_resources"] = load_resources
     # E6-train: the library pin (spec constraint 2 — retrieval changes the prompt,
     # so the gate must refuse to compare across library versions). Same
     # omitted-when-absent pattern as loads/runtime, for the same reason: the
@@ -2760,7 +3152,8 @@ def _served_by_local_ollama(provider) -> bool:
 def take_snapshot_loads(agent: dict, exam: dict, provider: str, model: str, loads: int,
                         *, timeout: int | None = None, dedupe_tools: bool = False,
                         assembly: str = "full", scoped_rule: str = "off",
-                        server_settings_fn=None) -> tuple[dict, dict]:
+                        server_settings_fn=None, llamacpp_runtime_fn=None,
+                        measure_kw: dict | None = None) -> tuple[dict, dict]:
     """The ONE mechanism `cmd_run --snapshot` and `cmd_run_all --snapshot` both
     go through (criterion v3's closing sentence on clause 2). Runs `loads` full
     passes of the exam — unloading the model via the native API before each pass
@@ -2786,6 +3179,10 @@ def take_snapshot_loads(agent: dict, exam: dict, provider: str, model: str, load
         # refuses (SystemExit) when MLX_MODEL_PATH is unset — BEFORE any inference —
         # because a null model hash is the null version gotcha 15 is about.
         runtime = mlx_runtime()
+    elif provider == "llamacpp":
+        # 2026-10-31: same shape as mlx — refuses before any inference when the server cannot be
+        # stamped (no build_info / n_ctx / readable model file).
+        runtime = (llamacpp_runtime_fn or llamacpp_runtime)()
     else:
         runtime = {"name": provider, "version": ollama_version() if is_ollama else None}
         if is_ollama:
@@ -2795,12 +3192,19 @@ def take_snapshot_loads(agent: dict, exam: dict, provider: str, model: str, load
         if is_ollama:
             ollama_unload(model)
         else:
-            where = "a local mlx_lm.server (no unload)" if provider == "mlx" else "hosted"
+            where = ("a local mlx_lm.server (no unload)" if provider == "mlx"
+                     else "a local llama-server (no unload)" if provider == "llamacpp" else "hosted")
             print(f"  load {k}/{loads}: provider {provider!r} is {where} — this is "
                   f"sample {k} of {loads}, not a model reload")
-        result = run_exam(agent, exam, provider, model, timeout=timeout,
-                          dedupe_tools=dedupe_tools, assembly=assembly,
-                          scoped_rule=scoped_rule)
+        local_base = _local_server_url(provider, is_ollama)
+        result, resources = measure_load(
+            lambda: run_exam(agent, exam, provider, model, timeout=timeout,
+                             dedupe_tools=dedupe_tools, assembly=assembly,
+                             scoped_rule=scoped_rule),
+            base_url=local_base, model=model, is_ollama=is_ollama, **(measure_kw or {}))
+        # ITEM 4 (2026-10-31): per-load resources ride on the per-load result file and, as a list, on the
+        # aggregate — never inside run_exam's own record (test_scoped_rule_hook's byte identity).
+        result["load_resources"] = resources
         # Save BEFORE the outage guard, same order cmd_run always used (D4's own
         # docstring promises "the results file was still written" on refusal) —
         # an operator diagnosing an outage needs the evidence, not just the cause.
@@ -2817,6 +3221,7 @@ def take_snapshot_loads(agent: dict, exam: dict, provider: str, model: str, load
                     f"({runtime[field]!r} before load 1, {after.get(field)!r} after the last "
                     f"load); the loads did not share one server configuration — re-run")
     aggregate = aggregate_loads(load_results)
+    aggregate["load_resources"] = [r.get("load_resources") for r in load_results]
     # The aggregate is also the "current result" other read-only tools (taxonomy,
     # route) glob at the top level — unsuffixed, same convention as a plain run.
     save_result(aggregate)
@@ -2892,7 +3297,9 @@ def cmd_run(args) -> int:
         snap_path.write_text(json.dumps(
             snapshot_payload(agent, exam, provider, model, aggregate,
                              loads=args.loads, runtime=runtime,
-                             scoped_rule=scoped_rule), indent=2))
+                             scoped_rule=scoped_rule,
+                             grader_files=grader_files.snapshot_files(args.agent),
+                             load_resources=aggregate.get("load_resources")), indent=2))
         print(f"snapshot written -> {snap_path.relative_to(ROOT)}")
         return 0
     result = run_exam(agent, exam, provider, model, timeout=args.timeout,
@@ -2922,7 +3329,7 @@ def _load_snapshot(agent_name: str) -> dict:
 
 def snapshot_preflight(snap: dict, exam: dict, version_fn=None,
                        library_sha: str | None = None, mlx_runtime_fn=None,
-                       server_settings_fn=None) -> str | None:
+                       server_settings_fn=None, llamacpp_runtime_fn=None) -> str | None:
     """PURE-ish (one native-API call, ZERO model inference). The pre-inference
     refusals shared by `cmd_check` and `cmd_check_all`: no `runtime` block; live
     ollama version differs from the snapshot's (ollama snapshots only — a hosted
@@ -2999,6 +3406,18 @@ def snapshot_preflight(snap: dict, exam: dict, version_fn=None,
         for field in MLX_STAMP_FIELDS:
             if stamped[field] != live_mlx[field]:
                 return (f"{field.upper()}: live mlx {field} {live_mlx[field]!r} != "
+                        f"snapshot runtime.{field} {stamped[field]!r}; re-snapshot")
+    elif snap.get("provider") == "llamacpp":
+        # 2026-10-31: every stamped field present (a missing one = unstamped shape, refused, never
+        # read as a match), then all equal to the live server's. The reader's SystemExit is not caught.
+        stamped = snap["runtime"]
+        for field in LLAMACPP_STAMP_FIELDS:
+            if field not in stamped:
+                return (f"RUNTIME: llamacpp snapshot runtime block has no {field!r}; re-snapshot")
+        live_ll = (llamacpp_runtime_fn or llamacpp_runtime)()
+        for field in LLAMACPP_STAMP_FIELDS:
+            if stamped[field] != live_ll[field]:
+                return (f"{field.upper()}: live llama-server {field} {live_ll[field]!r} != "
                         f"snapshot runtime.{field} {stamped[field]!r}; re-snapshot")
     if snap.get("library_sha") != library_sha:
         return (f"LIBRARY: agent library_sha {library_sha!r} != snapshot's "
@@ -3146,7 +3565,28 @@ def cmd_check(args) -> int:
     result = run_exam(agent, exam, snap["provider"], snap["model"],
                       dedupe_tools=args.dedupe_tools)
     verdict = compare_to_snapshot(snap, result, tolerance=args.tolerance)
-    return 0 if _print_verdict(verdict, moves_first=moves_first, model=snap["model"]) else 1
+    ok = _print_verdict(verdict, moves_first=moves_first, model=snap["model"])
+    if not ok:
+        print_grader_attribution(snap, args.agent)
+    return 0 if ok else 1
+
+
+def grader_attribution(snap: dict, agent_name: str, current: dict | None = None) -> str:
+    """One line naming which exam/grader files changed since the snapshot was taken — the CAUSE candidates
+    for a drift. Never a verdict: `check` has already failed on the moved case; this only says where to
+    look first. A snapshot written before 2026-10-31 carries no hashes and says so."""
+    old = snap.get("grader_files")
+    if not isinstance(old, dict):
+        return "grader files: not recorded in this snapshot (pre-2026-10-31); cause not attributable"
+    diff = grader_files.changed(old, current if current is not None else grader_files.snapshot_files(agent_name))
+    if not diff:
+        return ("grader files: all unchanged since the snapshot — the drift is the model, the runtime or "
+                "the server settings, not the exam or the grader")
+    return "grader files CHANGED since the snapshot: " + ", ".join(diff)
+
+
+def print_grader_attribution(snap: dict, agent_name: str) -> None:
+    print(f"  {grader_attribution(snap, agent_name)}")
 
 
 def _diff_metrics_cols(result: dict) -> tuple[str, str]:
@@ -3460,7 +3900,9 @@ def cmd_run_all(args) -> int:
             snap_path = ROOT / "evals" / name / "snapshot.json"
             snap_path.write_text(json.dumps(
                 snapshot_payload(agent, exam, agent["provider"], agent["model"],
-                                 aggregate, loads=args.loads, runtime=runtime),
+                                 aggregate, loads=args.loads, runtime=runtime,
+                                 grader_files=grader_files.snapshot_files(name),
+                                 load_resources=aggregate.get("load_resources")),
                 indent=2))
             result = aggregate
         else:
@@ -3505,6 +3947,7 @@ def cmd_check_all(args) -> int:
         result = run_exam(agent, exam, snap["provider"], snap["model"])
         verdict = compare_to_snapshot(snap, result, tolerance=args.tolerance)
         if not _print_verdict(verdict, moves_first=moves_first, model=snap["model"]):
+            print_grader_attribution(snap, name)
             problems.append(name)
     if problems:
         print(f"\nFAILED: {', '.join(problems)}")

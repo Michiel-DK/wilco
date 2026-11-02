@@ -583,8 +583,10 @@ def test_9_no_other_provider_entry_moved():
     # + "anthropic" (2026-10-28): Anthropic direct via the vendor's OpenAI-compatible
     #   endpoint, one config line + `drop_body_keys: [temperature]` (the endpoint 400s on
     #   it), frontier tier; probe-grade — see sandbox/test_anthropic_provider.py.
-    check("provider roster is exactly the 5 old ones + openrouter + mlx + systemone + openai + anthropic",
-          sorted(PROVIDERS) == ["anthropic", "mlx", "nebius", "ollama", "openai", "openrouter", "ovh",
+    # + "llamacpp" (2026-10-31): a local llama-server, one config line + `base_url_env`, local tier;
+    #   runtime stamp + preflight in runner.py — see sandbox/test_llamacpp_provider.py.
+    check("provider roster is exactly the 5 old ones + openrouter + mlx + systemone + openai + anthropic + llamacpp",
+          sorted(PROVIDERS) == ["anthropic", "llamacpp", "mlx", "nebius", "ollama", "openai", "openrouter", "ovh",
                                 "scaleway", "stub", "systemone"],
           f"got {sorted(PROVIDERS)}")
 

@@ -6,8 +6,8 @@
   "temperature": 0.0,
   "max_tokens": 4096,
   "judge": null,
-  "date": "2026-10-10T19:31:40",
-  "harness_sha": "40fec483e936cf42de5aa7ac460ba1758c534454",
+  "date": "2026-11-01T12:12:53",
+  "harness_sha": "e5dee2bfe8400e40883250790bd144a186e63af8",
   "cases": [
     {
       "id": "discovery-short-train",
@@ -253,8 +253,52 @@
   "loads": 3,
   "runtime": {
     "name": "ollama",
-    "version": "0.40.2",
+    "version": "0.40.11",
     "kv_cache_type": "unset",
     "flash_attention": "unset"
-  }
+  },
+  "grader_files": {
+    "evals/call-fields/cases.json": "16ea5b0295a4ff2cf4911cbfa55a451014d99f6759875d1eb5098b717d4951af",
+    "evals/call-fields/properties.py": "absent",
+    "evals/call-fields/tools_mock.py": "absent",
+    "evals/call-fields/rubric.md": "absent",
+    "agents/call-fields/agent.yaml": "d82085a140fa664c417f83c6428f51cb315b04851a3c8c5bef6c6877ce59d1ff",
+    "agents/call-fields/decision.yaml": "absent",
+    "sandbox/runner.py": "624eb39bb71c7f2b461d585d210e4dac62d6ffe6eaf99c92f583de507457d17b",
+    "sandbox/numnorm.py": "0f96d9eaae3e26e6e930860e84f68ae95d74db2e4785edef268b42806b393f07",
+    "sandbox/router.py": "097b3acc49e006311fa7d0ca6a993fbe586482f38b535c38a7a8357f1a630637",
+    "sandbox/retry.py": "a1787a7fed135b5d5d7b95fb7917e598280dd837a12d39fcf9d80cbea1c26dcb",
+    "sandbox/judges.py": "b08c87751bea9ee0d2fd14d90cd1411bdc65f58023e3eb2f5fa6d5ba074c4ccb",
+    "sandbox/library.py": "13ce1d83b7ae39371db854c887cd4435bb92805d6c82c3c8bd18e2c6499042f3",
+    "agents/call-fields/prompt.md": "22d90d16aab871cf84f44279241944f6f8f7f86bfaec237b08f07762782ac698"
+  },
+  "load_resources": [
+    {
+      "wall_s": 639.8,
+      "rss_tree_peak_kb": 4625008,
+      "samples": 623,
+      "failed_samples": 0,
+      "interval_s": 1.0,
+      "basis": "peak RSS of the listening server process AND its descendants (the model runner is a child on Ollama), summed per sample, sampled every interval_s with `ps`; \u26a0\ufe0f on Apple Silicon GPU/Metal allocations may not appear in RSS (unverified) \u2014 `api_ps` is Ollama's own figure for the loaded model (size, size_vram) read after the load",
+      "api_ps": null
+    },
+    {
+      "wall_s": 642.4,
+      "rss_tree_peak_kb": 5558288,
+      "samples": 625,
+      "failed_samples": 0,
+      "interval_s": 1.0,
+      "basis": "peak RSS of the listening server process AND its descendants (the model runner is a child on Ollama), summed per sample, sampled every interval_s with `ps`; \u26a0\ufe0f on Apple Silicon GPU/Metal allocations may not appear in RSS (unverified) \u2014 `api_ps` is Ollama's own figure for the loaded model (size, size_vram) read after the load",
+      "api_ps": null
+    },
+    {
+      "wall_s": 649.5,
+      "rss_tree_peak_kb": 5532192,
+      "samples": 632,
+      "failed_samples": 0,
+      "interval_s": 1.0,
+      "basis": "peak RSS of the listening server process AND its descendants (the model runner is a child on Ollama), summed per sample, sampled every interval_s with `ps`; \u26a0\ufe0f on Apple Silicon GPU/Metal allocations may not appear in RSS (unverified) \u2014 `api_ps` is Ollama's own figure for the loaded model (size, size_vram) read after the load",
+      "api_ps": null
+    }
+  ]
 }

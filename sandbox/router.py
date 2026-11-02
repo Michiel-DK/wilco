@@ -9,6 +9,7 @@ mast/mast/llm/provider.py (ABC + factory) and restaurant-brain get_extractor
 from __future__ import annotations
 
 import json
+import time
 import os
 from abc import ABC, abstractmethod
 
@@ -66,6 +67,21 @@ PROVIDERS: dict[str, dict] = {
     # provider's body stays byte-identical (sandbox/test_anthropic_provider.py).
     "anthropic": {"base_url": "https://api.anthropic.com/v1", "api_key_env": "ANTHROPIC_API_KEY",
                   "drop_body_keys": ["temperature"]},
+    # llamacpp (2026-10-31): a LOCAL llama.cpp `llama-server` (OpenAI-compatible /v1). The serving box on
+    # the site is the same two Gemma QAT GGUFs Ollama serves (docs/probes/serving-gguf-header-2026-10-31):
+    # this entry lets them sit an exam on that engine. Local, one resident server (no unload, loads are
+    # samples). ⚠️ Determinism at temp 0 is UNVERIFIED on this engine until a rule-A snapshot shows the
+    # loads agree; `cache_prompt: false` is sent on every request because llama.cpp's README says KV
+    # reuse "can cause nondeterministic results" (logits not guaranteed bit-identical across batch
+    # sizes). The port is NOT Ollama's or mlx's; `base_url_env` overrides it (LLAMACPP_BASE_URL).
+    # `--snapshot` stamps runtime = runner.llamacpp_runtime() (build_info, model sha256, n_ctx,
+    # chat-template sha256, KV cache types K/V, flash-attn — the last three read from the listening
+    # process, as for Ollama, gotcha 21; plus a sha of the full argv + LLAMA_ARG_* env) and `check` refuses
+    # when any moved. Start with --jinja, an ABSOLUTE -m, and a PER-SLOT window >= the Ollama champion's
+    # (16384 for the -ctx16k champions; gotcha 16): /props n_ctx is per slot, and an explicit -np N without
+    # the unified KV cache splits -c across N slots (-c 16384 -np 4 serves 4096 each).
+    "llamacpp": {"base_url": "http://127.0.0.1:8081/v1", "api_key_env": None,
+                 "base_url_env": "LLAMACPP_BASE_URL", "body_static": {"cache_prompt": False}},
     "stub": {"base_url": None, "api_key_env": None},
 }
 
@@ -77,7 +93,7 @@ PROVIDERS: dict[str, dict] = {
 # (sandbox/test_w2_runner_guards.py pins that every PROVIDERS key has an entry).
 TIER_ORDER = ("local", "eu", "frontier")
 PROVIDER_TIER: dict[str, str] = {
-    "ollama": "local", "mlx": "local", "systemone": "local", "stub": "local",
+    "ollama": "local", "mlx": "local", "systemone": "local", "stub": "local", "llamacpp": "local",
     "scaleway": "eu", "ovh": "eu", "nebius": "eu",
     "openrouter": "frontier", "openai": "frontier", "anthropic": "frontier",
 }
@@ -151,8 +167,19 @@ class ChatCompletionsAdapter(Adapter):
                  reasoning_effort: str | None = None,
                  provider_routing: dict | None = None,
                  extra_body: dict | None = None,
-                 drop_body_keys: tuple[str, ...] | list[str] = ()):
+                 drop_body_keys: tuple[str, ...] | list[str] = (),
+                 stream_timing: bool = False,
+                 clock=None):
         self.base_url = base_url.rstrip("/")
+        # STREAM TIMING (2026-10-31, item 5): OFF by default, so the request body stays byte-identical
+        # ("stream": False). On (SANDBOX_STREAM_TIMING=1, local providers only, see get_adapter): the request
+        # streams, the SSE chunks are folded back into the SAME body shape the non-streaming path parses, and
+        # the only addition is meta["stream_timing"] = client-side time to first token (any kind, thinking
+        # included) and to the first ANSWER token. ⚠️ Whether streaming moves any verdict is UNVERIFIED until
+        # a re-sit with it on matches the snapshot case for case (the GPU validation plan).
+        self.stream_timing = bool(stream_timing)
+        # ONE injectable clock (seconds, monotonic) for t0 AND fold_sse, so a test can pin exact ttft values.
+        self._clock = clock or time.perf_counter
         # 2026-10-28: request-body keys this provider's endpoint rejects outright (Anthropic
         # 400s on `temperature`). Empty for every other provider, so their body is unchanged.
         self.drop_body_keys = tuple(drop_body_keys or ())
@@ -229,14 +256,34 @@ class ChatCompletionsAdapter(Adapter):
                 body.setdefault(k, v)
         for k in self.drop_body_keys:   # provider-level: the endpoint rejects this key
             body.pop(k, None)
-        resp = requests.post(
-            f"{self.base_url}/chat/completions",
-            headers=headers,
-            data=json.dumps(body),
-            timeout=self.timeout,
-        )
-        resp.raise_for_status()
-        body = resp.json()
+        stream_info = None
+        if self.stream_timing:
+            body["stream"] = True
+            body["stream_options"] = {"include_usage": True}
+            t0 = self._clock()   # read immediately before the POST: ttft counts connect + prefill + first token
+            resp = requests.post(
+                f"{self.base_url}/chat/completions",
+                headers=headers,
+                data=json.dumps(body),
+                timeout=self.timeout,
+                stream=True,
+            )
+            try:
+                resp.raise_for_status()
+                body, stream_info = fold_sse(resp.iter_lines(decode_unicode=True), t0, self._clock)
+            finally:
+                close = getattr(resp, "close", None)
+                if callable(close):
+                    close()
+        else:
+            resp = requests.post(
+                f"{self.base_url}/chat/completions",
+                headers=headers,
+                data=json.dumps(body),
+                timeout=self.timeout,
+            )
+            resp.raise_for_status()
+            body = resp.json()
         # DIALECT-0 (2026-08-29, OpenRouter audit). `body["choices"][0]` was a hard index
         # on both a key and a position, and a body carrying NO choices at all raises
         # KeyError('choices') (or IndexError on `"choices": []`). Reproduced on master
@@ -439,7 +486,86 @@ class ChatCompletionsAdapter(Adapter):
             # 'length' | 'stop' | 'tool_calls' | ... | None when the backend omits it.
             "finish_reason": finish_reason,
         }
+        # SERVER TIMINGS (2026-10-31): llama-server returns a `timings` object on non-streaming
+        # /v1/chat/completions (tools/server/README.md "Timings and context usage": prompt_ms,
+        # predicted_ms, prompt_n, predicted_n, cache_n). Ollama 0.40.11 does NOT on this path
+        # (middleware/openai.go sets it only on streaming chat). Carried ONLY when the server sent a
+        # dict, under keys no other path writes, so every Ollama/hosted/stub meta is byte-identical.
+        # prompt_ms is the server's prefill time: the closest server-side proxy for time-to-first-token.
+        timings = body.get("timings")
+        if isinstance(timings, dict):
+            meta["server_timings"] = {k: timings.get(k) for k in
+                                      ("prompt_n", "prompt_ms", "predicted_n", "predicted_ms", "cache_n")}
+        if stream_info is not None:
+            meta["stream_timing"] = stream_info
         return content, meta
+
+
+def fold_sse(lines, t0: float, clock=None) -> tuple[dict, dict]:
+    """Fold an OpenAI-style chat SSE stream back into the NON-streaming body shape this adapter already
+    parses: {"choices": [{"message": {"role", "content", "reasoning"}, "finish_reason"}], "usage", "timings"?}.
+    An in-stream {"error": ...} chunk is returned as the error envelope itself (DIALECT-0 handles it).
+    Native `tool_calls` deltas are REFUSED (ValueError): every exam sends tools as JSON in message text, and a
+    half-merged tool call would be scored as something it is not.
+    Returns (body, {"ttft_any_ms": first non-empty content OR reasoning delta, "ttft_answer_ms": first non-empty
+    content delta, "stream_ms": until [DONE] or end, "chunks": n}); a ttft is None when that kind never came.
+
+    DEFINITIONS (ms since t0, t0 = the clock read just before the POST):
+      ttft_any_ms    = first chunk whose delta has a NON-EMPTY content OR reasoning string.
+      ttft_answer_ms = first chunk whose delta has a NON-EMPTY content string.
+    Role-only deltas, empty-string deltas, SSE comment lines (": ...") and usage/timings-only chunks count toward
+    neither. A kind that never arrives is None, never 0."""
+    clock = clock or time.perf_counter
+    content, reasoning, finish, usage, timings = [], [], None, None, None
+    ttft_any = ttft_ans = None
+    n = 0
+    for raw in lines:
+        if not raw:
+            continue
+        line = raw.decode() if isinstance(raw, bytes) else raw
+        if not line.startswith("data:"):
+            continue
+        data = line[5:].strip()
+        if not data:
+            continue
+        if data == "[DONE]":
+            break
+        chunk = json.loads(data)
+        n += 1
+        if "error" in chunk and not chunk.get("choices"):
+            return {"error": chunk["error"]}, {"ttft_any_ms": None, "ttft_answer_ms": None,
+                                               "stream_ms": round((clock() - t0) * 1000, 1), "chunks": n}
+        if isinstance(chunk.get("usage"), dict):
+            usage = chunk["usage"]
+        if isinstance(chunk.get("timings"), dict):
+            timings = chunk["timings"]
+        for ch in chunk.get("choices") or []:
+            if ch.get("index", 0) != 0:   # the non-streaming path reads choices[0] only
+                continue
+            delta = ch.get("delta") or {}
+            if delta.get("tool_calls"):
+                raise ValueError("stream_timing: native tool_calls deltas are not supported (exams send tools "
+                                 "as JSON text); turn SANDBOX_STREAM_TIMING off for this provider")
+            c = delta.get("content") or ""
+            r = delta.get("reasoning") or delta.get("reasoning_content") or ""
+            now = round((clock() - t0) * 1000, 1)
+            if (c or r) and ttft_any is None:
+                ttft_any = now
+            if c and ttft_ans is None:
+                ttft_ans = now
+            content.append(c)
+            reasoning.append(r)
+            if ch.get("finish_reason") is not None:
+                finish = ch["finish_reason"]
+    body = {"choices": [{"message": {"role": "assistant", "content": "".join(content),
+                                     "reasoning": "".join(reasoning)},
+                         "finish_reason": finish}]}
+    if usage is not None:
+        body["usage"] = usage
+    if timings is not None:
+        body["timings"] = timings
+    return body, {"ttft_any_ms": ttft_any, "ttft_answer_ms": ttft_ans,
+                  "stream_ms": round((clock() - t0) * 1000, 1), "chunks": n}
 
 
 class StubAdapter(Adapter):
@@ -593,6 +719,10 @@ def get_adapter(provider: str, timeout: int | None = None,
     if provider == "stub":
         return StubAdapter()
     cfg = PROVIDERS[provider]
+    # base_url_env (llamacpp, 2026-10-31): an env var that overrides this provider's base_url. Only
+    # entries that declare it read it, so every other provider's URL is unchanged.
+    if cfg.get("base_url_env") and os.environ.get(cfg["base_url_env"]):
+        cfg = {**cfg, "base_url": os.environ[cfg["base_url_env"]]}
     api_key = None
     if cfg["api_key_env"]:
         api_key = os.environ.get(cfg["api_key_env"])
@@ -608,6 +738,9 @@ def get_adapter(provider: str, timeout: int | None = None,
     # `decision` is IGNORED on every other path: the chat request stays byte-identical.
     extra_body = {k: os.environ[v] for k, v in cfg.get("body_from_env", {}).items()
                   if os.environ.get(v)}
+    # body_static (llamacpp, 2026-10-31): fixed extra request keys for ONE provider (setdefault in
+    # generate(), never clobbering a core key). Only entries that declare it send anything extra.
+    extra_body = {**cfg.get("body_static", {}), **extra_body}
     return ChatCompletionsAdapter(
         cfg["base_url"], api_key,
         timeout=DEFAULT_TIMEOUT_S if timeout is None else timeout,
@@ -615,4 +748,6 @@ def get_adapter(provider: str, timeout: int | None = None,
         reasoning_effort=reasoning_effort,
         provider_routing=provider_routing,
         extra_body=extra_body,
-        drop_body_keys=cfg.get("drop_body_keys", ()))
+        drop_body_keys=cfg.get("drop_body_keys", ()),
+        # item 5: opt-in, LOCAL providers only (a hosted stream is billed and timed over the network)
+        stream_timing=(os.environ.get("SANDBOX_STREAM_TIMING") == "1" and PROVIDER_TIER.get(provider) == "local"))

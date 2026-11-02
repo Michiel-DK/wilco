@@ -6,8 +6,8 @@
   "temperature": 0.0,
   "max_tokens": 2048,
   "judge": null,
-  "date": "2026-10-23T15:20:25",
-  "harness_sha": "4c4c142911fc9840734d0afb01901d32027b97af",
+  "date": "2026-11-01T12:39:34",
+  "harness_sha": "e5dee2bfe8400e40883250790bd144a186e63af8",
   "cases": [
     {
       "id": "lookup-last-contact",
@@ -258,19 +258,19 @@
           "turn": 0,
           "prompt_tokens": 203,
           "completion_tokens": 322,
-          "wall_ms": 7347.9
+          "wall_ms": 6684.4
         },
         {
           "turn": 1,
           "prompt_tokens": 1887,
           "completion_tokens": 166,
-          "wall_ms": 3105.7
+          "wall_ms": 2492.9
         },
         {
           "turn": 2,
           "prompt_tokens": 1959,
           "completion_tokens": 509,
-          "wall_ms": 8606.4
+          "wall_ms": 7304.3
         }
       ]
     },
@@ -284,25 +284,25 @@
           "turn": 0,
           "prompt_tokens": 206,
           "completion_tokens": 294,
-          "wall_ms": 7160.6
+          "wall_ms": 6328.1
         },
         {
           "turn": 1,
           "prompt_tokens": 1908,
           "completion_tokens": 199,
-          "wall_ms": 5356.5
+          "wall_ms": 5085.6
         },
         {
           "turn": 2,
           "prompt_tokens": 3594,
           "completion_tokens": 160,
-          "wall_ms": 5588.5
+          "wall_ms": 4854.7
         },
         {
           "turn": 3,
           "prompt_tokens": 5300,
           "completion_tokens": 402,
-          "wall_ms": 9929.6
+          "wall_ms": 8619.1
         }
       ]
     },
@@ -328,13 +328,13 @@
           "turn": 0,
           "prompt_tokens": 204,
           "completion_tokens": 221,
-          "wall_ms": 6422.4
+          "wall_ms": 5271.4
         },
         {
           "turn": 1,
           "prompt_tokens": 1891,
           "completion_tokens": 224,
-          "wall_ms": 3726.3
+          "wall_ms": 3277.9
         }
       ]
     },
@@ -370,25 +370,25 @@
           "turn": 0,
           "prompt_tokens": 204,
           "completion_tokens": 203,
-          "wall_ms": 5542.2
+          "wall_ms": 5015.8
         },
         {
           "turn": 1,
           "prompt_tokens": 1889,
           "completion_tokens": 180,
-          "wall_ms": 5212.7
+          "wall_ms": 4832.4
         },
         {
           "turn": 2,
           "prompt_tokens": 3585,
           "completion_tokens": 169,
-          "wall_ms": 5359.4
+          "wall_ms": 4940.5
         },
         {
           "turn": 3,
           "prompt_tokens": 5309,
           "completion_tokens": 816,
-          "wall_ms": 28497.1
+          "wall_ms": 26647.7
         }
       ]
     },
@@ -409,13 +409,13 @@
           "turn": 0,
           "prompt_tokens": 203,
           "completion_tokens": 441,
-          "wall_ms": 8723.7
+          "wall_ms": 8291.4
         },
         {
           "turn": 1,
           "prompt_tokens": 1888,
           "completion_tokens": 510,
-          "wall_ms": 9828.4
+          "wall_ms": 9375.5
         }
       ]
     },
@@ -429,13 +429,13 @@
           "turn": 0,
           "prompt_tokens": 204,
           "completion_tokens": 276,
-          "wall_ms": 6296.6
+          "wall_ms": 6005.3
         },
         {
           "turn": 1,
           "prompt_tokens": 1887,
           "completion_tokens": 259,
-          "wall_ms": 5945.5
+          "wall_ms": 5786.1
         }
       ]
     },
@@ -449,19 +449,19 @@
           "turn": 0,
           "prompt_tokens": 203,
           "completion_tokens": 220,
-          "wall_ms": 5302.4
+          "wall_ms": 5157.3
         },
         {
           "turn": 1,
           "prompt_tokens": 1825,
           "completion_tokens": 230,
-          "wall_ms": 5558.1
+          "wall_ms": 5470.1
         },
         {
           "turn": 2,
           "prompt_tokens": 3452,
           "completion_tokens": 271,
-          "wall_ms": 6860.0
+          "wall_ms": 6435.7
         }
       ]
     },
@@ -475,19 +475,19 @@
           "turn": 0,
           "prompt_tokens": 327,
           "completion_tokens": 371,
-          "wall_ms": 6381.0
+          "wall_ms": 5518.6
         },
         {
           "turn": 1,
           "prompt_tokens": 452,
           "completion_tokens": 168,
-          "wall_ms": 2690.9
+          "wall_ms": 2516.4
         },
         {
           "turn": 2,
           "prompt_tokens": 579,
           "completion_tokens": 653,
-          "wall_ms": 11991.7
+          "wall_ms": 11131.6
         }
       ]
     },
@@ -513,19 +513,19 @@
           "turn": 0,
           "prompt_tokens": 204,
           "completion_tokens": 221,
-          "wall_ms": 5854.4
+          "wall_ms": 5293.8
         },
         {
           "turn": 1,
           "prompt_tokens": 1888,
           "completion_tokens": 149,
-          "wall_ms": 2774.6
+          "wall_ms": 2238.6
         },
         {
           "turn": 2,
           "prompt_tokens": 1929,
           "completion_tokens": 143,
-          "wall_ms": 4268.2
+          "wall_ms": 4225.1
         }
       ]
     },
@@ -566,25 +566,25 @@
           "turn": 0,
           "prompt_tokens": 204,
           "completion_tokens": 202,
-          "wall_ms": 5186.1
+          "wall_ms": 5009.4
         },
         {
           "turn": 1,
           "prompt_tokens": 1889,
           "completion_tokens": 211,
-          "wall_ms": 5435.9
+          "wall_ms": 5278.4
         },
         {
           "turn": 2,
           "prompt_tokens": 3586,
           "completion_tokens": 386,
-          "wall_ms": 8105.7
+          "wall_ms": 7913.6
         },
         {
           "turn": 3,
           "prompt_tokens": 5205,
           "completion_tokens": 392,
-          "wall_ms": 14681.0
+          "wall_ms": 14007.9
         }
       ]
     },
@@ -656,8 +656,52 @@
   "loads": 3,
   "runtime": {
     "name": "ollama",
-    "version": "0.40.2",
+    "version": "0.40.11",
     "kv_cache_type": "unset",
     "flash_attention": "unset"
-  }
+  },
+  "grader_files": {
+    "evals/crm-followup/cases.json": "a1d4725c9c6f5636995da0f4ee3f114cadf690581928c85431e0823a36737e01",
+    "evals/crm-followup/properties.py": "absent",
+    "evals/crm-followup/tools_mock.py": "ca769515f57d58f2479e80ed9116f9579b4fe4b40be95bae41238e0e73e2d46a",
+    "evals/crm-followup/rubric.md": "absent",
+    "agents/crm-followup/agent.yaml": "009cd1ddeee005bfdc0504278b3d919e9371d8fad79540ffa8d6c663c02b4b16",
+    "agents/crm-followup/decision.yaml": "absent",
+    "sandbox/runner.py": "624eb39bb71c7f2b461d585d210e4dac62d6ffe6eaf99c92f583de507457d17b",
+    "sandbox/numnorm.py": "0f96d9eaae3e26e6e930860e84f68ae95d74db2e4785edef268b42806b393f07",
+    "sandbox/router.py": "097b3acc49e006311fa7d0ca6a993fbe586482f38b535c38a7a8357f1a630637",
+    "sandbox/retry.py": "a1787a7fed135b5d5d7b95fb7917e598280dd837a12d39fcf9d80cbea1c26dcb",
+    "sandbox/judges.py": "b08c87751bea9ee0d2fd14d90cd1411bdc65f58023e3eb2f5fa6d5ba074c4ccb",
+    "sandbox/library.py": "13ce1d83b7ae39371db854c887cd4435bb92805d6c82c3c8bd18e2c6499042f3",
+    "agents/crm-followup/prompt.md": "93cf43321238e4a18f38cf8bc1a355ba5c72f061c07d8a570a36528088590b3e"
+  },
+  "load_resources": [
+    {
+      "wall_s": 535.3,
+      "rss_tree_peak_kb": 3702224,
+      "samples": 523,
+      "failed_samples": 0,
+      "interval_s": 1.0,
+      "basis": "peak RSS of the listening server process AND its descendants (the model runner is a child on Ollama), summed per sample, sampled every interval_s with `ps`; \u26a0\ufe0f on Apple Silicon GPU/Metal allocations may not appear in RSS (unverified) \u2014 `api_ps` is Ollama's own figure for the loaded model (size, size_vram) read after the load",
+      "api_ps": null
+    },
+    {
+      "wall_s": 532.5,
+      "rss_tree_peak_kb": 3720928,
+      "samples": 520,
+      "failed_samples": 0,
+      "interval_s": 1.0,
+      "basis": "peak RSS of the listening server process AND its descendants (the model runner is a child on Ollama), summed per sample, sampled every interval_s with `ps`; \u26a0\ufe0f on Apple Silicon GPU/Metal allocations may not appear in RSS (unverified) \u2014 `api_ps` is Ollama's own figure for the loaded model (size, size_vram) read after the load",
+      "api_ps": null
+    },
+    {
+      "wall_s": 532.9,
+      "rss_tree_peak_kb": 3751088,
+      "samples": 520,
+      "failed_samples": 0,
+      "interval_s": 1.0,
+      "basis": "peak RSS of the listening server process AND its descendants (the model runner is a child on Ollama), summed per sample, sampled every interval_s with `ps`; \u26a0\ufe0f on Apple Silicon GPU/Metal allocations may not appear in RSS (unverified) \u2014 `api_ps` is Ollama's own figure for the loaded model (size, size_vram) read after the load",
+      "api_ps": null
+    }
+  ]
 }

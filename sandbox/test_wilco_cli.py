@@ -99,7 +99,10 @@ RUNNER = ROOT / "sandbox" / "runner.py"
 out = same("list", ["list"], [RUNNER, "list"], 0)
 exams = sorted(p.parent.name for p in (ROOT / "evals").glob("*/cases.json"))
 listed = sorted(ln.split()[0] for ln in out[1].splitlines() if "[exam ok" in ln)
-check("[D] list names every committed exam (nine in this repo: eight tasks + recap-en, the English variant)", listed == exams and len(exams) == 9, f"{listed} vs {exams}")
+# ten in the private repo (eight tasks + recap-en + transcript-asr); the public cut keeps transcript-asr private
+# (AppTek CC BY-SA, 2 Nov), so nine there — the count follows the tree this test runs in.
+_n_exams = 10 if (ROOT / "evals" / "transcript-asr" / "cases.json").exists() else 9
+check(f"[D] list names every committed exam ({_n_exams} in this tree: eight tasks + recap-en, + transcript-asr where it ships)", listed == exams and len(exams) == _n_exams, f"{listed} vs {exams}")
 
 same("validate email-triage", ["validate", "email-triage"], [ROOT / "scripts" / "exam_validate.py", "email-triage"], 0)
 v_bad, v_dir = wilco("validate", "no-such-task"), sh([ROOT / "scripts" / "exam_validate.py", "no-such-task"])

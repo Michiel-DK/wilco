@@ -24,6 +24,14 @@ docs/probes/**/data/test.jsonl
 docs/probes/**/.stamp
 docs/probes/**/.*_done
 
+# K0 call audio (licence CC-BY-SA-4.0, re-pullable from MANIFEST.json); never committed
+docs/probes/k-asr-*/data/
+
+# per-client data (2026-11-01): real client data never enters git; only the synthetic _fake-* fixtures do
+clients/*
+!clients/_fake-*/
+clients/_fake-*/retrieval/
+
 # wilco package build output (W5)
 *.egg-info/
 /build/

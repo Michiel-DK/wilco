@@ -1,0 +1,275 @@
+{
+  "provider": "ollama",
+  "model": "gemma4:e4b-it-qat",
+  "train_score": 0.4286,
+  "heldout_score": 0.625,
+  "temperature": 0.0,
+  "max_tokens": 2048,
+  "judge": null,
+  "date": "2026-11-01T11:40:40",
+  "harness_sha": "e5dee2bfe8400e40883250790bd144a186e63af8",
+  "cases": [
+    {
+      "id": "busy-day-standard",
+      "split": "train",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "quiet-day-automated",
+      "split": "train",
+      "passed": false,
+      "stable": true,
+      "failures": [
+        {
+          "bucket": "quality",
+          "check": "check_abstention"
+        }
+      ]
+    },
+    {
+      "id": "compression-heavy",
+      "split": "train",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "amounts-and-dates",
+      "split": "train",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "buried-critical",
+      "split": "heldout",
+      "passed": false,
+      "stable": true,
+      "failures": [
+        {
+          "bucket": "quality",
+          "check": "check_coverage"
+        }
+      ]
+    },
+    {
+      "id": "quiet-day-newsletters",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "quiet-day-with-receipt",
+      "split": "heldout",
+      "passed": false,
+      "stable": true,
+      "failures": [
+        {
+          "bucket": "quality",
+          "check": "check_abstention"
+        }
+      ]
+    },
+    {
+      "id": "rounding-bait",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "two-urgent-among-noise",
+      "split": "heldout",
+      "passed": false,
+      "stable": true,
+      "failures": [
+        {
+          "bucket": "quality",
+          "check": "check_coverage"
+        }
+      ]
+    },
+    {
+      "id": "long-day-train-xl",
+      "split": "train",
+      "passed": false,
+      "stable": true,
+      "failures": [
+        {
+          "bucket": "quality",
+          "check": "check_compression"
+        }
+      ]
+    },
+    {
+      "id": "very-long-day",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "long-day-heldout-xl",
+      "split": "heldout",
+      "passed": false,
+      "stable": true,
+      "failures": [
+        {
+          "bucket": "quality",
+          "check": "check_compression"
+        },
+        {
+          "bucket": "quality",
+          "check": "check_coverage"
+        }
+      ]
+    },
+    {
+      "id": "long-quiet-day",
+      "split": "heldout",
+      "passed": false,
+      "stable": true,
+      "failures": [
+        {
+          "bucket": "quality",
+          "check": "check_abstention"
+        }
+      ]
+    },
+    {
+      "id": "buried-critical-xl",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "amounts-at-length",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "long-day-train-2",
+      "split": "train",
+      "passed": false,
+      "stable": true,
+      "failures": [
+        {
+          "bucket": "quality",
+          "check": "check_compression"
+        }
+      ]
+    },
+    {
+      "id": "long-day-train-3",
+      "split": "train",
+      "passed": false,
+      "stable": true,
+      "failures": [
+        {
+          "bucket": "quality",
+          "check": "check_compression"
+        }
+      ]
+    },
+    {
+      "id": "dependency-delivery-vs-install",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "near-duplicate-invoices",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "quiet-day-big-amount-decoy",
+      "split": "heldout",
+      "passed": false,
+      "stable": true,
+      "failures": [
+        {
+          "bucket": "quality",
+          "check": "check_abstention"
+        }
+      ]
+    },
+    {
+      "id": "automated-but-actionable",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "buried-last-en",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    },
+    {
+      "id": "meeting-moved-date-decoy",
+      "split": "heldout",
+      "passed": true,
+      "stable": true
+    }
+  ],
+  "loads": 3,
+  "runtime": {
+    "name": "ollama",
+    "version": "0.40.11",
+    "kv_cache_type": "unset",
+    "flash_attention": "unset"
+  },
+  "grader_files": {
+    "evals/recap-en/cases.json": "5a91297f199eefeaac004d8b140b9664d81f3fe5c14c6f7de2abeb640da42fe6",
+    "evals/recap-en/properties.py": "59e43a4f800c1a9d28036b5016692656c841fa696267d18a27d8110276fcb6a7",
+    "evals/recap-en/tools_mock.py": "absent",
+    "evals/recap-en/rubric.md": "absent",
+    "agents/recap-en/agent.yaml": "43caace474323895c30fd313127c525f94114c5651f0c183dcbc9b47a5240b0e",
+    "agents/recap-en/decision.yaml": "absent",
+    "sandbox/runner.py": "624eb39bb71c7f2b461d585d210e4dac62d6ffe6eaf99c92f583de507457d17b",
+    "sandbox/numnorm.py": "0f96d9eaae3e26e6e930860e84f68ae95d74db2e4785edef268b42806b393f07",
+    "sandbox/router.py": "097b3acc49e006311fa7d0ca6a993fbe586482f38b535c38a7a8357f1a630637",
+    "sandbox/retry.py": "a1787a7fed135b5d5d7b95fb7917e598280dd837a12d39fcf9d80cbea1c26dcb",
+    "sandbox/judges.py": "b08c87751bea9ee0d2fd14d90cd1411bdc65f58023e3eb2f5fa6d5ba074c4ccb",
+    "sandbox/library.py": "13ce1d83b7ae39371db854c887cd4435bb92805d6c82c3c8bd18e2c6499042f3",
+    "agents/recap-en/prompt.md": "6e8177a15b93cea5cdd7d5d8b6cd9d6604046c00d1f1fe003dc0d89e8e60b7e7"
+  },
+  "load_resources": [
+    {
+      "wall_s": 522.6,
+      "rss_tree_peak_kb": 3481936,
+      "samples": 510,
+      "failed_samples": 0,
+      "interval_s": 1.0,
+      "basis": "peak RSS of the listening server process AND its descendants (the model runner is a child on Ollama), summed per sample, sampled every interval_s with `ps`; \u26a0\ufe0f on Apple Silicon GPU/Metal allocations may not appear in RSS (unverified) \u2014 `api_ps` is Ollama's own figure for the loaded model (size, size_vram) read after the load",
+      "api_ps": {
+        "size": 261714082,
+        "size_vram": 261714082
+      }
+    },
+    {
+      "wall_s": 522.5,
+      "rss_tree_peak_kb": 3491392,
+      "samples": 510,
+      "failed_samples": 0,
+      "interval_s": 1.0,
+      "basis": "peak RSS of the listening server process AND its descendants (the model runner is a child on Ollama), summed per sample, sampled every interval_s with `ps`; \u26a0\ufe0f on Apple Silicon GPU/Metal allocations may not appear in RSS (unverified) \u2014 `api_ps` is Ollama's own figure for the loaded model (size, size_vram) read after the load",
+      "api_ps": {
+        "size": 261714082,
+        "size_vram": 261714082
+      }
+    },
+    {
+      "wall_s": 536.0,
+      "rss_tree_peak_kb": 3490496,
+      "samples": 523,
+      "failed_samples": 0,
+      "interval_s": 1.0,
+      "basis": "peak RSS of the listening server process AND its descendants (the model runner is a child on Ollama), summed per sample, sampled every interval_s with `ps`; \u26a0\ufe0f on Apple Silicon GPU/Metal allocations may not appear in RSS (unverified) \u2014 `api_ps` is Ollama's own figure for the loaded model (size, size_vram) read after the load",
+      "api_ps": {
+        "size": 261714082,
+        "size_vram": 261714082
+      }
+    }
+  ]
+}

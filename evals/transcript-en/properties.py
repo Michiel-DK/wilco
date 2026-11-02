@@ -53,6 +53,7 @@ _SANDBOX = str(_HERE.parents[1] / "sandbox")
 if _SANDBOX not in sys.path:
     sys.path.insert(0, _SANDBOX)
 from numnorm import strip_thousands as _strip_thousands  # noqa: E402
+from numwords import word_numbers as _word_numbers  # noqa: E402  (SOURCE side only)
 
 
 @lru_cache(maxsize=1)
@@ -158,8 +159,15 @@ def check_grounded(input_text, output):
     Normalisation is deliberately MINIMAL (thousands separators only, shared
     helper). Decimal points are load-bearing and never stripped — '65.00' and
     '6500' are different amounts (CLAUDE.md gotcha 4).
+
+    SOURCE-SIDE WIDENING (S-NUMWORDS-GROUNDED): human call transcripts spell every
+    number in words ('thirty-four', 'two four one seven') and contain no digits, so
+    the numbers those words denote (sandbox/numwords.py) join the source set. The
+    OUTPUT side is unchanged and digits-only; the widening is a strict superset, so
+    anything that passed before still passes.
     """
     src_nums = {_strip_thousands(n) for n in _NUM_RE.findall(input_text)}
+    src_nums |= _word_numbers(input_text)
     combined = _summary(output) + " " + _action_items_text(output)
     invented = []
     for raw in _NUM_RE.findall(combined):
