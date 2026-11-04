@@ -20,8 +20,7 @@ Write the cases, let every candidate sit them, `pick` takes the cheapest that cl
 
 `wilco <command> --help` lists each command's options; `run`, `diff` and `check` keep their research flags behind `--help-advanced`.
 
-Results for the eight example tasks: [**roger3000.com/wilco**](https://roger3000.com/wilco). No developer, or no time to
-write the exam? Send us your task: [**roger3000.com/wilco/pricing**](https://roger3000.com/wilco/pricing).
+Results for the eight example tasks: [**roger3000.com/wilco**](https://roger3000.com/wilco).
 
 ## Five minutes, from clone to a scored table
 
