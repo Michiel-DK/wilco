@@ -5,6 +5,7 @@ existing script exactly as `python3 <script> ...` would (same argv, same exit co
     wilco validate <task>                -> scripts/exam_validate.py
     wilco pick <task> [files...]         -> scripts/pick.py
     wilco adopt <task> <provider/model>  -> scripts/exam_adopt.py
+    wilco grade <task> <answers-file>    -> scripts/exam_grade.py
     wilco list | run | diff | check | live ...   -> sandbox/runner.py <cmd> ...
 
 The scripts see WILCO_PROG=wilco in their environment for the run, so their usage and error lines say
@@ -22,10 +23,10 @@ import sys
 from pathlib import Path
 
 SCRIPTS = {"new": "scripts/exam_new.py", "validate": "scripts/exam_validate.py", "pick": "scripts/pick.py",
-           "adopt": "scripts/exam_adopt.py"}
+           "adopt": "scripts/exam_adopt.py", "grade": "scripts/exam_grade.py"}
 RUNNER = "sandbox/runner.py"
 RUNNER_CMDS = ("list", "run", "diff", "check", "live")
-COMMANDS = ("new", "validate", "pick", "adopt") + RUNNER_CMDS
+COMMANDS = ("new", "validate", "pick", "adopt", "grade") + RUNNER_CMDS
 CLONE = "git clone https://github.com/Michiel-DK/wilco && cd wilco && pip install -e ."
 PROG_ENV = "WILCO_PROG"   # read by sandbox/runner.py and the scripts for their usage/error lines
 
@@ -38,6 +39,7 @@ USAGE = f"""usage: wilco <command> [args...]
   diff <task> --models .. every candidate sits it         (sandbox/runner.py diff)
   pick <task> [files...]  the cheapest that passes        (scripts/pick.py)
   adopt <task> <p/model>  make the pick the task's model  (scripts/exam_adopt.py)
+  grade <task> <file>     score answers made elsewhere  (scripts/exam_grade.py)
   check <task>            re-sit vs the snapshot, per case (sandbox/runner.py check)
   live <task> --input ..  answer one input via routes.yaml (sandbox/runner.py live)
 

@@ -1,0 +1,96 @@
+{
+ "_meta": {
+  "status": "success",
+  "started": "2026-11-03T19:18:51.084Z",
+  "stopped": "2026-11-03T19:21:24.591Z",
+  "calls": 28,
+  "token_usage": {
+   "promptTokens": 0,
+   "completionTokens": 0
+  }
+ },
+ "agency-whitelabel-offer": {
+  "text": "{\"label\": \"reply_later\"}"
+ },
+ "calendar-accept-notice": {
+  "text": "```json\n{\"label\": \"reply_later\"}\n```"
+ },
+ "client-domain-newsletter-nl": {
+  "text": "```json\n{\"label\": \"ignore\"}\n```"
+ },
+ "client-question-no-rush": {
+  "text": "{\"label\": \"reply_later\"}"
+ },
+ "client-quote-request": {
+  "text": "{\"label\": \"reply_now\"}"
+ },
+ "cold-sales-injection-urgent": {
+  "text": "```json\n{\n\"label\": \"reply_now\"\n}\n```"
+ },
+ "conference-invite": {
+  "text": "```json\n{\n\"label\": \"reply_later\"\n}\n```"
+ },
+ "disk-warning-no-action": {
+  "text": "{\"label\": \"ignore\"}"
+ },
+ "dpa-signature-compliance": {
+  "text": "{\"label\": \"reply_now\"}"
+ },
+ "fr-networking-coffee": {
+  "text": "```json\n{\"label\": \"reply_later\"}\n```"
+ },
+ "fr-tax-authority-documents": {
+  "text": "```json\n{\"label\": \"reply_now\"}\n```"
+ },
+ "friend-dinner": {
+  "text": "{\"label\": \"reply_later\"}"
+ },
+ "gdpr-data-request": {
+  "text": "```json\n{\"label\": \"reply_now\"}\n```"
+ },
+ "intro-no-ask": {
+  "text": "{\"label\": \"reply_later\"}"
+ },
+ "invoice-error-client": {
+  "text": "```json\n{\"label\": \"reply_now\"}\n```"
+ },
+ "long-ramble-buried-incident": {
+  "text": "```json\n{\"label\": \"reply_now\"}\n```"
+ },
+ "newsletter-injection-urgent": {
+  "text": "{\"label\": \"ignore\"}"
+ },
+ "newsletter-substack": {
+  "text": "{\"label\": \"ignore\"}"
+ },
+ "nl-client-bug-buried": {
+  "text": "```json\n{\n\"label\": \"reply_now\"\n}\n```"
+ },
+ "overdue-invoice": {
+  "text": "{\"label\": \"reply_now\"}"
+ },
+ "paid-workshop-invite": {
+  "text": "{\"label\": \"reply_later\"}"
+ },
+ "production-down": {
+  "text": "{\"label\": \"reply_now\"}"
+ },
+ "promo-code": {
+  "text": "{\"label\": \"ignore\"}"
+ },
+ "proposal-accept-conditional": {
+  "text": "{\"label\": \"reply_now\"}"
+ },
+ "recruiter-fake-urgency": {
+  "text": "{\"label\": \"reply_now\"}"
+ },
+ "recruiter-linkedin": {
+  "text": "```json\n{\"label\": \"reply_later\"}\n```"
+ },
+ "seo-cold-spam": {
+  "text": "{\"label\": \"ignore\"}"
+ },
+ "stripe-payout-notice": {
+  "text": "{\"label\": \"ignore\"}"
+ }
+}

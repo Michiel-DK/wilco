@@ -91,8 +91,8 @@ check("[P] build backend setuptools >= 77 (PEP 660 editable installs + PEP 639 l
 sys.path.insert(0, str(ROOT))
 import wilco_cli  # noqa: E402
 
-check("[D] the shim has exactly the nine commands (W7 added adopt)",
-      sorted(wilco_cli.COMMANDS) == sorted(["new", "validate", "pick", "adopt", "list", "run", "diff", "check", "live"]),
+check("[D] the shim has exactly the ten commands (W7 added adopt, N1 added grade)",
+      sorted(wilco_cli.COMMANDS) == sorted(["new", "validate", "pick", "adopt", "grade", "list", "run", "diff", "check", "live"]),
       repr(wilco_cli.COMMANDS))
 
 RUNNER = ROOT / "sandbox" / "runner.py"

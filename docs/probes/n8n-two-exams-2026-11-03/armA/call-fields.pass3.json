@@ -1,0 +1,111 @@
+{
+ "_meta": {
+  "usage": {
+   "input_tokens": 134238,
+   "output_tokens": 14722
+  },
+  "stop_reasons": [
+   "end_turn"
+  ],
+  "block_types": [
+   "text",
+   "thinking"
+  ]
+ },
+ "discovery-short-train": {
+  "text": "{\"contact_name\": \"Marcus\", \"company\": \"Beacon Freight\", \"amount\": \"900\", \"currency\": \"EUR\", \"decision_maker\": \"Elena\", \"next_step_date\": \"Thursday\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "renewal-medium-train": {
+  "text": "{\"contact_name\": \"Priya\", \"company\": \"not stated\", \"amount\": \"1612\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"today\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "support-long-train": {
+  "text": "{\"contact_name\": \"not stated\", \"company\": \"Larkspur Clinics\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"tomorrow\", \"competitor\": \"not stated\", \"ticket_id\": \"LC-40217\"}"
+ },
+ "quiet-checkin-short-train": {
+  "text": "{\"contact_name\": \"Sam\", \"company\": \"not stated\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"next month\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "pricing-objection-medium-train": {
+  "text": "{\"contact_name\": \"Jonas\", \"company\": \"not stated\", \"amount\": \"1500\", \"currency\": \"EUR\", \"decision_maker\": \"Renata\", \"next_step_date\": \"Friday\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "discovery-long-train": {
+  "text": "{\"contact_name\": \"Amara\", \"company\": \"Torvane Manufacturing\", \"amount\": \"800\", \"currency\": \"EUR\", \"decision_maker\": \"Harriet\", \"next_step_date\": \"next Wednesday\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "renewal-short-train": {
+  "text": "{\"contact_name\": \"Ines\", \"company\": \"not stated\", \"amount\": \"640\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"today\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "support-medium-train": {
+  "text": "{\"contact_name\": \"Oskar\", \"company\": \"Brightfield Retail\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"tomorrow\", \"competitor\": \"not stated\", \"ticket_id\": \"BF-8834\"}"
+ },
+ "quiet-checkin-medium-train": {
+  "text": "{\"contact_name\": \"Wendell\", \"company\": \"not stated\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"next quarter\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "discovery-heldout-easy": {
+  "text": "{\"contact_name\": \"Yusuf\", \"company\": \"Palfrey Foods\", \"amount\": \"450\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"next Tuesday\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "discovery-heldout-hard": {
+  "text": "{\"contact_name\": \"Petra\", \"company\": \"Amsel Logistics\", \"amount\": \"1300\", \"currency\": \"EUR\", \"decision_maker\": \"Henrik\", \"next_step_date\": \"tomorrow\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "discovery-heldout-long": {
+  "text": "{\"contact_name\": \"Faye\", \"company\": \"Corbin Health Partners\", \"amount\": \"600\", \"currency\": \"EUR\", \"decision_maker\": \"Idris\", \"next_step_date\": \"today\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "renewal-heldout-medium": {
+  "text": "{\"contact_name\": \"Karol\", \"company\": \"not stated\", \"amount\": \"950\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"tomorrow\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "renewal-heldout-digits": {
+  "text": "{\"contact_name\": \"Dorien\", \"company\": \"Halstead Robotics\", \"amount\": \"2450.00\", \"currency\": \"EUR\", \"decision_maker\": \"Tomasz\", \"next_step_date\": \"Thursday\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "renewal-heldout-short": {
+  "text": "{\"contact_name\": \"Tobias\", \"company\": \"not stated\", \"amount\": \"320\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"today\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "support-heldout-short": {
+  "text": "{\"contact_name\": \"Greta\", \"company\": \"Falkirk Design\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"not stated\", \"competitor\": \"not stated\", \"ticket_id\": \"FD-1190\"}"
+ },
+ "support-heldout-long": {
+  "text": "{\"contact_name\": \"Callum\", \"company\": \"Merrow Brewing\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"in three business days\", \"competitor\": \"not stated\", \"ticket_id\": \"MB-2291\"}"
+ },
+ "pricing-objection-heldout-medium": {
+  "text": "{\"contact_name\": \"Femke\", \"company\": \"not stated\", \"amount\": \"1400\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"Monday\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "pricing-objection-heldout-short": {
+  "text": "{\"contact_name\": \"Niklas\", \"company\": \"not stated\", \"amount\": \"650\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"today\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "quiet-checkin-heldout-short": {
+  "text": "{\"contact_name\": \"Iris\", \"company\": \"not stated\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"next month\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "quiet-checkin-heldout-medium": {
+  "text": "{\"contact_name\": \"Bram\", \"company\": \"not stated\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"Fridays\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "mixed-heldout-dense": {
+  "text": "{\"contact_name\": \"Selma\", \"company\": \"not stated\", \"amount\": \"880\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"tomorrow\", \"competitor\": \"not stated\", \"ticket_id\": \"MC-5502\"}"
+ },
+ "longcall-quiet-train-1": {
+  "text": "{\"contact_name\": \"Harriet\", \"company\": \"Solano Freight Co\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"not stated\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "longcall-discovery-train-1": {
+  "text": "{\"contact_name\": \"Emeka\", \"company\": \"Osei Digital Health\", \"amount\": \"2400\", \"currency\": \"EUR\", \"decision_maker\": \"Renata\", \"next_step_date\": \"next week\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "longcall-renewal-train-1": {
+  "text": "{\"contact_name\": \"Renata\", \"company\": \"Kovacs Manufacturing\", \"amount\": \"2068\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"next Wednesday\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "longcall-support-train-1": {
+  "text": "{\"contact_name\": \"Sami\", \"company\": \"Duval Retail Group\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"today\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "longcall-pricing-heldout-1": {
+  "text": "{\"contact_name\": \"Ingrid\", \"company\": \"Palsson Energy Systems\", \"amount\": \"2880\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"Tuesday\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "longcall-scoping-heldout-1": {
+  "text": "{\"contact_name\": \"Marcus\", \"company\": \"Feld & Root Logistics\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"end of week\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "longcall-discovery-heldout-2": {
+  "text": "{\"contact_name\": \"Yara\", \"company\": \"Haddad Media Group\", \"amount\": \"2100\", \"currency\": \"EUR\", \"decision_maker\": \"Beatrix\", \"next_step_date\": \"next week\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "longcall-renewal-heldout-2": {
+  "text": "{\"contact_name\": \"Callan\", \"company\": \"Ridge Outdoor Supply\", \"amount\": \"3330\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"the fifteenth\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "longcall-support-heldout-2": {
+  "text": "{\"contact_name\": \"Beatrix\", \"company\": \"Solheim Marine\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"today\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ },
+ "longcall-mixed-heldout-3": {
+  "text": "{\"contact_name\": \"Tobias\", \"company\": \"Wren & Co Consulting\", \"amount\": \"2058\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"next week\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}"
+ }
+}

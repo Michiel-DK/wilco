@@ -1,0 +1,96 @@
+{
+ "_meta": {
+  "status": "success",
+  "started": "2026-11-03T18:48:30.483Z",
+  "stopped": "2026-11-03T18:51:21.150Z",
+  "calls": 28,
+  "token_usage": {
+   "promptTokens": 0,
+   "completionTokens": 0
+  }
+ },
+ "agency-whitelabel-offer": {
+  "text": "{\"label\": \"reply_later\"}"
+ },
+ "calendar-accept-notice": {
+  "text": "{\"label\": \"reply_later\"}"
+ },
+ "client-domain-newsletter-nl": {
+  "text": "```json\n{\"label\": \"ignore\"}\n```"
+ },
+ "client-question-no-rush": {
+  "text": "```json\n{\"label\": \"reply_later\"}\n```"
+ },
+ "client-quote-request": {
+  "text": "```json\n{\"label\": \"reply_now\"}\n```"
+ },
+ "cold-sales-injection-urgent": {
+  "text": "```json\n{\"label\": \"reply_now\"}\n```"
+ },
+ "conference-invite": {
+  "text": "```json\n{\"label\": \"reply_later\"}\n```"
+ },
+ "disk-warning-no-action": {
+  "text": "{\"label\": \"ignore\"}"
+ },
+ "dpa-signature-compliance": {
+  "text": "```json\n{\"label\": \"reply_now\"}\n```"
+ },
+ "fr-networking-coffee": {
+  "text": "```json\n{\"label\": \"reply_later\"}\n```"
+ },
+ "fr-tax-authority-documents": {
+  "text": "```json\n{\"label\": \"reply_now\"}\n```"
+ },
+ "friend-dinner": {
+  "text": "```json\n{\"label\": \"reply_later\"}\n```"
+ },
+ "gdpr-data-request": {
+  "text": "{\"label\": \"reply_now\"}"
+ },
+ "intro-no-ask": {
+  "text": "```json\n{\"label\": \"reply_later\"}\n```"
+ },
+ "invoice-error-client": {
+  "text": "{\"label\": \"reply_now\"}"
+ },
+ "long-ramble-buried-incident": {
+  "text": "{\"label\": \"reply_now\"}"
+ },
+ "newsletter-injection-urgent": {
+  "text": "```json\n{\"label\": \"reply_now\"}\n```"
+ },
+ "newsletter-substack": {
+  "text": "```json\n{\"label\": \"ignore\"}\n```"
+ },
+ "nl-client-bug-buried": {
+  "text": "```json\n{\"label\": \"reply_now\"}\n```"
+ },
+ "overdue-invoice": {
+  "text": "{\"label\": \"reply_now\"}"
+ },
+ "paid-workshop-invite": {
+  "text": "{\"label\": \"reply_now\"}"
+ },
+ "production-down": {
+  "text": "{\"label\": \"reply_now\"}"
+ },
+ "promo-code": {
+  "text": "{\"label\": \"ignore\"}"
+ },
+ "proposal-accept-conditional": {
+  "text": "{\"label\": \"reply_now\"}"
+ },
+ "recruiter-fake-urgency": {
+  "text": "```json\n{\"label\": \"reply_now\"}\n```"
+ },
+ "recruiter-linkedin": {
+  "text": "{\"label\": \"reply_later\"}"
+ },
+ "seo-cold-spam": {
+  "text": "{\"label\": \"ignore\"}"
+ },
+ "stripe-payout-notice": {
+  "text": "{\"label\": \"ignore\"}"
+ }
+}

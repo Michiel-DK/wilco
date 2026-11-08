@@ -1,0 +1,84 @@
+{
+ "_meta": {
+  "usage": {
+   "input_tokens": 42461,
+   "output_tokens": 9716
+  },
+  "stop_reasons": [
+   "end_turn"
+  ],
+  "block_types": [
+   "text",
+   "thinking"
+  ]
+ },
+ "busy-day-standard": {
+  "text": "{\"recap\": \"Sofie Janssens accepted the webshop chatbot proposal at 6500 EUR and wants to start in September; she asks you to suggest a start date. Tom De Vos asked to move Thursday's meeting one week later, same time. Marc Claes thanked you: everything works again since yesterday. The rest is newsletters, promotions, a backup notice and a domain renewal that renews automatically.\", \"nothing_important\": false}"
+ },
+ "quiet-day-automated": {
+  "text": "{\"recap\": \"Nothing important today - a weekly business newsletter, an automated backup confirmation with no errors, and a notice of three new profile views on a networking site.\", \"nothing_important\": true}"
+ },
+ "compression-heavy": {
+  "text": "{\"recap\": \"Els Peeters of Peeters Transport reports that since last week's update, the invoicing module creates invoices twice. They have had to cancel 14 so far and say they cannot keep invoicing until it is fixed, so they want it resolved urgently. The rest of the day is newsletters, promotions, a webinar and meetup confirmation, a survey, an automatic backup notice, a routine 78.20 EUR telecom direct debit, and a domain renewal that needs no action.\", \"nothing_important\": false}"
+ },
+ "amounts-and-dates": {
+  "text": "{\"recap\": \"Two items need action. Accountant Van Hove reports the Q2 VAT return is filed, with 1240.75 EUR to pay by 20 July. The kredietbank needs last year's annual accounts for dossier 44821 by 12 August, or the application lapses. Also, the hosting partner raises your package from 42.00 EUR to 47.50 EUR per month from 1 January, automatically. The backup completed without errors, and a newsletter arrived.\", \"nothing_important\": false}"
+ },
+ "buried-critical": {
+  "text": "{\"recap\": \"One item needs action: the kredietbank (dossier 44821) still needs last year's annual accounts (jaarrekening), due by 12 augustus, or the credit application lapses. The rest is routine: a domain renewal and a telecom invoice on automatic, a backup completed without errors, your annual insurance overview (no change in cover or premium), a meetup registration confirmation, and newsletters, webinar and survey invitations, and marketing.\", \"nothing_important\": false}"
+ },
+ "quiet-day-newsletters": {
+  "text": "{\"recap\": \"Nothing important today - a weekly business newsletter and a stationery supplier's promotion for 20% off printer paper.\", \"nothing_important\": true}"
+ },
+ "quiet-day-with-receipt": {
+  "text": "{\"recap\": \"Quiet day, nothing needs action. Your telecom invoice of 78.20 EUR will be direct-debited next week, the company domain renews automatically in 60 days, and the insurance broker sent the annual policy overview with no changes to cover or premium. The rest is a newsletter.\", \"nothing_important\": true}"
+ },
+ "rounding-bait": {
+  "text": "{\"recap\": \"Hosting provider raises your package from 42.00 EUR to 47.50 EUR per month from 1 January, applied automatically. Your telecom invoice of 78.20 EUR will be debited next week. The file backup completed without errors. A printer paper promotion is marketing only.\", \"nothing_important\": false}"
+ },
+ "two-urgent-among-noise": {
+  "text": "{\"recap\": \"Els Peeters of Peeters Transport reports that since last week's update the invoicing module creates duplicate invoices; 14 have already been cancelled and she says they cannot keep invoicing until it is fixed. The kredietbank needs last year's annual accounts for credit file 44821 by 12 August, or the application lapses. Smaller items: your company domain renews automatically in 60 days (no action needed), and your meetup registration for next Thursday is confirmed. The rest is newsletters, marketing, and an insurance annual overview for filing.\", \"nothing_important\": false}"
+ },
+ "long-day-train-xl": {
+  "text": "{\"recap\": \"Needs your attention: Peter from Mertens Bouw asks what the 900 EUR 'integratie' line in the quote covers, as they want to decide internally by the weekend. Tom De Vos asks to move Thursday's overleg one week later, same time. Anke requests leave from 14 to 18 October. The certification body needs two preferred dates and an on-site contact for the audit planned in the week of 6 October. The van lease ends 30 September: reply to extend, buy out or return it, or it renews automatically for twelve months at the current rate. Legal has sent updated terms and wants comments before they are finalised. A software partner wants to make a joint proposal for a shared client and may call this week. Also: a 213.40 EUR electricity refund is coming to your account within fifteen working days. The rest is newsletters, promotions, a webinar invite, and automated notices (domain renews automatically, a backup completed, a 78.20 EUR telecom bill will be debited next week, a parcel was delivered).\", \"nothing_important\": false}"
+ },
+ "very-long-day": {
+  "text": "{\"recap\": \"Janssens Bakkerij approved the chatbot proposal at 6500 EUR and wants to start in September, so they need a proposed start date. Peeters Transport reports that their billing module now creates duplicate invoices since last week's update; 14 have been cancelled and they need this fixed urgently. Vanhove Accountants filed the Q2 VAT return with 1240.75 EUR payable by 20 July. Tom De Vos of Devos Installaties asks to move Thursday's meeting one week later at the same time. Vitrine Interieur has put their project on hold until Q4 because the budget is used up. Also: a job application for junior developer, and a hosting price rise from 42.00 EUR to 47.50 EUR per month from 1 January.\", \"nothing_important\": false}"
+ },
+ "long-day-heldout-xl": {
+  "text": "{\"recap\": \"Peeters Transport reports that since last week's update their invoicing module creates duplicate invoices. They have cancelled 14 so far and say they cannot keep invoicing until it is fixed. Janssens Bakkerij agreed to the 6500 EUR chatbot webshop proposal, wants to start in September, and asks for a proposed start date. Mertens Bouw asks what the 900 EUR 'integratie' line in the quote covers and wants to decide before the weekend. Kredietbank needs the annual accounts for dossier 44821 by 12 August or the application lapses. The Q2 VAT return is filed with 1240.75 EUR due by 20 July. The van's lease ends 30 September: reply to Wagenparkbeheer or it auto-renews for twelve months at the current rate. The certification body wants two preferred dates for the audit in the week of 6 October, plus an on-site contact name. Integratiepartner wants to build a joint proposal for a client and will call this week. Vitrine Interieur has put its project on hold until Q4 because the budget is spent. Tom De Vos asks to move Thursday's meeting one week later. Anke requests leave from 14 to 18 October. Hostingpartner raises the package from 42.00 to 47.50 EUR per month from 1 January. Claes Tuinen confirms their issue is resolved. Other items are newsletters, marketing, automated notices and no-action statements.\", \"nothing_important\": false}"
+ },
+ "long-quiet-day": {
+  "text": "{\"recap\": \"Nothing important today. Only newsletters, automated notices and marketing: the monthly telecom bill of 78.20 EUR and the domain renewal of 14.99 EUR are both automatic, and the backup and SSL renewal completed without errors.\", \"nothing_important\": true}"
+ },
+ "buried-critical-xl": {
+  "text": "{\"recap\": \"One item needs attention: Katrien Vermeulen of Vermeulen Bouwmaterialen reports that their card payment terminal has been down since Monday. Customers can only pay cash, revenue is falling, and two calls to the helpdesk have not fixed it. She asks for a callback today. The other 29 items are newsletters, promotions and automated notices, with nothing requiring action.\", \"nothing_important\": false}"
+ },
+ "amounts-at-length": {
+  "text": "{\"recap\": \"De Wilde Partners vraagt of de betaling van factuur 1249.50 EUR vertrokken is; de vervaldatum was vorige week. Claes Schrijnwerkerij stuurde een offerte voor de kastenwand van 3480 EUR excl. BTW, geldig dertig dagen. Vanhoof Logistiek maakte een creditnota van 612.40 EUR op, verrekend met je volgende factuur. Wouters Metaal vraagt de prijs voor 40 lopende meter standaardprofiel voor een klantofferte. Segers Interieur bestelt 18 stalen uit het najaarsgamma, zonder haast. Timmermans Schrijnwerk meldt dat de voorschotfactuur van 2150 EUR deze week betaald wordt. De energieleverancier stort 87.35 EUR terug binnen tien werkdagen. De rest zijn nieuwsbrieven, automatische meldingen en reclame.\", \"nothing_important\": false}"
+ },
+ "long-day-train-2": {
+  "text": "{\"recap\": \"Peeters Transport reports an update is creating duplicate invoices; 9 have been cancelled so far and they ask for urgent review. Sarah Maes wants to schedule October works and asks which weeks are free (not the second week). Hilde Dendooven of Dendooven Advocaten found two clauses in your terms to adjust before publishing and asks for a call this week. Vergote CV says the latest invoice lacks their VAT number and needs a corrected version. Wim Claeys asks which day suits the periodic installation inspection due this quarter. Geert D'Haene of Dhaene Koeltechniek has moved Friday's intervention to Monday morning. Koen Vandewalle confirms the installation date with his team arriving in the morning for a full day. Desmedt Koeling reports an ordered part won't be available next month and asks if you have an alternative. Frank De Clercq of Declercq Transport asks about fixed loading time slots because drivers wait long at the warehouse. The rest is newsletters, automated notices and marketing.\", \"nothing_important\": false}"
+ },
+ "long-day-train-3": {
+  "text": "{\"recap\": \"Several clients need a reply. Lambrecht Bouw asks you to confirm the material delivery is on schedule for the autumn plan, with their crew ready from the third week. Desmet Verpakkingen complains that 12 boxes were damaged in last week's delivery and wants a proposed solution this week. Vandamme Schilderwerken is waiting for last month's invoice and wants it this week. Vandenberghe Staal changes their order from 24 to 30 profiles and asks you to confirm. Verstraete Notaris wants you to check and confirm the company details in the draft deed before signing is scheduled. D'Hondt Keukens asks for the quote to be revised for the changed dimensions. Moeyaert Transport is moving its warehouse next month and wants the delivery address updated. Vanacker Dakwerken asks to move next week's site visit one week later, same time. Baert Installaties wants the technical sheet for a delivered unit, and De Jaeger Sanitair wants a conformity certificate, with no rush. De Bruyne Vloeren asks for autumn-range swatches for a client meeting next week. The rest is newsletters, automated notices and marketing.\", \"nothing_important\": false}"
+ },
+ "dependency-delivery-vs-install": {
+  "text": "{\"recap\": \"Koen Lambert (Lambert Tegels) asks you to confirm the chatbot kiosk will be in the showroom on 10 November, the day the press visits for the opening. Elektro Claeys says the two tablets in order 7731 are delayed from 3 November to 14 November because of a supplier shortage. The domain renews automatically in 60 days and needs no action. The rest is newsletters, a successful backup notice and a printer paper promotion.\", \"nothing_important\": false}"
+ },
+ "near-duplicate-invoices": {
+  "text": "{\"recap\": \"Drukkerij Vandenberghe confirmed receipt of your 85.00 EUR payment for invoice 2026-118. They also sent a reminder that invoice 2026-131 for 312.40 EUR is still open, was due 30 September, and asks for payment as soon as possible. The rest is a newsletter, an automated backup notice (completed, no errors), and a printer paper promotion.\", \"nothing_important\": false}"
+ },
+ "quiet-day-big-amount-decoy": {
+  "text": "{\"recap\": \"Nothing needs action. The only item of note: your bank will debit 2,450.00 EUR on 20 October for the Q3 VAT return, and the account has enough balance. The rest is a newsletter, a successful automated backup, an office-supplies promotion, and a coworking notice about a new coffee machine.\", \"nothing_important\": false}"
+ },
+ "automated-but-actionable": {
+  "text": "{\"recap\": \"One item needs action: Combell says your hosting payment failed because your card has expired. Update your payment details by 3 November or your website will be suspended. The rest is routine: a successful backup, a domain renewal that is set to renew automatically (expires in 60 days), a weekly newsletter, and a profile-view notification.\", \"nothing_important\": false}"
+ },
+ "buried-last-en": {
+  "text": "{\"recap\": \"Lieve Hendrickx of Hendrickx Interiors has given formal notice that they are ending the chatbot support contract, effective 31 December. Everything else today is newsletters, automated notices, a receipt for 20.00 USD, and marketing.\", \"nothing_important\": false}"
+ },
+ "meeting-moved-date-decoy": {
+  "text": "{\"recap\": \"Sarah Wouters (Wouters Advocaten) asks to move the 12 November workshop to 19 November, same time, in room K2.07, because of a court hearing. Tom Maes (Maes Bouw) thanks you for yesterday's demo; they will discuss it internally and get back to you next week. The rest is a newsletter, an automated backup confirmation with no errors, and a printer paper promotion.\", \"nothing_important\": false}"
+ }
+}

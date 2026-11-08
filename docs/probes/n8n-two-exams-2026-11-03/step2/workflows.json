@@ -1,0 +1,471 @@
+[
+ {
+  "id": "etMatched0000001",
+  "name": "email-triage local champion (matched)",
+  "active": false,
+  "nodes": [
+   {
+    "id": "n1",
+    "name": "Start",
+    "type": "n8n-nodes-base.manualTrigger",
+    "typeVersion": 1,
+    "position": [
+     0,
+     0
+    ],
+    "parameters": {}
+   },
+   {
+    "id": "n2",
+    "name": "Fetch cases",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     200,
+     0
+    ],
+    "parameters": {
+     "url": "https://raw.githubusercontent.com/Michiel-DK/wilco/2ed67b74ae7338f45ca66b5efa4c611e4c1e0bef/evals/email-triage/cases.json",
+     "options": {
+      "response": {
+       "response": {
+        "responseFormat": "json"
+       }
+      }
+     }
+    }
+   },
+   {
+    "id": "n3",
+    "name": "Fetch prompt",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     400,
+     0
+    ],
+    "parameters": {
+     "url": "https://raw.githubusercontent.com/Michiel-DK/wilco/2ed67b74ae7338f45ca66b5efa4c611e4c1e0bef/agents/email-triage/prompt.md",
+     "options": {
+      "response": {
+       "response": {
+        "responseFormat": "text",
+        "outputPropertyName": "prompt"
+       }
+      }
+     }
+    }
+   },
+   {
+    "id": "n4",
+    "name": "One item per case",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     600,
+     0
+    ],
+    "parameters": {
+     "jsCode": "const system = $input.first().json.prompt;\nconst cases = $('Fetch cases').first().json.cases;\nreturn cases.map(c => ({ json: { case_id: c.id, input: c.input, system } }));"
+    }
+   },
+   {
+    "id": "n5",
+    "name": "Exam model call",
+    "type": "@n8n/n8n-nodes-langchain.chainLlm",
+    "typeVersion": 1.9,
+    "position": [
+     800,
+     0
+    ],
+    "parameters": {
+     "promptType": "define",
+     "text": "={{ $json.input }}",
+     "messages": {
+      "messageValues": [
+       {
+        "type": "SystemMessagePromptTemplate",
+        "message": "={{ $json.system }}"
+       }
+      ]
+     },
+     "batching": {
+      "batchSize": 1,
+      "delayBetweenBatches": 0
+     }
+    }
+   },
+   {
+    "id": "n6",
+    "name": "Ollama Chat Model",
+    "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+    "typeVersion": 1,
+    "position": [
+     800,
+     200
+    ],
+    "parameters": {
+     "model": "gemma4:e2b-it-qat",
+     "options": {
+      "temperature": 0,
+      "numCtx": 4096,
+      "numPredict": 2048,
+      "think": true
+     }
+    },
+    "credentials": {
+     "ollamaApi": {
+      "id": "ollamaLocal",
+      "name": "Ollama local"
+     }
+    }
+   },
+   {
+    "id": "n7",
+    "name": "Result",
+    "type": "n8n-nodes-base.set",
+    "typeVersion": 3.4,
+    "position": [
+     1000,
+     0
+    ],
+    "parameters": {
+     "mode": "manual",
+     "includeOtherFields": false,
+     "assignments": {
+      "assignments": [
+       {
+        "id": "r2",
+        "name": "case_id",
+        "value": "={{ $('One item per case').item.json.case_id }}",
+        "type": "string"
+       },
+       {
+        "id": "r3",
+        "name": "input_chars",
+        "value": "={{ $('One item per case').item.json.input.length }}",
+        "type": "number"
+       },
+       {
+        "id": "r4",
+        "name": "input_head",
+        "value": "={{ $('One item per case').item.json.input.slice(0, 80) }}",
+        "type": "string"
+       },
+       {
+        "id": "r6",
+        "name": "text",
+        "value": "={{ $json.text }}",
+        "type": "string"
+       }
+      ]
+     }
+    }
+   }
+  ],
+  "connections": {
+   "Start": {
+    "main": [
+     [
+      {
+       "node": "Fetch cases",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Fetch cases": {
+    "main": [
+     [
+      {
+       "node": "Fetch prompt",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Fetch prompt": {
+    "main": [
+     [
+      {
+       "node": "One item per case",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "One item per case": {
+    "main": [
+     [
+      {
+       "node": "Exam model call",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Ollama Chat Model": {
+    "ai_languageModel": [
+     [
+      {
+       "node": "Exam model call",
+       "type": "ai_languageModel",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Exam model call": {
+    "main": [
+     [
+      {
+       "node": "Result",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   }
+  },
+  "settings": {
+   "executionOrder": "v1"
+  },
+  "pinData": {}
+ },
+ {
+  "id": "etDefaults000001",
+  "name": "email-triage local champion (node defaults)",
+  "active": false,
+  "nodes": [
+   {
+    "id": "n1",
+    "name": "Start",
+    "type": "n8n-nodes-base.manualTrigger",
+    "typeVersion": 1,
+    "position": [
+     0,
+     0
+    ],
+    "parameters": {}
+   },
+   {
+    "id": "n2",
+    "name": "Fetch cases",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     200,
+     0
+    ],
+    "parameters": {
+     "url": "https://raw.githubusercontent.com/Michiel-DK/wilco/2ed67b74ae7338f45ca66b5efa4c611e4c1e0bef/evals/email-triage/cases.json",
+     "options": {
+      "response": {
+       "response": {
+        "responseFormat": "json"
+       }
+      }
+     }
+    }
+   },
+   {
+    "id": "n3",
+    "name": "Fetch prompt",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.5,
+    "position": [
+     400,
+     0
+    ],
+    "parameters": {
+     "url": "https://raw.githubusercontent.com/Michiel-DK/wilco/2ed67b74ae7338f45ca66b5efa4c611e4c1e0bef/agents/email-triage/prompt.md",
+     "options": {
+      "response": {
+       "response": {
+        "responseFormat": "text",
+        "outputPropertyName": "prompt"
+       }
+      }
+     }
+    }
+   },
+   {
+    "id": "n4",
+    "name": "One item per case",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     600,
+     0
+    ],
+    "parameters": {
+     "jsCode": "const system = $input.first().json.prompt;\nconst cases = $('Fetch cases').first().json.cases;\nreturn cases.map(c => ({ json: { case_id: c.id, input: c.input, system } }));"
+    }
+   },
+   {
+    "id": "n5",
+    "name": "Exam model call",
+    "type": "@n8n/n8n-nodes-langchain.chainLlm",
+    "typeVersion": 1.9,
+    "position": [
+     800,
+     0
+    ],
+    "parameters": {
+     "promptType": "define",
+     "text": "={{ $json.input }}",
+     "messages": {
+      "messageValues": [
+       {
+        "type": "SystemMessagePromptTemplate",
+        "message": "={{ $json.system }}"
+       }
+      ]
+     },
+     "batching": {
+      "batchSize": 1,
+      "delayBetweenBatches": 0
+     }
+    }
+   },
+   {
+    "id": "n6",
+    "name": "Ollama Chat Model",
+    "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+    "typeVersion": 1,
+    "position": [
+     800,
+     200
+    ],
+    "parameters": {
+     "model": "gemma4:e2b-it-qat",
+     "options": {}
+    },
+    "credentials": {
+     "ollamaApi": {
+      "id": "ollamaLocal",
+      "name": "Ollama local"
+     }
+    }
+   },
+   {
+    "id": "n7",
+    "name": "Result",
+    "type": "n8n-nodes-base.set",
+    "typeVersion": 3.4,
+    "position": [
+     1000,
+     0
+    ],
+    "parameters": {
+     "mode": "manual",
+     "includeOtherFields": false,
+     "assignments": {
+      "assignments": [
+       {
+        "id": "r2",
+        "name": "case_id",
+        "value": "={{ $('One item per case').item.json.case_id }}",
+        "type": "string"
+       },
+       {
+        "id": "r3",
+        "name": "input_chars",
+        "value": "={{ $('One item per case').item.json.input.length }}",
+        "type": "number"
+       },
+       {
+        "id": "r4",
+        "name": "input_head",
+        "value": "={{ $('One item per case').item.json.input.slice(0, 80) }}",
+        "type": "string"
+       },
+       {
+        "id": "r6",
+        "name": "text",
+        "value": "={{ $json.text }}",
+        "type": "string"
+       }
+      ]
+     }
+    }
+   }
+  ],
+  "connections": {
+   "Start": {
+    "main": [
+     [
+      {
+       "node": "Fetch cases",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Fetch cases": {
+    "main": [
+     [
+      {
+       "node": "Fetch prompt",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Fetch prompt": {
+    "main": [
+     [
+      {
+       "node": "One item per case",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "One item per case": {
+    "main": [
+     [
+      {
+       "node": "Exam model call",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Ollama Chat Model": {
+    "ai_languageModel": [
+     [
+      {
+       "node": "Exam model call",
+       "type": "ai_languageModel",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Exam model call": {
+    "main": [
+     [
+      {
+       "node": "Result",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   }
+  },
+  "settings": {
+   "executionOrder": "v1"
+  },
+  "pinData": {}
+ }
+]

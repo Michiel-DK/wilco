@@ -1,0 +1,290 @@
+{
+ "discovery-heldout-easy": {
+  "text": "{\"contact_name\": \"Yusuf\", \"company\": \"Palfrey Foods\", \"amount\": \"450\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"next Tuesday\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "136",
+  "status": "success",
+  "input_chars": 837,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:11.610Z",
+  "stopped": "2026-11-03T18:24:13.353Z"
+ },
+ "discovery-heldout-hard": {
+  "text": "{\"contact_name\": \"Petra\", \"company\": \"Amsel Logistics\", \"amount\": \"1300\", \"currency\": \"EUR\", \"decision_maker\": \"Henrik\", \"next_step_date\": \"tomorrow\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "137",
+  "status": "success",
+  "input_chars": 1936,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:12.049Z",
+  "stopped": "2026-11-03T18:24:14.798Z"
+ },
+ "discovery-heldout-long": {
+  "text": "{\"contact_name\": \"Faye\", \"company\": \"Corbin Health Partners\", \"amount\": \"600\", \"currency\": \"EUR\", \"decision_maker\": \"Idris\", \"next_step_date\": \"today\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "138",
+  "status": "success",
+  "input_chars": 5347,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:12.512Z",
+  "stopped": "2026-11-03T18:24:16.955Z"
+ },
+ "discovery-long-train": {
+  "text": "{\"contact_name\": \"Amara\", \"company\": \"Torvane Manufacturing\", \"amount\": \"800\", \"currency\": \"EUR\", \"decision_maker\": \"Harriet\", \"next_step_date\": \"next Wednesday\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "132",
+  "status": "success",
+  "input_chars": 4364,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:10.035Z",
+  "stopped": "2026-11-03T18:24:12.842Z"
+ },
+ "discovery-short-train": {
+  "text": "{\"contact_name\": \"Marcus\", \"company\": \"Beacon Freight\", \"amount\": \"900\", \"currency\": \"EUR\", \"decision_maker\": \"Elena\", \"next_step_date\": \"Thursday\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "127",
+  "status": "success",
+  "input_chars": 1421,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:08.061Z",
+  "stopped": "2026-11-03T18:24:09.759Z"
+ },
+ "longcall-discovery-heldout-2": {
+  "text": "{\"contact_name\": \"Yara\", \"company\": \"Haddad Media Group\", \"amount\": \"2100\", \"currency\": \"EUR\", \"decision_maker\": \"Beatrix\", \"next_step_date\": \"next week\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "154",
+  "status": "success",
+  "input_chars": 21555,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:49.056Z",
+  "stopped": "2026-11-03T18:24:51.555Z"
+ },
+ "longcall-discovery-train-1": {
+  "text": "{\"contact_name\": \"Emeka\", \"company\": \"Osei Digital Health\", \"amount\": \"2400\", \"currency\": \"EUR\", \"decision_maker\": \"Renata\", \"next_step_date\": \"next week\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "149",
+  "status": "success",
+  "input_chars": 15331,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:46.557Z",
+  "stopped": "2026-11-03T18:24:49.936Z"
+ },
+ "longcall-mixed-heldout-3": {
+  "text": "{\"contact_name\": \"Tobias\", \"company\": \"Wren & Co Consulting\", \"amount\": \"2058\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"next week\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "156",
+  "status": "success",
+  "input_chars": 20034,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:49.984Z",
+  "stopped": "2026-11-03T18:24:53.241Z"
+ },
+ "longcall-pricing-heldout-1": {
+  "text": "{\"contact_name\": \"Ingrid\", \"company\": \"Palsson Energy Systems\", \"amount\": \"2880\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"Tuesday\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "152",
+  "status": "success",
+  "input_chars": 16002,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:47.964Z",
+  "stopped": "2026-11-03T18:24:51.444Z"
+ },
+ "longcall-quiet-train-1": {
+  "text": "{\"contact_name\": \"Harriet\", \"company\": \"Solano Freight Co\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"not stated\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "148",
+  "status": "success",
+  "input_chars": 12433,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:46.085Z",
+  "stopped": "2026-11-03T18:24:47.962Z"
+ },
+ "longcall-renewal-heldout-2": {
+  "text": "{\"contact_name\": \"Callan\", \"company\": \"Ridge Outdoor Supply\", \"amount\": \"3330\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"the fifteenth\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "155",
+  "status": "success",
+  "input_chars": 25377,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:49.491Z",
+  "stopped": "2026-11-03T18:24:52.018Z"
+ },
+ "longcall-renewal-train-1": {
+  "text": "{\"contact_name\": \"Renata\", \"company\": \"Kovacs Manufacturing\", \"amount\": \"2068\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"next Wednesday\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "150",
+  "status": "success",
+  "input_chars": 16990,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:46.905Z",
+  "stopped": "2026-11-03T18:24:50.270Z"
+ },
+ "longcall-scoping-heldout-1": {
+  "text": "{\"contact_name\": \"Marcus\", \"company\": \"Feld & Root Logistics\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"end of week\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "153",
+  "status": "success",
+  "input_chars": 19529,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:48.509Z",
+  "stopped": "2026-11-03T18:24:59.882Z"
+ },
+ "longcall-support-heldout-2": {
+  "text": "{\"contact_name\": \"Beatrix\", \"company\": \"Solheim Marine\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"today\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "125",
+  "status": "success",
+  "input_chars": 32739,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:23:24.954Z",
+  "stopped": "2026-11-03T18:23:27.457Z"
+ },
+ "longcall-support-train-1": {
+  "text": "{\"contact_name\": \"Sami\", \"company\": \"Duval Retail Group\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"today\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "151",
+  "status": "success",
+  "input_chars": 14466,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:47.251Z",
+  "stopped": "2026-11-03T18:24:49.660Z"
+ },
+ "mixed-heldout-dense": {
+  "text": "{\"contact_name\": \"Selma\", \"company\": \"not stated\", \"amount\": \"880\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"tomorrow\", \"competitor\": \"not stated\", \"ticket_id\": \"MC-5502\"}",
+  "execution_id": "147",
+  "status": "success",
+  "input_chars": 2084,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:45.634Z",
+  "stopped": "2026-11-03T18:24:48.169Z"
+ },
+ "pricing-objection-heldout-medium": {
+  "text": "{\"contact_name\": \"Femke\", \"company\": \"not stated\", \"amount\": \"1400\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"Monday\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "143",
+  "status": "success",
+  "input_chars": 1364,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:43.976Z",
+  "stopped": "2026-11-03T18:24:45.558Z"
+ },
+ "pricing-objection-heldout-short": {
+  "text": "{\"contact_name\": \"Niklas\", \"company\": \"not stated\", \"amount\": \"650\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"today\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "144",
+  "status": "success",
+  "input_chars": 377,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:44.345Z",
+  "stopped": "2026-11-03T18:24:45.731Z"
+ },
+ "pricing-objection-medium-train": {
+  "text": "{\"contact_name\": \"Jonas\", \"company\": \"not stated\", \"amount\": \"1500\", \"currency\": \"EUR\", \"decision_maker\": \"Renata\", \"next_step_date\": \"Friday\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "131",
+  "status": "success",
+  "input_chars": 1917,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:09.615Z",
+  "stopped": "2026-11-03T18:24:14.758Z"
+ },
+ "quiet-checkin-heldout-medium": {
+  "text": "{\"contact_name\": \"Bram\", \"company\": \"not stated\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"next quarter\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "146",
+  "status": "success",
+  "input_chars": 796,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:45.070Z",
+  "stopped": "2026-11-03T18:24:48.141Z"
+ },
+ "quiet-checkin-heldout-short": {
+  "text": "{\"contact_name\": \"Iris\", \"company\": \"not stated\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"next month\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "145",
+  "status": "success",
+  "input_chars": 246,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:44.713Z",
+  "stopped": "2026-11-03T18:24:46.117Z"
+ },
+ "quiet-checkin-medium-train": {
+  "text": "{\"contact_name\": \"Wendell\", \"company\": \"not stated\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"next quarter\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "135",
+  "status": "success",
+  "input_chars": 869,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:11.219Z",
+  "stopped": "2026-11-03T18:24:13.037Z"
+ },
+ "quiet-checkin-short-train": {
+  "text": "{\"contact_name\": \"Sam\", \"company\": \"not stated\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"next month\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "130",
+  "status": "success",
+  "input_chars": 724,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:09.237Z",
+  "stopped": "2026-11-03T18:24:10.790Z"
+ },
+ "renewal-heldout-digits": {
+  "text": "{\"contact_name\": \"Dorien\", \"company\": \"Halstead Robotics\", \"amount\": \"2450.00\", \"currency\": \"EUR\", \"decision_maker\": \"Tomasz\", \"next_step_date\": \"Thursday\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "140",
+  "status": "success",
+  "input_chars": 3278,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:42.843Z",
+  "stopped": "2026-11-03T18:24:46.387Z"
+ },
+ "renewal-heldout-medium": {
+  "text": "{\"contact_name\": \"Karol\", \"company\": \"not stated\", \"amount\": \"950\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"tomorrow\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "139",
+  "status": "success",
+  "input_chars": 1422,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:12.943Z",
+  "stopped": "2026-11-03T18:24:15.508Z"
+ },
+ "renewal-heldout-short": {
+  "text": "{\"contact_name\": \"Tobias\", \"company\": \"not stated\", \"amount\": \"320\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"today\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "124",
+  "status": "success",
+  "input_chars": 217,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:22:59.073Z",
+  "stopped": "2026-11-03T18:23:01.436Z"
+ },
+ "renewal-medium-train": {
+  "text": "{\"contact_name\": \"Priya\", \"company\": \"not stated\", \"amount\": \"1612\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"today\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "128",
+  "status": "success",
+  "input_chars": 3850,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:08.493Z",
+  "stopped": "2026-11-03T18:24:12.685Z"
+ },
+ "renewal-short-train": {
+  "text": "{\"contact_name\": \"Ines\", \"company\": \"not stated\", \"amount\": \"640\", \"currency\": \"EUR\", \"decision_maker\": \"not stated\", \"next_step_date\": \"today\", \"competitor\": \"not stated\", \"ticket_id\": \"not stated\"}",
+  "execution_id": "133",
+  "status": "success",
+  "input_chars": 432,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:10.401Z",
+  "stopped": "2026-11-03T18:24:12.072Z"
+ },
+ "support-heldout-long": {
+  "text": "{\"contact_name\": \"Callum\", \"company\": \"Merrow Brewing\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"in three business days\", \"competitor\": \"not stated\", \"ticket_id\": \"MB-2291\"}",
+  "execution_id": "142",
+  "status": "success",
+  "input_chars": 5615,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:43.636Z",
+  "stopped": "2026-11-03T18:24:46.365Z"
+ },
+ "support-heldout-short": {
+  "text": "{\"contact_name\": \"Greta\", \"company\": \"Falkirk Design\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"not stated\", \"competitor\": \"not stated\", \"ticket_id\": \"FD-1190\"}",
+  "execution_id": "141",
+  "status": "success",
+  "input_chars": 622,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:43.251Z",
+  "stopped": "2026-11-03T18:24:44.521Z"
+ },
+ "support-long-train": {
+  "text": "{\"contact_name\": \"not stated\", \"company\": \"Larkspur Clinics\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"tomorrow\", \"competitor\": \"not stated\", \"ticket_id\": \"LC-40217\"}",
+  "execution_id": "129",
+  "status": "success",
+  "input_chars": 7956,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:08.861Z",
+  "stopped": "2026-11-03T18:24:11.937Z"
+ },
+ "support-medium-train": {
+  "text": "{\"contact_name\": \"Oskar\", \"company\": \"Brightfield Retail\", \"amount\": \"not stated\", \"currency\": \"not stated\", \"decision_maker\": \"not stated\", \"next_step_date\": \"tomorrow morning\", \"competitor\": \"not stated\", \"ticket_id\": \"BF-8834\"}",
+  "execution_id": "134",
+  "status": "success",
+  "input_chars": 1508,
+  "system_chars": 3890,
+  "started": "2026-11-03T18:24:10.793Z",
+  "stopped": "2026-11-03T18:24:13.935Z"
+ }
+}
