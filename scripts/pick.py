@@ -24,6 +24,7 @@ import argparse, glob, json, os, sys
 REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path.insert(0, os.path.join(REPO, "sandbox"))
 from router import PROVIDER_TIER, PROVIDERS, TIER_ORDER  # noqa: E402  (read-only: local providers; tiers for the adopt hint)
+import stats  # noqa: E402  (the single interval implementation: every held-out score carries its 95% Wilson CI)
 
 # ---- the rule's constant, in one place --------------------------------------------------------------------------
 BAR_GAP = 1
@@ -195,7 +196,10 @@ def current_label(task):
 
 
 def rows(r):
-    return [(c["label"] + (" (snapshot)" if c["snapshot"] else ""), f"{c['held']}/{c['n']}", fmt_usd(c["usd"]), c["tag"],
+    # Held-out cell = k/n plus its 95% Wilson interval (docs/tiers-and-results-table.md: rows whose intervals overlap
+    # are not ranked by the table). stats.fmt_ci is the one implementation; never formatted by hand here.
+    return [(c["label"] + (" (snapshot)" if c["snapshot"] else ""), f"{c['held']}/{c['n']} ({stats.fmt_ci(c['held'], c['n'])})",
+             fmt_usd(c["usd"]), c["tag"],
              c["verdict"] + (" · within noise of the pick" if c["noise"] else "")) for c in r["cands"]]
 
 
@@ -223,7 +227,7 @@ def markdown(r):
     out = [f"# pick — `{r['task']}`", "",
            f"Best held-out {r['best']}/{r['n']}; bar {r['bar']}/{r['n']} (best − {r['bar_gap']}). The cheapest candidate at or "
            "above the bar with a known cost takes the task.", "",
-           "| " + " | ".join(HEAD) + " |", "|" + "---|" * 5]
+           "| " + " | ".join(HEAD) + " |", "|" + "---|" * len(HEAD)]
     out += ["| " + " | ".join(x) + " |" for x in rows(r)]
     out += ["", f"**Pick: {r['pick']['label']}**" if r["pick"] else "**No pick** — no candidate at the bar has a known cost.", ""]
     out += [f"- {f}" for f in r["flags"]]

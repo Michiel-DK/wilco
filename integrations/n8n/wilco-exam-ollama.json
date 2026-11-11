@@ -1,5 +1,5 @@
 {
-  "name": "wilco exam on Ollama (node defaults)",
+  "name": "wilco exam on Ollama (temperature 0)",
   "nodes": [
     {
       "id": "n1",
@@ -84,7 +84,7 @@
       "position": [1000, 200],
       "parameters": {
         "model": "={{ $('Exam').first().json.model }}",
-        "options": {}
+        "options": { "temperature": 0 }
       },
       "credentials": {
         "ollamaApi": { "name": "Ollama local" }

@@ -32,6 +32,9 @@ clients/*
 !clients/_fake-*/
 clients/_fake-*/retrieval/
 
+# trace stores (2026-11-11, scripts/trace_store.py): wipeable like retrieval/, never committed, fixtures included
+clients/_fake-*/traces/
+
 # wilco package build output (W5)
 *.egg-info/
 /build/

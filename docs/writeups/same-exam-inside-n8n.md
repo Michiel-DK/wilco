@@ -47,6 +47,7 @@ $ python3 scripts/writeups/same-exam-inside-n8n.py
    node options matched: labels that differ from the runner: 1 ['paid-workshop-invite']
    node options matched-run2: labels that differ from the runner: 1 ['paid-workshop-invite']
    node options numCtx-only: labels that differ from the runner: 5 ['calendar-accept-notice', 'cold-sales-injection-urgent', 'disk-warning-no-action', 'long-ramble-buried-incident', 'paid-workshop-invite']
+      ^ this arm ran at temperature 1.000: its moves are within sampling, not a numCtx effect. At temperature 0 the n8n template reproduced 28 of 28 (0 moved, 2 of 2 runs): docs/probes/n8n-temp0-2026-11-11/RESULTS.md
 
 all figures match the probe records
 ```
@@ -84,9 +85,11 @@ all figures match the probe records
 - **Haiku is not the champion.** Probes 1–2 measure n8n's mechanics, not our shipped model. Haiku's 27/28 and the
   champion's 23/28 (7/8 + 16/20, section 3) are different models on different serving.
 - **Node options move verdicts.** In the champion run, setting the Ollama node's options to match our runner's moved
-  1 of 28 labels (2 of 2 runs). `numCtx` 4096 set on its own moved 5, though the runner also runs at 4096 (section 3).
-  That was one run per option, and request bodies were not captured, so the mechanism is unknown. A verdict holds for the exact
-  request settings it was graded with.
+  1 of 28 labels (2 of 2 runs). `numCtx` 4096 set on its own moved 5, though the runner also runs at 4096 (section 3),
+  but that arm ran at temperature 1.000, so its 5 moves are within sampling, not an option effect. At temperature 0 the n8n
+  template reproduced all 28 email-triage verdicts (0 moved, 2 of 2 runs; `docs/probes/n8n-temp0-2026-11-11/RESULTS.md`).
+  The matched-settings result (temperature 0, 1 flip, 2 of 2 runs) stands; which of its options does it is not established.
+  A verdict holds for the exact request settings it was graded with.
 
 ## Re-derive
 

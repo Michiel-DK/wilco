@@ -3118,8 +3118,10 @@ def save_result(result: dict, *, subdir: str | None = None,
 
 
 def _summary_line(result: dict) -> str:
+    # Every held-out score carries its 95% Wilson interval (docs/tiers-and-results-table.md); train stays bare.
     line = (f"train   {result['train']['passed']}/{result['train']['total']}"
-            f"  heldout {result['heldout']['passed']}/{result['heldout']['total']}")
+            f"  heldout {result['heldout']['passed']}/{result['heldout']['total']}"
+            f" ({stats.fmt_ci(result['heldout']['passed'], result['heldout']['total'])})")
     if "field_accuracy" in result["heldout"]:
         line += f"  (heldout field acc {result['heldout']['field_accuracy']:.0%})"
     return line
@@ -3852,22 +3854,31 @@ def cmd_diff(args) -> int:
     # incomplete now says so in the table instead of printing a partial total.
     # A3: the heldout 95% Wilson interval sits beside the fraction it belongs to —
     # on n=9..18 it is 0.3-0.4 wide, which is the honest width behind every "tie".
-    print(f"\n{'provider':<11} {'model':<28} {'train':>7} {'heldout':>9} {'95% CI':>11} "
+    # The interval text comes from stats.fmt_ci (the single implementation), never formatted here.
+    print(f"\n{'provider':<11} {'model':<28} {'train':>7} {'heldout':>9} {'95% CI':>19} "
           f"{'tok/case':>13} {'ms/case':>13} {'think%':>7}")
     for r in rows:
         tag = "  <- current" if r["model"] == champion else ""
         tag += "  TIER BREACH" if r.get("tier_breach") else ""
         tok, ms = _diff_metrics_cols(r)
-        lo, hi = stats.wilson(r['heldout']['passed'], r['heldout']['total'])
+        ci = stats.fmt_ci(r['heldout']['passed'], r['heldout']['total'])
         print(f"{r['provider']:<11} {r['model']:<28} {r['train']['passed']}/{r['train']['total']:>4}"
-              f" {r['heldout']['passed']}/{r['heldout']['total']:>6} {lo:.2f}-{hi:.2f}"
+              f" {r['heldout']['passed']}/{r['heldout']['total']:>6} {ci:>19}"
               f" {tok:>13} {ms:>13} {_think_share_col(r):>7}{tag}")
     if champ_snap:
         # Snapshots predate the metrics totals block (they capture scores only) —
-        # cost-unknown rather than a fabricated figure.
+        # cost-unknown rather than a fabricated figure. The held-out k/n and its interval
+        # are counted from the snapshot's per-case split/passed (KeyError on a malformed
+        # case: fail loud); the bare heldout_score fraction carried no n to put a width on.
+        held = [c for c in champ_snap.get("cases", []) if c["split"] == "heldout"]
+        if held:
+            hk, hn = sum(1 for c in held if c["passed"]), len(held)
+            h_cell, ci = f"{hk}/{hn}", stats.fmt_ci(hk, hn)
+        else:
+            h_cell, ci = f"{champ_snap['heldout_score']}", "95% CI -"
         print(f"{champ_snap.get('provider', agent['provider']):<11} "
               f"{champion:<28} {champ_snap['train_score']:>7} "
-              f"{champ_snap['heldout_score']:>9} {policy.COST_UNKNOWN:>13} "
+              f"{h_cell:>9} {ci:>19} {policy.COST_UNKNOWN:>13} "
               f"{policy.COST_UNKNOWN:>13}  <- current (snapshot)")
 
     print("\n" + "\n".join(diff_recommendation(rows, champion, champ_snap)))

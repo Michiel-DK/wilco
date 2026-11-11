@@ -27,7 +27,7 @@ format, a missing n8n node, a case id the exam does not have, a case with no ans
 
 Writes results/external/<task>__external__<label>.json (a subfolder on purpose: `wilco pick` and taxonomy read
 the top level of results/ as candidate model runs, and graded outside answers are not one) (label defaults to the answers file's stem, sanitized to
-[A-Za-z0-9._-]) and prints the runner's own per-case lines plus `<task>: train p/t · heldout p/t`.
+[A-Za-z0-9._-]) and prints the runner's own per-case lines plus `<task>: train p/t · heldout p/t (95% CI lo–hi)`.
 Exit 0 means the grade ran, not that every case passed."""
 from __future__ import annotations
 
@@ -46,6 +46,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "sandbox"))
 import runner  # noqa: E402
 import retry  # noqa: E402
+import stats  # noqa: E402  (the single interval implementation)
 
 PROG = os.environ.get("WILCO_PROG") or "exam_grade.py"
 EXTERNAL = "external"
@@ -286,7 +287,8 @@ def main(argv=None) -> int:
         print(f"{PROG}: {exc}", file=sys.stderr)
         return 2
     print(f"{a.task}: train {result['train']['passed']}/{result['train']['total']} · "
-          f"heldout {result['heldout']['passed']}/{result['heldout']['total']}")
+          f"heldout {result['heldout']['passed']}/{result['heldout']['total']}"
+          f" ({stats.fmt_ci(result['heldout']['passed'], result['heldout']['total'])})")
     print(f"saved {saved}")
     return 0
 

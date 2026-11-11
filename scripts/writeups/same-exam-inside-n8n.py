@@ -153,6 +153,11 @@ for name, f in (("matched", "n8n-matched"), ("matched-run2", "n8n-matched-run2")
     a = exam_grade.parse_answers((P2 / f"step2/{f}.json").read_text(), "Result")
     moved = sorted(k for k in ctrl if lab(a[k]) != ctrl[k])
     print(f"   node options {name}: labels that differ from the runner: {len(moved)} {moved}")
+    if name == "numCtx-only":
+        # That arm's sampler lines read temperature 1.000 (docs/probes/n8n-temp0-2026-11-11/RESULTS.md), so these moves are sampling.
+        print("      ^ this arm ran at temperature 1.000: its moves are within sampling, not a numCtx effect."
+              " At temperature 0 the n8n template reproduced 28 of 28 (0 moved, 2 of 2 runs):"
+              " docs/probes/n8n-temp0-2026-11-11/RESULTS.md")
     check(f"{name} flips", len(moved))
 
 if drift:

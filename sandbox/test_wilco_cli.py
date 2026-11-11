@@ -128,7 +128,7 @@ same("pick refuses unequal case sets (matrix + the champion's snapshot)",
 
 r_stub = wilco("run", "email-triage", "--provider", "stub", "--model", "stub")
 check("[D] run with the stub: exit 0, train and held-out scored, a result file named",
-      r_stub[0] == 0 and re.search(r"^train\s+\d+/\d+\s+heldout\s+\d+/\d+\s+-> results/email-triage__stub__stub\.json$", r_stub[1], re.M)
+      r_stub[0] == 0 and re.search(r"^train\s+\d+/\d+\s+heldout\s+\d+/\d+ \(95% CI \d\.\d\d–\d\.\d\d\)\s+-> results/email-triage__stub__stub\.json$", r_stub[1], re.M)
       is not None, f"rc={r_stub[0]} {r_stub[1][-200:]!r}")
 r_tier = wilco("run", "email-triage", "--provider", "openrouter", "--model", "x")
 check("[D] run above the exam's tier: the runner's exit 2, refused before any request",

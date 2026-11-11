@@ -4,9 +4,19 @@ Reads: docs/probes/matrix-2026-09-27/tables.md (per-task tables, $ at the ledger
 output (docs/probes/pass3-column-2026-09-28/pass_k.py), docs/probes/l0-resnapshot-2026-10-02/RESULTS.md (runtime-bump diff),
 docs/probes/l3-own-gpu-cost-2026-10-02/RESULTS.md (own-card lines), the six fine-tune probes under docs/probes/i0-*, i0b-*, i2* (the
 refusal table: every held-out number is parsed from the probe's own evidence cell). Fails loud if any source is missing — never a placeholder.
-Run from the repo root: python3 scripts/build_results_page.py  → writes docs/results-2026-10.html"""
+Run from the repo root: python3 scripts/build_results_page.py [OUT]  → writes docs/results-2026-10.html (or OUT)"""
 import os, re, sys, subprocess, html, math, datetime
 REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+sys.path.insert(0, os.path.join(REPO, "sandbox"))
+import stats  # noqa: E402  (the single interval implementation; docs/tiers-and-results-table.md: every held-out score carries its 95% Wilson CI)
+def ci(k, n): return stats.fmt_ci(int(k), int(n))   # a call, not a second implementation
+def ci_html(k, n): return f'<br><span class="muted">{ci(k, n)}</span>'
+def kn_ci(cell):   # a pass^k table cell "10/13" or "**6**/13" -> the cell plus its interval; anything else is returned as-is
+    m = re.fullmatch(r"\*{0,2}(\d+)\*{0,2}/(\d+)", cell.strip())
+    return (cell.replace("**", "") + ci_html(m.group(1), m.group(2))) if m else cell
+def passk_ci(txt):   # a task-table pass^k cell "pass^3 10/11" -> escaped text plus its interval; "1 run" etc. stays as-is
+    m = re.search(r"(\d+)/(\d+)", txt)
+    return html.escape(txt) + (ci_html(m.group(1), m.group(2)) if m else "")
 def need(p):
     if not os.path.exists(os.path.join(REPO, p)): sys.exit(f"missing source: {p} — build it (or merge the PR that carries it) before this page")
     return open(os.path.join(REPO, p)).read()
@@ -101,7 +111,7 @@ for exam in ORDER:
     best_hosted = next((rr for rr in sorted(t["rows"], key=lambda r: r["cost"]) if rr["held"] == best and rr["tier"] != "local"), None)
     for r in sorted(t["rows"], key=lambda r: r["tier"] != "local"):
         x, y = xs(r["cost"]), ys(r["held"] / r["n"])
-        tip = f'{r["model"]} · {r["held"]}/{r["n"]} held-out · {r["cost_txt"]} per 10k · {r["can"]}'
+        tip = f'{r["model"]} · {r["held"]}/{r["n"]} held-out ({ci(r["held"], r["n"])}) · {r["cost_txt"]} per 10k · {r["can"]}'
         g.append(f'<g class="pt" data-tip="{html.escape(tip)}">{mark(r["tier"], x, y)}<circle cx="{x:.1f}" cy="{y:.1f}" r="11" fill="transparent"/></g>')
         if r["tier"] == "local" or r is best_hosted:   # two direct labels per panel: the local champion and the cheapest top scorer
             short = r["model"].split("/")[-1]; short = short[:17] + "…" if len(short) > 18 else short
@@ -118,11 +128,11 @@ def task_table(exam):
     t = tasks[exam]; out = [f'<h4>{html.escape(TITLE[exam])} <span class="muted">· {t["n"]} held-out cases · {t["cand"]} candidates, {t["band"]} within one case of the best</span></h4>',
                             '<table><thead><tr><th>model</th><th>can run on</th><th>held-out</th><th>pass^k</th><th>resists injection</th><th>$ / 10k</th><th>run</th></tr></thead><tbody>']
     for r in sorted(t["rows"], key=lambda r: (-r["held"], r["cost"])):
-        out.append(f'<tr><td>{html.escape(r["model"])}</td><td>{html.escape(r["can"])}</td><td><b>{r["held"]}</b>/{r["n"]}</td><td>{html.escape(r["passk"])}</td><td>{html.escape(r["inj"])}</td><td>{html.escape(r["cost_txt"])}</td><td>{html.escape(r["run"])}</td></tr>')
+        out.append(f'<tr><td>{html.escape(r["model"])}</td><td>{html.escape(r["can"])}</td><td><b>{r["held"]}</b>/{r["n"]}{ci_html(r["held"], r["n"])}</td><td>{passk_ci(r["passk"])}</td><td>{html.escape(r["inj"])}</td><td>{html.escape(r["cost_txt"])}</td><td>{html.escape(r["run"])}</td></tr>')
     return "\n".join(out) + "</tbody></table>"
 def qbar(exam):
     t = tasks[exam]; rows = sorted(t["rows"], key=lambda r: (-r["held"], r["cost"])); pk = pick(exam)
-    RH, LW, TW, X0 = 19, 150, 250, 158; Wq = 560; Hq = 30 + RH * len(rows) + 30
+    RH, LW, TW, X0 = 19, 150, 250, 158; Wq = 680; Hq = 30 + RH * len(rows) + 30
     bx = X0 + TW * pk["bar"] / t["n"]; g = []
     g.append(f'<text x="0" y="12" class="ptitle">{html.escape(TITLE[exam])} · {t["n"]} held-out · bar = best score or one case from it</text>')
     for i, r in enumerate(rows):
@@ -131,19 +141,19 @@ def qbar(exam):
         bold = ' font-weight="600"' if r is pk["pick"] else ""
         g.append(f'<g{fade}><text x="{LW}" y="{y+13}" class="tick" text-anchor="end"{bold}>{html.escape(short)}</text>'
                  f'<rect x="{X0}" y="{y+3}" width="{w:.1f}" height="{RH-6}" rx="2" fill="{C[r["tier"]]}"/>'
-                 f'<text x="{X0+w+5:.1f}" y="{y+13}" class="tick"{bold}>{r["held"]}/{t["n"]} · {html.escape(r["cost_txt"].replace(" (ledger)",""))}{" · picked" if r is pk["pick"] else ""}</text></g>')
+                 f'<text x="{X0+w+5:.1f}" y="{y+13}" class="tick"{bold}>{r["held"]}/{t["n"]} ({ci(r["held"], t["n"])}) · {html.escape(r["cost_txt"].replace(" (ledger)",""))}{" · picked" if r is pk["pick"] else ""}</text></g>')
     g.append(f'<line x1="{bx:.1f}" y1="20" x2="{bx:.1f}" y2="{Hq-26}" stroke="var(--ink)" stroke-dasharray="3 3"/><text x="{bx:.1f}" y="{Hq-12}" class="tick" text-anchor="middle">quality bar · {pk["bar"]} of {t["n"]}</text>')
     return f'<svg viewBox="0 0 {Wq} {Hq}" class="panel qb" role="img" aria-label="{html.escape(TITLE[exam])}: held-out cases passed per model, the quality bar, and the cheapest model at the bar">{"".join(g)}</svg>'
 pick_rows = []
 for e in ORDER:
     pk = pick(e); p = pk["pick"]; sol = pk["sol"]
-    pick_rows.append(f'<tr><td>{html.escape(TITLE[e])}</td><td>{pk["bar"]} of {pk["n"]}</td><td><b>{html.escape(p["model"].split("/")[-1])}</b> · {html.escape(p["can"])}</td><td>{p["held"]}/{pk["n"]}</td><td>{html.escape(p["cost_txt"])}</td><td>{html.escape(p["inj"])}</td>'
-                     f'<td>{(str(sol["held"]) + "/" + str(pk["n"]) + " · " + html.escape(sol["cost_txt"])) if sol else "—"}</td></tr>')
+    pick_rows.append(f'<tr><td>{html.escape(TITLE[e])}</td><td>{pk["bar"]} of {pk["n"]}</td><td><b>{html.escape(p["model"].split("/")[-1])}</b> · {html.escape(p["can"])}</td><td>{p["held"]}/{pk["n"]}{ci_html(p["held"], pk["n"])}</td><td>{html.escape(p["cost_txt"])}</td><td>{html.escape(p["inj"])}</td>'
+                     f'<td>{(str(sol["held"]) + "/" + str(pk["n"]) + " · " + html.escape(sol["cost_txt"]) + ci_html(sol["held"], pk["n"])) if sol else "—"}</td></tr>')
 pick_rows = "\n".join(pick_rows)
-ft_rows = "\n".join(f'<tr><td>{html.escape(f["what"])}</td><td>{f["before"]} → <b>{f["after"]}</b> of {f["n"]}</td><td>{f["up"]} up / {f["down"]} down · {html.escape(f["note"])}</td><td>{html.escape(f["verdict"])}</td><td>{html.escape(f["cause"])}</td></tr>' for f in FT)
+ft_rows = "\n".join(f'<tr><td>{html.escape(f["what"])}</td><td>{f["before"]} → <b>{f["after"]}</b> of {f["n"]}<br><span class="muted">{ci(f["before"], f["n"])} → {ci(f["after"], f["n"])}</span></td><td>{f["up"]} up / {f["down"]} down · {html.escape(f["note"])}</td><td>{html.escape(f["verdict"])}</td><td>{html.escape(f["cause"])}</td></tr>' for f in FT)
 lib_html = "".join(f'<tr><td><b>{html.escape(lbl)}</b><br><span class="muted">{html.escape(sub)}</span></td><td>{", ".join(html.escape(m) + ("" if k != "ownvm" else " <span class=muted>(" + html.escape(LIB[k][m].replace("own VM, ", "")) + ")</span>") for m in sorted(LIB[k]))}</td></tr>'
                    for k, lbl, sub in [("local", "your laptop", "a 16 GB machine; nothing leaves it; ≈$0 in tokens"), ("ownvm", "your own cloud", "open weights on a GPU you rent or own; data stays in your account"), ("vendor", "vendor API", "closed weights, pay per call")])
-hosted_rows = "\n".join(f'<tr><td>{html.escape(TITLE[c[0]])}</td><td>{html.escape(c[1])}</td><td>{c[2]}</td><td>{c[3]}</td><td>{c[4]}</td><td>{c[5]}</td><td><b>{c[6].replace("**","")}</b></td></tr>' for c in hosted)
+hosted_rows = "\n".join(f'<tr><td>{html.escape(TITLE[c[0]])}</td><td>{html.escape(c[1])}</td><td>{c[2]}</td><td>{kn_ci(c[3])}</td><td>{kn_ci(c[4])}</td><td>{kn_ci(c[5])}</td><td><b>{kn_ci(c[6])}</b></td></tr>' for c in hosted)
 today = datetime.date.today().isoformat()
 page = f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -160,7 +170,7 @@ p{{margin:8px 0;max-width:72ch}} .lead{{font-size:1.1rem;color:var(--ink2)}} .mu
 .tag{{display:inline-block;font-size:.72rem;letter-spacing:.03em;text-transform:uppercase;border:1px solid var(--line);border-radius:4px;padding:1px 6px;color:var(--ink2);margin-left:6px;vertical-align:middle}}
 .grid7{{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;margin:14px 0}} .panel{{width:100%;height:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px}}
 .ptitle{{font-size:11px;fill:var(--ink);font-weight:600}} .tick{{font-size:9.5px;fill:var(--muted)}} .lbl{{font-size:9.5px;fill:var(--ink2);paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round}} .grid{{stroke:var(--grid);stroke-width:1}} .pt{{cursor:default}}
-.steps{{counter-reset:s;list-style:none;padding:0;margin:12px 0}} .steps li{{margin:14px 0 18px;padding-left:38px;position:relative}} .steps li::before{{counter-increment:s;content:counter(s);position:absolute;left:0;top:2px;width:26px;height:26px;border-radius:50%;background:var(--card);border:1px solid var(--line);text-align:center;line-height:26px;font-weight:600;font-size:.85rem}} .qb{{max-width:620px}}
+.steps{{counter-reset:s;list-style:none;padding:0;margin:12px 0}} .steps li{{margin:14px 0 18px;padding-left:38px;position:relative}} .steps li::before{{counter-increment:s;content:counter(s);position:absolute;left:0;top:2px;width:26px;height:26px;border-radius:50%;background:var(--card);border:1px solid var(--line);text-align:center;line-height:26px;font-weight:600;font-size:.85rem}} .qb{{max-width:740px}}
 .legend{{display:flex;gap:18px;flex-wrap:wrap;font-size:.85rem;color:var(--ink2);margin:6px 0}} .legend i{{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}}
 table{{border-collapse:collapse;width:100%;font-size:.85rem;margin:6px 0 10px}} th,td{{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}} th{{color:var(--ink2);font-weight:600}}
 details summary{{cursor:pointer;color:var(--ink2);margin:8px 0}} pre{{background:var(--card);padding:12px 14px;border-radius:6px;overflow:auto;font-size:.85rem}} code{{font-size:.9em}}
@@ -225,5 +235,5 @@ python3 docs/probes/matrix-2026-09-27/build_tables.py       # the seven tables (
 const tip=document.getElementById('tip');
 document.querySelectorAll('.pt').forEach(g=>{{g.addEventListener('mousemove',e=>{{tip.textContent=g.dataset.tip;tip.style.display='block';tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY+12)+'px';}});g.addEventListener('mouseleave',()=>tip.style.display='none');}});
 </script></body></html>"""
-out = os.path.join(REPO, "docs/results-2026-10.html"); open(out, "w").write(page)
+out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "docs/results-2026-10.html"); open(out, "w").write(page)   # optional out path: the interval test renders to a temp file
 print(f"wrote {os.path.relpath(out, REPO)} ({len(page):,} bytes); tasks {len(tasks)}, hosted rows {len(hosted)}, fine-tune rows {len(FT)}, L0 {l0_moved}/{l0_total} moved; picks: " + ", ".join(f"{e}={pick(e)['pick']['model'].split('/')[-1]}" for e in ORDER))

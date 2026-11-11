@@ -15,7 +15,8 @@ written to a temp RESULTS_DIR (the repo's results/ is never touched).
 [Z] zero network: urllib.request.urlopen and requests.Session.request raise for the whole file; none was reached.
 [S] runner.adapter_for and retry's backoff sleep are the original objects after success, refusal and an exception.
 [I] integrations/n8n: the workflow is JSON, every connection names existing nodes, no credential id / secret / token;
-    the README states the defaults-reproduce-28/28 and numCtx-moved-5/28 findings with their source.
+    the Ollama node pins temperature 0 and nothing else (n8n-temp0 probe, 11 Nov); the README states the 28/28 defaults
+    draw, its temp-1.000 cause and the temperature-0 result, each with its source.
 
 pytest is blind to this file (CLAUDE.md gotcha 17): failures go in FAILED and main() returns the exit code.
 Seen RED: recorded in the PR body.
@@ -109,7 +110,7 @@ def obj_file(name, answers):
 print("[A] agreement")
 rc, out, err, base, files = grade_cli(obj_file("key.json", KEY))
 check("A1 key answers -> rc 0", rc == 0, f"rc={rc} err={err!r}")
-check("A2 summary line is train 8/8 · heldout 20/20", f"{TASK}: train 8/8 · heldout 20/20" in out.splitlines(), out[-200:])
+check("A2 summary line is train 8/8 · heldout 20/20 (95% CI 0.84–1.00)", f"{TASK}: train 8/8 · heldout 20/20 (95% CI 0.84–1.00)" in out.splitlines(), out[-200:])
 check("A3 all 28 cases pass", base is not None and len(base) == 28 and all(p for p, _ in base.values()))
 check("A4 result file is results/external/<task>__external__<stem>.json",
       [f.name for f in files] == [f"{TASK}__external__key.json"], str([f.name for f in files]))
@@ -151,7 +152,7 @@ rc, out, err, flipped, _ = grade_cli(obj_file("flip.json", wrong))
 failing = sorted(i for i, (p, _) in flipped.items() if not p)
 check("R1 exactly the changed case fails", rc == 0 and failing == [FLIP_ID], str(failing))
 check("R2 every other verdict is unchanged", all(flipped[i] == base[i] for i in base if i != FLIP_ID))
-check("R3 summary counts the failure", f"{TASK}: train 7/8 · heldout 20/20" in out.splitlines(), out[-200:])
+check("R3 summary counts the failure", f"{TASK}: train 7/8 · heldout 20/20 (95% CI 0.84–1.00)" in out.splitlines(), out[-200:])
 check("R4 grader's verdicts equal run_exam's on the flipped answers", direct_verdicts(wrong) == flipped)
 junk = {**KEY, FLIP_ID: "I think this is urgent."}
 t0 = time.time()
@@ -378,8 +379,9 @@ secret = re.compile(r"(?i)instanceid|api[_-]?key|\"token\"|password|secret|beare
 check("I4 no secret, instance id or token", not secret.search(blob), str(secret.search(blob)))
 creds = [n.get("credentials", {}) for n in wf.get("nodes", []) if n.get("credentials")]
 check("I5 credentials are named, never identified", creds and all("id" not in c for cs in creds for c in cs.values()), str(creds))
-check("I6 the Ollama node is left at defaults", any(n["type"].endswith("lmChatOllama") and n["parameters"].get("options") == {}
-                                                   for n in wf.get("nodes", [])))
+check("I6 the Ollama node pins temperature 0 and no other option",
+      any(n["type"].endswith("lmChatOllama") and n["parameters"].get("options") == {"temperature": 0}
+          for n in wf.get("nodes", [])))
 check("I7 the first Set node carries exam, wilco_commit, model",
       any(n["name"] == "Exam" and {a["name"] for a in n["parameters"]["assignments"]["assignments"]} == {"exam", "wilco_commit", "model"}
           for n in wf.get("nodes", [])))
@@ -388,6 +390,9 @@ check("I8 Result node carries case_id, input_chars, input_head, text",
           == {"case_id", "input_chars", "input_head", "text"} for n in wf.get("nodes", [])))
 check("I9 README states defaults reproduced 28 of 28, with its source",
       "28 of 28" in readme and "n8n-two-exams-2026-11-03/step2/RESULTS.md" in readme and "0.40.14" in readme)
+check("I9b README states the temp-1.000 defaults cause and the temperature-0 result, with their sources",
+      "temp = 1.000" in readme and "n8n-e2e-2026-11-07/RESULTS.md" in readme
+      and "n8n-temp0-2026-11-11/RESULTS.md" in readme and "0.40.15" in readme)
 check("I10 README states numCtx 4096 moved 5 of 28", "numCtx" in readme and "5 of 28" in readme)
 check("I11 README names the grade command and the n8n export", "wilco grade" in readme and "n8n execute" in readme)
 check("I13 README names the results/external/ location (not the top level)", "results/external/<task>__external__" in readme and "`results/<task>__external__" not in readme)

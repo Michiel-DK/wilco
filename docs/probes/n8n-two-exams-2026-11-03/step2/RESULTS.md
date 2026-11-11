@@ -43,6 +43,9 @@ Node defaults + ONE option each (`ablation-workflows.json`), one run each, Ollam
 the runner's calls also run at a 4096 window (`ollama ps` CONTEXT 4096). Same shape as gotcha 21: the exact request
 settings move verdicts on a 2B model even when the effective value is unchanged. ⚠️ The single-option arms are one run
 each (determinism not shown). Request bodies were not captured, so the mechanism is UNVERIFIED.
+⚠️ **Added 11 Nov:** the numCtx, numPredict and think arms set no temperature and were sampled at `temp = 1.000` on
+every call (`server-3.log`, windowed: `../../n8n-temp0-2026-11-11/ablation-2026-11-03-sampler.out`). Their label moves are
+not attributable to the option. Only the temperature-0 arm and the two matched runs ran at 0.000.
 **Practical rule:** an exam verdict for a local model is a verdict for that exact request shape. A recipe that runs
 our exams from n8n must pin the node options it was certified with, or leave them at defaults.
 
