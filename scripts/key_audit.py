@@ -49,6 +49,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "sandbox"))
 import runner  # noqa: E402
+import grader_files  # noqa: E402  (VERDICT STAMP 2026-11-11: warn when a results file was graded by another check version)
 
 FILE_RE = re.compile(r"^(?P<exam>[^_]+)__(?P<model>.+)-(?P<date>\d{4}-\d{2}-\d{2})\.json$")
 REQUIRED_KEYS = ("must_mention", "must_commit")   # lists of required substrings
@@ -96,7 +97,11 @@ def all_fail_cells(results_dir, exam_filter=None):
                                  f"its property verdicts cannot be re-scored from `got` here")
             exams[exam] = (mode, {c["id"]: c for c in ex["cases"]}, props)
         mode, cases, props = exams[exam]
-        for rec in json.loads(f.read_text())["cases"]:
+        d = json.loads(f.read_text())
+        w = grader_files.stale_warning(f, d, d.get("agent") or exam)
+        if w:
+            print(f"key_audit: {w}", file=sys.stderr)
+        for rec in d["cases"]:
             cid = rec["id"]
             case = cases.get(cid)
             if case is None:

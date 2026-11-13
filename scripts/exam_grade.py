@@ -62,7 +62,11 @@ score answers made in another tool (n8n first) with this repo's own grader; no m
   --label NAME      result file label (default: the file's stem) -> results/external/<task>__external__<label>.json
   --node NAME       the n8n node whose items hold case_id + text (default: Result)
 
-Exit 0: the grade ran (it does not mean every case passed). Exit 2: refused, one line on stderr."""
+Exit 0: the grade ran (it does not mean every case passed). Exit 2: refused, one line on stderr.
+
+A stored agent TRACE (tool-using agent made elsewhere) is graded with --traces instead of an answers file:
+  {PROG} grade <task> --traces FILE [--exam-dir DIR] [--label NAME] [--compare-stored] [--model M] [--strict]
+  see integrations/agent-traces/README.md"""
 
 
 class Refuse(Exception):
@@ -271,6 +275,11 @@ def main(argv=None) -> int:
     if argv and argv[0] in ("-h", "--help"):
         print(HELP)
         return 0
+    if "--traces" in argv:   # explicit flag, never guessed from the file's content (scripts/trace_grade.py)
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import trace_grade
+        trace_grade.PROG = PROG
+        return trace_grade.main(argv)
     try:
         a = p.parse_args(argv)
         check_exam(a.task)

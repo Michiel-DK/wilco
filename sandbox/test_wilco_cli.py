@@ -99,10 +99,10 @@ RUNNER = ROOT / "sandbox" / "runner.py"
 out = same("list", ["list"], [RUNNER, "list"], 0)
 exams = sorted(p.parent.name for p in (ROOT / "evals").glob("*/cases.json"))
 listed = sorted(ln.split()[0] for ln in out[1].splitlines() if "[exam ok" in ln)
-# ten in the private repo (eight tasks + recap-en + transcript-asr); the public cut keeps transcript-asr private
-# (AppTek CC BY-SA, 2 Nov), so nine there — the count follows the tree this test runs in.
-_n_exams = 10 if (ROOT / "evals" / "transcript-asr" / "cases.json").exists() else 9
-check(f"[D] list names every committed exam ({_n_exams} in this tree: eight tasks + recap-en, + transcript-asr where it ships)", listed == exams and len(exams) == _n_exams, f"{listed} vs {exams}")
+# eleven in the private repo (eight tasks + recap-en + email-triage-pt + transcript-asr); the public cut keeps
+# transcript-asr private (AppTek CC BY-SA, 2 Nov), so ten there — the count follows the tree this test runs in.
+_n_exams = 11 if (ROOT / "evals" / "transcript-asr" / "cases.json").exists() else 10
+check(f"[D] list names every committed exam ({_n_exams} in this tree: eight tasks + recap-en + email-triage-pt, + transcript-asr where it ships)", listed == exams and len(exams) == _n_exams, f"{listed} vs {exams}")
 
 same("validate email-triage", ["validate", "email-triage"], [ROOT / "scripts" / "exam_validate.py", "email-triage"], 0)
 v_bad, v_dir = wilco("validate", "no-such-task"), sh([ROOT / "scripts" / "exam_validate.py", "no-such-task"])
@@ -120,7 +120,12 @@ check("[D] new: a second run refuses to overwrite, exit 2", wilco("new", "demo-t
 MATRIX = sorted(ROOT.glob("docs/probes/matrix-2026-09-27/results/crm-followup__*.json"))
 PICK = ROOT / "scripts" / "pick.py"
 md = pathlib.Path(tempfile.mkdtemp(prefix="test_wilco_pick_")) / "p.md"
-p_ok = same("pick over the committed matrix", ["pick", "crm-followup", *MATRIX, "--out", md], [PICK, "crm-followup", *MATRIX, "--out", md], 0)
+# VERDICT STAMP (2026-11-11): the committed matrix files are pre-stamp, so ranking them needs --allow-mixed-graders
+# (the README demo carries it); without it, shim and direct both refuse (exit 2) the same way.
+same("pick over the committed pre-stamp matrix, no flag: refused", ["pick", "crm-followup", *MATRIX, "--out", md],
+     [PICK, "crm-followup", *MATRIX, "--out", md], 2)
+p_ok = same("pick over the committed matrix", ["pick", "crm-followup", *MATRIX, "--allow-mixed-graders", "--out", md],
+            [PICK, "crm-followup", *MATRIX, "--allow-mixed-graders", "--out", md], 0)
 check("[D] pick prints its winner line", any(ln.startswith("pick: ") for ln in p_ok[1].splitlines()), p_ok[1][-200:])
 same("pick refuses unequal case sets (matrix + the champion's snapshot)",
      ["pick", "crm-followup", *MATRIX, ROOT / "evals" / "crm-followup" / "snapshot.json", "--out", md],

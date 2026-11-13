@@ -29,6 +29,7 @@ The window line: W2's preflight is not merged, so the estimate here is chars/4 o
 default, credited only when the Modelfile or agent.yaml says `ollama create <model>`. Only for provider
 ollama; any other provider's window is not read here.
 
+  --exam-dir DIR  lints an outside agent-trace exam instead (trace_grade.validate_exam_dir): data-only, known check keys, max_steps
   exit 0  no errors (warnings may print)    exit 1  at least one error    exit 2  bad arguments
 """
 import argparse
@@ -287,7 +288,23 @@ def main(argv=None):
     ap.add_argument("task")
     ap.add_argument("--root", default=str(REPO), help="repo root to read from (tests use a temp dir)")
     ap.add_argument("--per-case", action="store_true", help="print every case's prompt-token estimate")
+    ap.add_argument("--exam-dir", default=None,
+                    help="lint an outside agent-trace exam (a folder holding cases.json) with the rules `grade --traces` applies; "
+                         "grades nothing, needs no agents/ folder")
     a = ap.parse_args(argv)
+    if a.exam_dir:
+        sys.path.insert(0, str(REPO / "scripts"))
+        import trace_grade   # the same validation `wilco grade --traces --exam-dir` runs: one implementation
+        try:
+            exam = trace_grade.validate_exam_dir(a.task, Path(a.exam_dir))
+        except trace_grade.Refuse as exc:
+            print(f"ERROR {exc}")
+            print(f"{a.task}: 1 error(s), 0 warning(s)")
+            return 1
+        print(f"  {len(exam.cases)} cases ({sum(c['split'] == 'train' for c in exam.cases.values())} train / "
+              f"{sum(c['split'] == 'heldout' for c in exam.cases.values())} heldout), write_tools {list(exam.write_tools)}")
+        print(f"{a.task}: 0 error(s), 0 warning(s)")
+        return 0
     runner.ROOT = Path(a.root)
     if not (runner.ROOT / "agents" / a.task / "agent.yaml").exists():
         print(f"exam_validate: no agents/{a.task}/agent.yaml under {runner.ROOT}", file=sys.stderr)

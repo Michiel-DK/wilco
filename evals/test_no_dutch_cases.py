@@ -17,6 +17,9 @@ RED test instead of something the operator has to say again.
       Scope (declared, not fixed): a Dutch chunk under 3 stopword hits, or a language outside NL/FR
       (German scores 0/0), is not seen. The rule's purpose is a whole mail, inbox or thread going out
       in Dutch; that is what this catches.
+      DECLARED_VARIANTS (email-triage-pt, pt-PT, 11 Nov): an exam declared a non-English language
+      variant by operator decision is skipped here (Portuguese `de` reads as Dutch) and its own test
+      requires every input to read that language, so a Dutch mail inside it is still red, there.
   (b) recap-en is the recap exam translated: same ids, same splits, same expected blocks except
       max_ratio, which is re-chosen so the ABSOLUTE char budget per case is IDENTICAL (int() lands on
       the same number); every must_mention term is present in the English input; every digit token
@@ -92,10 +95,20 @@ def non_english(text: str) -> bool:
     return _dominant(text) or any(_dominant(ch) for ch in _CHUNK.split(text))
 
 
+# Exams declared as a NON-English language variant by operator decision (market: Portugal, "PT/ES by decision").
+# Pinned literal, not read from a file a case author edits. An exam named here is not read by this detector (its
+# Portuguese `de` counts as Dutch: 23 of email-triage-pt's 28 inputs trip it, measured 11 Nov); its own test requires
+# EVERY input to read that language instead, so a Dutch mail slipped into it is still red there
+# (evals/test_email_triage_pt.py (a), and its (f) Dutch mutant).
+DECLARED_VARIANTS: dict[str, str] = {"email-triage-pt": "pt-PT"}
+
+
 def non_english_cases() -> set[tuple[str, str]]:
     """Every (exam, id) that reads non-English, through the runner's own enumeration."""
     found = set()
     for exam in runner._all_agents():
+        if exam in DECLARED_VARIANTS:
+            continue
         for c in runner.load_exam(exam)["cases"]:
             if non_english(case_text(c)):
                 found.add((exam, c["id"]))
@@ -159,6 +172,14 @@ def test_a_no_new_non_english_case():
           len(LEGACY) == 40, str(len(LEGACY)))
     check("the register is not empty and the suite still enumerates (detector not inert)",
           len(found) >= 1 and len(runner._all_agents()) >= 8, f"found={len(found)}")
+    check("DECLARED_VARIANTS is exactly {email-triage-pt: pt-PT} (an exemption is a visible edit to this line)",
+          DECLARED_VARIANTS == {"email-triage-pt": "pt-PT"}, str(DECLARED_VARIANTS))
+    check("every declared variant is a real exam with a variant_of agent.yaml and its own language test",
+          all((runner.ROOT / "agents" / e / "agent.yaml").exists()
+              and "variant_of:" in (runner.ROOT / "agents" / e / "agent.yaml").read_text()
+              and (ROOT / "evals" / f"test_{e.replace('-', '_')}.py").exists() for e in DECLARED_VARIANTS))
+    check("the exemption is not blanket: the declared variant WOULD trip this detector (so skipping it is a decision)",
+          any(non_english(case_text(c)) for e in DECLARED_VARIANTS for c in runner.load_exam(e)["cases"]))
 
 
 def test_b_recap_en_is_recap_translated():

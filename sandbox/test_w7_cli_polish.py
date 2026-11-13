@@ -546,7 +546,13 @@ try:
     check("[A] the adopt test left the scaffold as it was", ypath.read_text() == scaffold)
 
     # pick prints the adopt line (committed matrix files, offline)
-    matrix = sorted(str(p) for p in ROOT.glob("docs/probes/matrix-2026-09-27/results/crm-followup__*.json"))
+    # VERDICT STAMP (2026-11-11): the committed matrix files are pre-stamp, and pick refuses to rank pre-stamp files
+    # together; the adopt-line behaviour under test is unchanged, so rank temp COPIES stamped with one grader_hash.
+    matrix = []
+    for p in sorted(ROOT.glob("docs/probes/matrix-2026-09-27/results/crm-followup__*.json")):
+        d = json.loads(p.read_text()); d["grader_hash"] = "b" * 64
+        (TMP / "stamped-matrix").mkdir(exist_ok=True)
+        (TMP / "stamped-matrix" / p.name).write_text(json.dumps(d)); matrix.append(str(TMP / "stamped-matrix" / p.name))
     po = io.StringIO()
     with contextlib.redirect_stdout(po):
         prc = pick.main(["crm-followup", *matrix, "--out", str(TMP / "p.md")])

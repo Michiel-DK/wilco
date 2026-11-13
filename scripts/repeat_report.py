@@ -13,13 +13,16 @@ reported score; train is shown beside it, never summed into it.
 
 What it is NOT: pass^k across DAYS or runtime versions (a runtime bump is a silent re-roll, gotcha 15) and not
 hosted rows (one pass, no rule A). A snapshot without `loads` or without `stable` on a case is reported as
-"not rule-A", never counted as k/k.
+"not rule-A", never counted as k/k. A snapshot whose grader_files map derives to a grader_hash other than the current
+one (or that has none) gets a one-line stderr WARNING (VERDICT STAMP, 2026-11-11); the numbers still print.
 """
 from __future__ import annotations
 import json, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "sandbox"))
+import grader_files  # noqa: E402  (VERDICT STAMP 2026-11-11: hash derived from the snapshot's grader_files map)
 
 
 def row(snap: dict, exam: str) -> dict:
@@ -47,7 +50,11 @@ def row(snap: dict, exam: str) -> dict:
 def rows(evals_dir: Path) -> list[dict]:
     out = []
     for snapf in sorted(evals_dir.glob("*/snapshot.json")):   # one committed snapshot per exam dir
-        out.append(row(json.loads(snapf.read_text()), snapf.parent.name))
+        snap = json.loads(snapf.read_text())
+        w = grader_files.stale_warning(snapf, snap, snapf.parent.name)
+        if w:
+            print(f"repeat_report: {w}", file=sys.stderr)
+        out.append(row(snap, snapf.parent.name))
     return out
 
 

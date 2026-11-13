@@ -465,6 +465,11 @@ def _call_metrics(meta: dict, wall_ms: float, retries: int) -> dict:
     # STREAM TIMING (item 5): only when the adapter streamed (SANDBOX_STREAM_TIMING=1); absent otherwise.
     if isinstance(meta.get("stream_timing"), dict):
         metrics["stream_timing"] = dict(meta["stream_timing"])
+    # DECISION PROBABILITY (2026-11-11): only a decision-model adapter (systemone) supplies meta["decision"]
+    # ({question: answer minus type}). Absent key otherwise. run_exam's plain branch moves it out of metrics
+    # into detail["decision"]; combine_metrics enumerates explicit keys and ignores it.
+    if isinstance(meta.get("decision"), dict):
+        metrics["decision"] = dict(meta["decision"])
     return metrics
 
 
@@ -984,6 +989,28 @@ def _scoped_context(history: list, turn_text: str) -> tuple[list, int]:
     return kept, dropped
 
 
+def _scoring_trace(turn_traces: list, k: int, turn_texts: list) -> tuple[dict, str, str]:
+    """The trace `score_trajectory` reads for turn k of a `turns`-bearing case, plus its
+    `input_text` and `scope_text` - pure, and the ONE place this assembly lives (`_run_turns`
+    and scripts/trace_grade.py both call it). `turn_traces[i]` is turn i's own trace
+    (tools_called, tool_calls, tool_results, steps, ...); `turn_texts` holds the user text of
+    turns 0..k at least.
+
+    Grounding is the one place the scoring trace differs from the execution trace:
+    `tool_results` is the ACCUMULATED corpus of turns 0..k (a turn-3 answer may cite a fact
+    fetched in turn 1), while `tool_calls`/`tools_called`/`steps` stay strictly PER-TURN
+    (accumulating those would fire the redundancy monitor and `tools_not_called` across a
+    turn boundary that never happened, gotcha 4). `tool_results_this_turn` is turn k's own
+    list, index-aligned with `tool_calls`, for `_error_recovery_failures` clause 1 (P1 fix).
+    input_text = turns 0..k joined; scope_text = turn k alone."""
+    corpus: list = []
+    for t in turn_traces[:k + 1]:
+        corpus.extend(t["tool_results"])
+    trace_k = turn_traces[k]
+    scoring = {**trace_k, "tool_results": corpus, "tool_results_this_turn": trace_k["tool_results"]}
+    return scoring, "\n".join(turn_texts[:k + 1]), turn_texts[k]
+
+
 def _run_turns(agent, case, adapter, model, tools_mod,
               dedupe_tools: bool = False,
               assembly: str = "full",
@@ -1042,7 +1069,7 @@ def _run_turns(agent, case, adapter, model, tools_mod,
                  "content": _with_lessons(agent, _trajectory_system_prompt(agent, case),
                                           "\n".join(case["turns"]))}]
     turn_texts: list = []
-    scoring_tool_results: list = []
+    turn_traces: list = []
     all_step_metrics: list = []
     turn_entries: list = []
     all_failures: list = []
@@ -1073,21 +1100,15 @@ def _run_turns(agent, case, adapter, model, tools_mod,
         if context is not messages:
             messages.extend(context[splice_from:])
         last_parsed = parsed_k
-        scoring_tool_results.extend(trace_k["tool_results"])
-        # P1 fix (pass 3, criterion 2a): "tool_results" is overwritten with the
-        # ACCUMULATED cross-turn corpus (grounding/digit checks need every turn's
-        # results); "tool_results_this_turn" carries trace_k's own PER-TURN list,
-        # correctly index-paired against the per-turn "tool_calls" already in
-        # trace_k, for the index-paired consumers inside score_trajectory
-        # (currently only _error_recovery_failures clause 1). A no-turns caller
-        # never sets this key, so _error_recovery_failures' fallback to
-        # trace["tool_results"] reproduces exactly the pre-lane single-turn
-        # behavior (criterion 1).
-        scoring_trace = {**trace_k, "tool_results": list(scoring_tool_results),
-                         "tool_results_this_turn": trace_k["tool_results"]}
+        # P1 fix (pass 3, criterion 2a) — the scoring-trace assembly lives in
+        # _scoring_trace (also read by scripts/trace_grade.py, so the two paths
+        # cannot drift): "tool_results" becomes the ACCUMULATED cross-turn corpus,
+        # "tool_results_this_turn" keeps this turn's own index-paired results.
+        turn_traces.append(trace_k)
+        scoring_trace, input_k, scope_k = _scoring_trace(turn_traces, k, turn_texts)
         passed_k, failures_k, failed_checks_k = _score_one_turn(
-            parsed_k, scoring_trace, expected_k, "\n".join(turn_texts), turn_index=k,
-            known_entities=_known_entities(tools_mod), scope_text=turn_texts[k])
+            parsed_k, scoring_trace, expected_k, input_k, turn_index=k,
+            known_entities=_known_entities(tools_mod), scope_text=scope_k)
         all_step_metrics.extend(step_metrics_k)
         turn_metrics_k = combine_metrics(step_metrics_k) if step_metrics_k else None
         entry = {
@@ -2009,6 +2030,9 @@ def run_exam(agent: dict, exam: dict, provider: str, model: str,
     # `check`. Taken before the first model call so a run that dies mid-way still says
     # when it began.
     run_at = datetime.now().astimezone().isoformat(timespec="seconds")
+    # VERDICT STAMP (2026-11-11): the check version that makes these verdicts — sandbox/grader_files.py
+    # verdict_stamp. Observation only, like run_at: never read by scoring, snapshot_payload or `check`.
+    stamp = grader_files.verdict_stamp(agent["name"])
     adapter = adapter_for(agent, provider, timeout)
     window = install_window_guard(adapter, provider, model, allow_truncation)
     mode = exam.get("mode", "labels")
@@ -2067,6 +2091,9 @@ def run_exam(agent: dict, exam: dict, provider: str, model: str,
                 passed, detail = score_labels(parsed, case["expected"])
             if not passed:  # labels/fields emit no failure strings; record the gate
                 failed_checks.append({"bucket": "quality", "check": mode})
+            # The decision-model probability rides in detail, not in metrics (metrics is the cost record).
+            if "decision" in metrics:
+                detail["decision"] = metrics.pop("decision")
             detail["metrics"] = metrics
         if props:
             props_ok, prop_failures, prop_failed = run_properties(
@@ -2217,7 +2244,7 @@ def run_exam(agent: dict, exam: dict, provider: str, model: str,
         print(f"  window preflight refused {refused} case(s) on {model!r} "
               f"(num_ctx={window['num_ctx']}): {WINDOW_FIX}")
     result = {"agent": agent["name"], "provider": provider, "model": model, "mode": mode,
-              "run_at": run_at,
+              "run_at": run_at, **stamp,
               "train": {"passed": totals["train"][0], "total": totals["train"][1]},
               "heldout": {"passed": totals["heldout"][0], "total": totals["heldout"][1]},
               "cases": per_case}
@@ -4054,9 +4081,10 @@ def live_run_and_log(agent_name: str, text: str, provider: str | None = None,
 
     `extra` adds provenance fields (e.g. an email's from/subject/message_id) to the
     logged line. It is spliced in BEFORE **record so that with `extra` empty the line
-    is byte-identical to the pre-refactor schema {ts, model, provider, input, **record}
-    — serve.py._live_payload and cmd_promote both read this file, and additive keys are
-    safe for both while a reordering is not. Uses the agent's champion model and, for
+    carries the pre-refactor schema {ts, model, provider, input, **record} plus the three
+    additive verdict-stamp keys (grader_hash, prompt_hash, cases_hash; 2026-11-11) after
+    `input` — serve.py._live_payload and cmd_promote both read this file, and additive keys
+    are safe for both while a reordering is not. Uses the agent's champion model and, for
     tool agents, the REAL tools.py (exams use tools_mock.py).
 
     TERMINATION-DETECT D2, live half. This function reaches the same call path, and the
@@ -4168,8 +4196,11 @@ def live_run_and_log(agent_name: str, text: str, provider: str | None = None,
         record = {**record, "tier": k, "attempts": attempts}
     if breached:
         record = {**record, "tier_breach": True}
-    entry = {"ts": datetime.now().isoformat(timespec="seconds"),
+    # VERDICT STAMP (2026-11-11): ts WITH its UTC offset (older lines stay naive; worker.py reads ts[:10],
+    # trace_store.parse_ts accepts both) + the agent's check version, additive keys.
+    entry = {"ts": datetime.now().astimezone().isoformat(timespec="seconds"),
              "model": model, "provider": provider, "input": text,
+             **grader_files.verdict_stamp(agent_name),
              **(extra or {}), **record}
     if log:
         # Observability: every live run is appended as one JSONL line — the raw feed

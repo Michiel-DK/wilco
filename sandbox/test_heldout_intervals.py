@@ -73,7 +73,8 @@ def test_0_literals():
 def _fixture_result(provider, model, held_pass, held_n=16, train_pass=3, train_n=4):
     cases = ([{"id": f"t{i}", "split": "train", "passed": i < train_pass} for i in range(train_n)]
              + [{"id": f"h{i}", "split": "heldout", "passed": i < held_pass} for i in range(held_n)])
-    return {"agent": "fixture-task", "provider": provider, "model": model, "cases": cases,
+    # VERDICT STAMP (2026-11-11): one consistent grader_hash, so pick's mixed-grader refusal does not apply.
+    return {"agent": "fixture-task", "provider": provider, "model": model, "cases": cases, "grader_hash": "a" * 64,
             "train": {"passed": train_pass, "total": train_n, "score": train_pass / train_n},
             "heldout": {"passed": held_pass, "total": held_n, "score": held_pass / held_n},
             "metrics_totals": {"prompt_tokens": 100, "completion_tokens": 10, "complete": True}}

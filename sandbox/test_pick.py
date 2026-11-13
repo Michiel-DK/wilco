@@ -31,6 +31,10 @@ def check(label, ok, extra=""):
 
 
 TMP = pathlib.Path(tempfile.mkdtemp(prefix="test_pick_"))
+# VERDICT STAMP (2026-11-11): pick refuses to rank mixed grader hashes, so every fixture carries ONE stamp. The snapshot
+# fixtures carry a grader_files map that derives (grader_hash_of) to that same value.
+FIX_GF = {"evals/t/cases.json": "0" * 64, "sandbox/runner.py": "1" * 64}
+FIX_GH = pick.grader_files.grader_hash_of({"grader_files": FIX_GF})
 IDS = [("t1", "train"), ("t2", "train"), ("h1", "heldout"), ("h2", "heldout"), ("h3", "heldout"), ("h4", "heldout")]
 # price: 1 USD per 1M input, 4 USD per 1M output (asymmetric, and tokens split 3:1, so a swapped or input-only formula
 # gives a different figure); cost/10k = (pt * 1 + ct * 4) / 1e6 / 6 cases * 1e4
@@ -66,7 +70,7 @@ def fixture(name, provider, model, held_pass, usd=None, ids=IDS, totals=True, ag
         cases.append({"id": cid, "split": split, "passed": passed,
                       "detail": {"metrics": {"prompt_tokens": share[0], "completion_tokens": share[1], "total_tokens": sum(share)}}})
     nh = sum(1 for _, s in ids if s == "heldout")
-    d = {"agent": agent, "provider": provider, "model": model, "mode": "properties", "cases": cases}
+    d = {"agent": agent, "provider": provider, "model": model, "mode": "properties", "cases": cases, "grader_hash": FIX_GH}
     if heldout_block: d["heldout"] = {"passed": min(held_pass, nh), "total": nh, "score": 0.0}
     if totals: d["metrics_totals"] = {"prompt_tokens": pt, "completion_tokens": ct, "total_tokens": pt + ct}
     p = TMP / f"{name}.json"; p.write_text(json.dumps(d)); return str(p)
@@ -174,7 +178,7 @@ check("[G] a one-case gap to the pick is 'within noise' (a 4/4 vs the 3/4 pick)"
 rc, so, _, md = run(A, C, D)   # pick c 4/4; d 2/4 is two cases away
 check("[G] a two-case gap is not flagged as noise", "**Pick: openrouter/c**" in md and "openrouter/d 2/4 vs the pick" not in md, md)
 SNAP = TMP / "snapshot.json"
-SNAP.write_text(json.dumps({"provider": "ollama", "model": "local-x", "loads": "3", "date": "2026-10-08",
+SNAP.write_text(json.dumps({"provider": "ollama", "model": "local-x", "loads": "3", "date": "2026-10-08", "grader_files": FIX_GF,
                             "cases": [{"id": i, "split": s, "passed": True, "stable": True} for i, s in IDS]}))
 rc, so, _, md = run(A, B, str(SNAP))
 v = verdicts(md)

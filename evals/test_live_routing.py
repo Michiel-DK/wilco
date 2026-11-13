@@ -140,7 +140,9 @@ def test_2_explicit_model_is_single_tier_and_schema_unchanged():
                                   {"provider": "ollama", "model": "t1"}]}, ad):
         entry, record = live_run_and_log("reply-draft", EN_INPUT, model="pinned", log=False)
     assert ad.calls == ["pinned"], ad.calls
-    assert list(entry) == ["ts", "model", "provider", "input", "output", "metrics"], list(entry)
+    # VERDICT STAMP (2026-11-11): the three check-version keys are a deliberate additive schema change,
+    # sitting after `input`; routing still adds nothing on a healthy single-tier line.
+    assert list(entry) == ["ts", "model", "provider", "input", "grader_hash", "prompt_hash", "cases_hash", "output", "metrics"], list(entry)
     assert entry["model"] == "pinned"
     assert "attempts" not in record and "tier" not in record and "checks_failed" not in record
 
@@ -170,7 +172,7 @@ def test_2c_explicit_model_bad_answer_is_flagged_on_the_single_tier_path():
         entry, record = live_run_and_log("reply-draft", EN_INPUT, model="pinned", log=False)
     assert ad.calls == ["pinned"]
     assert record["checks_failed"] and "attempts" not in record and "tier" not in record
-    assert list(entry) == ["ts", "model", "provider", "input", "output", "metrics", "checks_failed"]
+    assert list(entry) == ["ts", "model", "provider", "input", "grader_hash", "prompt_hash", "cases_hash", "output", "metrics", "checks_failed"]
     ad2 = TierAdapter({"pinned": [json.dumps({"reply": ""})]})
     saved = runner.adapter_for
     runner.adapter_for = lambda *a, **k: ad2

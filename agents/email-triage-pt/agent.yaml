@@ -1,0 +1,8 @@
+name: email-triage-pt
+description: Triage incoming email into reply_now / reply_later / ignore — the email-triage exam, translated to European Portuguese (pt-PT); same ids, splits and keys. CONTAMINATION — the inputs were translated by Claude, so no Claude row is ever scored on this variant.
+provider: ollama
+model: gemma4:e2b-it-qat  # COPIED from agents/email-triage/agent.yaml, not chosen: a champion for the variant is the operator's decision after a snapshot
+tier: local
+temperature: 0.0
+max_tokens: 2048
+variant_of: email-triage   # a LANGUAGE variant of the email-triage exam (pt-PT inputs, same ids/splits/keys): exam-only, not a specialist the intake router or routes.yaml knows

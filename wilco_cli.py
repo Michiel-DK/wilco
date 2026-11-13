@@ -6,6 +6,7 @@ existing script exactly as `python3 <script> ...` would (same argv, same exit co
     wilco pick <task> [files...]         -> scripts/pick.py
     wilco adopt <task> <provider/model>  -> scripts/exam_adopt.py
     wilco grade <task> <answers-file>    -> scripts/exam_grade.py
+    wilco grade <task> --traces FILE     -> scripts/exam_grade.py, which hands it to scripts/trace_grade.py
     wilco list | run | diff | check | live ...   -> sandbox/runner.py <cmd> ...
 
 The scripts see WILCO_PROG=wilco in their environment for the run, so their usage and error lines say
@@ -40,6 +41,7 @@ USAGE = f"""usage: wilco <command> [args...]
   pick <task> [files...]  the cheapest that passes        (scripts/pick.py)
   adopt <task> <p/model>  make the pick the task's model  (scripts/exam_adopt.py)
   grade <task> <file>     score answers made elsewhere  (scripts/exam_grade.py)
+  grade <task> --traces F score a stored agent trace    (scripts/trace_grade.py, via exam_grade.py)
   check <task>            re-sit vs the snapshot, per case (sandbox/runner.py check)
   live <task> --input ..  answer one input via routes.yaml (sandbox/runner.py live)
 

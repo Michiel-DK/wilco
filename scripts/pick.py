@@ -17,7 +17,10 @@ A `metrics_totals` marked `complete: False` (runner.py: some cases were not mete
 cost floor, not a cost: excluded like an unknown cost. Refusals (exit 2): unreadable JSON, a case without a bool
 `passed`; a snapshot whose ids are not in `evals/<task>/cases.json`; the candidates do not cover the same case-id set with the same split per id (the 8 Oct comparable-set
 rule: never a silent intersection); two files for one `<provider>/<model>`; a file whose own `heldout` block disagrees with
-its cases; a file for another task. Exit 3: no candidate at or above the bar has a known cost (no pick). Exit 0: a pick.
+its cases; a file for another task; two or more candidates whose `grader_hash` values are not all equal (VERDICT STAMP,
+2026-11-11: a results file's own `grader_hash`, a snapshot's derived from its `grader_files` map; a file with neither is
+"pre-stamp" and equals NOTHING, not even another pre-stamp file) unless --allow-mixed-graders. Every candidate whose hash
+is not the task's current one gets a one-line stderr WARNING (a single candidate is never refused). Exit 3: no candidate at or above the bar has a known cost (no pick). Exit 0: a pick.
 Writes `results/<task>-pick.md` (or --out) with the same table and flags as the terminal."""
 import argparse, glob, json, os, sys
 
@@ -25,6 +28,7 @@ REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 
 sys.path.insert(0, os.path.join(REPO, "sandbox"))
 from router import PROVIDER_TIER, PROVIDERS, TIER_ORDER  # noqa: E402  (read-only: local providers; tiers for the adopt hint)
 import stats  # noqa: E402  (the single interval implementation: every held-out score carries its 95% Wilson CI)
+import grader_files  # noqa: E402  (the verdict stamp: grader_hash_of / stale_warning, 2026-11-11)
 
 # ---- the rule's constant, in one place --------------------------------------------------------------------------
 BAR_GAP = 1
@@ -85,7 +89,25 @@ def load_candidate(path, task):
     if isinstance(hb, dict) and (hb.get("passed"), hb.get("total")) != (passed, len(held)):
         raise Refusal(f"{path}: heldout block says {hb.get('passed')}/{hb.get('total')}, its cases say {passed}/{len(held)}")
     return dict(path=path, label=f"{d['provider']}/{d['model']}", provider=d["provider"], held=passed, n=len(held),
-                cases=len(cases), splits=splits, totals=d.get("metrics_totals"), snapshot="loads" in d)
+                cases=len(cases), splits=splits, totals=d.get("metrics_totals"), snapshot="loads" in d,
+                grader_hash=grader_files.grader_hash_of(d), stale=grader_files.stale_warning(path, d, task))
+
+
+def check_graders(cands, allow_mixed=False):
+    """VERDICT STAMP: never rank verdicts made by different check versions. Pre-stamp (None) equals nothing."""
+    for c in cands:
+        if c["stale"]: print(f"pick: {c['stale']}", file=sys.stderr)
+    if len(cands) < 2: return
+    hashes = [c["grader_hash"] for c in cands]
+    if None not in hashes and len(set(hashes)) == 1: return
+    groups = {}
+    for c in cands: groups.setdefault(grader_files.short(c["grader_hash"]), []).append(c["path"])
+    listing = "\n".join(f"  {h}: {', '.join(ps)}" for h, ps in sorted(groups.items()))
+    if allow_mixed:
+        print(f"pick: WARNING — ranking across mixed grader hashes (--allow-mixed-graders):\n{listing}", file=sys.stderr)
+        return
+    raise Refusal("candidates were graded by different check versions (grader_hash; pre-stamp equals nothing):\n"
+                  f"{listing}\n  re-run them on one grader, or pass --allow-mixed-graders to rank anyway")
 
 
 def check_comparable(cands):
@@ -145,10 +167,11 @@ def fmt_usd(x):
     return "—" if x is None else ("≈0" if x == 0 else (f"{x:,.2f}" if x < 10 else f"{x:,.0f}"))
 
 
-def build(task, paths, prices, bar_gap=BAR_GAP):
+def build(task, paths, prices, bar_gap=BAR_GAP, allow_mixed=False):
     cands = [load_candidate(p, task) for p in paths]
     if not cands: raise Refusal(f"no result files for `{task}`")
     check_comparable(cands)
+    check_graders(cands, allow_mixed)
     for c in cands: c["usd"], c["tag"] = cost_per_10k(c, prices)
     best, bar, pick = apply_rule(cands, bar_gap)
     cands.sort(key=lambda c: (-c["held"], float("inf") if c["usd"] is None else c["usd"], c["label"]))
@@ -244,10 +267,12 @@ def main(argv=None):
     ap.add_argument("--prices", default=os.path.join(REPO, "pricing", "prices.json"))
     ap.add_argument("--bar-gap", type=int, default=BAR_GAP)
     ap.add_argument("--out", default=None, help="markdown path (default results/<task>-pick.md)")
+    ap.add_argument("--allow-mixed-graders", action="store_true",
+                    help="rank candidates whose grader_hash differs (or is pre-stamp) anyway, with a warning")
     a = ap.parse_args(argv)
     paths = a.files or sorted(glob.glob(os.path.join(REPO, "results", f"{a.task}__*.json")))   # top level only
     try:
-        r = build(a.task, paths, json.load(open(a.prices)), a.bar_gap)
+        r = build(a.task, paths, json.load(open(a.prices)), a.bar_gap, a.allow_mixed_graders)
     except Refusal as e:
         print(f"pick: REFUSED — {e}", file=sys.stderr); return 2
     print(terminal(r))

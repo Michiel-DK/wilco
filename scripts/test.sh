@@ -52,7 +52,7 @@ n=$(wc -l < "$LIST" | tr -d ' ')
 # times (11 -> 14 -> 15 -> 16) precisely because it was written as an exact figure.
 # On its own this floor only catches a NET decrease — see the assertion floor below,
 # which is what actually catches a deleted test swapped for a placeholder.
-MIN_TEST_FILES="${MIN_TEST_FILES:-20}"
+MIN_TEST_FILES="${MIN_TEST_FILES:-76}"   # raised 2026-11-11 (as-eb-verdict-stamp): the find count on that day
 if [ "$n" -lt "$MIN_TEST_FILES" ]; then
   echo "test.sh: found $n test files, floor is $MIN_TEST_FILES — refusing to run."
   echo "         A shrinking suite is a green that was not earned. If files were"
@@ -68,7 +68,7 @@ fi
 # We count `check(` because that is what this repo actually uses. The harness ratchet
 # counts bare `assert` and therefore sees 7 lines here against 2,176 check() calls (2026-10-30) — under
 # 1% of the suite. This is the ratchet the harness cannot give us.
-MIN_CHECKS="${MIN_CHECKS:-2000}"
+MIN_CHECKS="${MIN_CHECKS:-2616}"   # raised 2026-11-11 (as-eb-verdict-stamp): the counted total on that day
 c=0
 while IFS= read -r t; do
   k=$(grep -cE '\bcheck\(|\b_check\(|\bok\(' "$t" || true)
