@@ -21,8 +21,7 @@ Eight tasks, four grading modes, one trajectory mode: `labels`, `fields` and `pr
 
 `wilco <command> --help` lists each command's options; `run`, `diff` and `check` keep their research flags behind `--help-advanced`.
 
-Results for the eight example tasks: [**roger3000.com/wilco**](https://roger3000.com/wilco). No developer, or no time to
-write the exam? Send us your task: [**roger3000.com/wilco/pricing**](https://roger3000.com/wilco/pricing).
+Results for the eight example tasks: [**the results page**](https://michiel-dk.github.io/wilco/results-2026-10.html).
 
 ## Five minutes, from clone to a scored table
 
@@ -175,7 +174,7 @@ row is claimed for it.
    (`docs/probes/i0-mlx-lora-2026-09-18/`). GPU cost figures are modelled, never measured, and say so
    (`docs/probes/l3-own-gpu-cost-2026-10-02/`).
 
-The chart for all eight tasks, score against cost per 10k, is on the [results site](https://roger3000.com/wilco). Three
+The chart for all eight tasks, score against cost per 10k, is on the [results page](https://michiel-dk.github.io/wilco/results-2026-10.html). Three
 times the instrument itself was wrong, and what fixed it: [`docs/post-mortems/`](docs/post-mortems/).
 
 ## Tests
