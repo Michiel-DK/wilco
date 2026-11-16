@@ -79,7 +79,7 @@ check("[P] the package is the shim only: py-modules = [\"wilco_cli\"], no packag
 check("[P] readme is README.md (the PyPI page) and it exists", proj.get("readme") == "README.md" and (ROOT / "README.md").is_file(),
       repr(proj.get("readme")))
 check("[P] project URLs: the results site and the wilco repo", proj.get("urls") == {
-      "Homepage": "https://roger3000.com/wilco", "Source": "https://github.com/Michiel-DK/wilco"}, repr(proj.get("urls")))
+      "Homepage": "https://michiel-dk.github.io/wilco/results-2026-10.html", "Source": "https://github.com/Michiel-DK/wilco"}, repr(proj.get("urls")))
 check("[P] licence is the SPDX string MIT (the table form is deprecated, removal 2027-02-18)", proj.get("license") == "MIT",
       repr(proj.get("license")))
 bs = toml.get("build-system", {})
