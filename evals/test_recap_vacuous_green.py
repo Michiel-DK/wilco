@@ -133,11 +133,50 @@ check("_expectations_by_input raises on a missing cases.json (no `return {}` fal
 # documentation, so a naive text search over the file matches its own explanation and this
 # assertion fails while the code is correct. (It did, on first run — a green-looking guard
 # would have been the worse outcome, but a red-looking correct one is still a wrong test.)
-_EXP_BODY = inspect.getsource(P._exp).replace(P._exp.__doc__ or "", "")
-check("_exp's body no longer uses a permissive .get(input_text, {})",
-      ".get(input_text, {})" not in _EXP_BODY)
-check("_exp's body raises on an unknown input",
-      "raise KeyError" in _EXP_BODY)
+#
+# The docstring is dropped via the AST, NOT by `source.replace(__doc__, "")`. That replace
+# worked through Python 3.12 and silently became a no-op on 3.13+, which dedents __doc__ at
+# compile time so it no longer occurs verbatim in the indented source: the docstring's own
+# quote of the old line then turned this check red on unchanged, correct code.
+def _body_without_docstring(fn):
+    import ast
+    import textwrap
+    node = ast.parse(textwrap.dedent(inspect.getsource(fn))).body[0]
+    stmts = node.body
+    if (stmts and isinstance(stmts[0], ast.Expr) and isinstance(stmts[0].value, ast.Constant)
+            and isinstance(stmts[0].value.value, str)):
+        stmts = stmts[1:]
+    return stmts
+
+
+def _permissive_gets(stmts):
+    """Every `<x>.get(<input_text>, <anything>)` call: a default makes a miss score vacuously."""
+    import ast
+    hits = []
+    for st in stmts:
+        for n in ast.walk(st):
+            if (isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+                    and n.func.attr == "get" and len(n.args) + len(n.keywords) >= 2
+                    and n.args and isinstance(n.args[0], ast.Name) and n.args[0].id == "input_text"):
+                hits.append(ast.unparse(n))
+    return hits
+
+
+def _raises_keyerror(stmts):
+    import ast
+    for st in stmts:
+        for n in ast.walk(st):
+            if isinstance(n, ast.Raise) and n.exc is not None:
+                exc = n.exc.func if isinstance(n.exc, ast.Call) else n.exc
+                if isinstance(exc, ast.Name) and exc.id == "KeyError":
+                    return True
+    return False
+
+
+_EXP_STMTS = _body_without_docstring(P._exp)
+_hits = _permissive_gets(_EXP_STMTS)
+check("_exp's body no longer uses a permissive .get(input_text, {})", not _hits, f"found {_hits}")
+check("_exp's body raises on an unknown input", _raises_keyerror(_EXP_STMTS))
 
 
 print()
